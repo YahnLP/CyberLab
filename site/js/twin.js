@@ -55,6 +55,9 @@ export function makeTwin(seed) {
   twin.smb = { host: 'files', shares: [{ name: 'public', comment: 'Documents publics', anon: true, files: [['plaquette.pdf', 482113], ['tarifs-2026.pdf', 120934]] }, { name: sens[0], comment: sens[1], anon: true, sensitive: true, files: [['lisez-moi.txt', 214], [sens[2], R2.int(90000, 900000)]] }, { name: 'compta', comment: 'Comptabilité', anon: false, files: [] }], sensitive: { share: sens[0], file: sens[2] } };
   const fw = R2.pick(['2.4.1', '3.1.0', '4.0.2', '5.2.7']); const model = R2.pick(['Kyocera ECOSYS M2540', 'Ricoh MP 2014', 'Brother MFC-L8690']); const who = R2.pick([['marie', 'durand'], ['paul', 'lenoir'], ['sophie', 'garcia']]);
   twin.snmp = { host: 'imprimante-rdc', candidates: ['public', 'private', 'community', 'admin', 'snmp', slug], community: R2.pick(['public', 'private', 'community']), sysDescr: `${model} firmware ${fw}`, firmware: fw, model, sysName: `IMPR-RDC-${R2.int(10, 99)}`, contact: `${who[0]}.${who[1]}@${domain}`, location: 'Rez-de-chaussée, accueil', serial: `${R2.pick(['VKH', 'W3Q', 'XR7'])}${R2.int(100000, 999999)}` };
+  const R3 = rng(seed * 991 + 29); const hiddenName = R3.pick(['Offre-partenaires-interne', 'Tarif-revendeur-confidentiel', 'Lot-destockage-reserve']); const names = R3.shuffle(['Chaise ergonomique', 'Bureau réglable', 'Lampe de table', 'Tapis de souris', 'Support écran', 'Casque audio', 'Clavier compact']).slice(0, 5);
+  twin.db = { products: [...names.map((n, i) => ({ id: i + 1, nom: n, prix: R3.int(9, 249), visible: 1 })), { id: 6, nom: hiddenName, prix: R3.int(5, 40), visible: 0 }] };
+  twin.web.search = { path: R3.pick(['/recherche', '/chercher', '/search']), param: R3.pick(['q', 'terme', 's', 'mot']) };
   twin.scope = { start: R2.pick([19, 20, 21]), end: 6, excluded: H.db.ip, thirdParty: dns.find(d => d.name === 'mail.' + domain).value };
   return twin;
 }

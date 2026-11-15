@@ -27,10 +27,10 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | 17 · Segmentation et pivot | Séquence 8 · Parcours avancés | 45 |
 
 ## Parcours pentest (simulateur web)
-Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`, `smbclient`, `snmpget`, `snmpwalk`) : SIM01 (cadrage et preuves), SIM02 (reconnaissance), SIM03 (scan), SIM04 (énumération SMB et SNMP), SIM05 (analyse de vulnérabilités), SIM06 (comptes et privilèges), SIM08 (capture de trafic), SIM10 (disponibilité), SIM11 (sessions et cookies), SIM12 (pare-feu et détection), soit 22 missions. Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
+Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`, `smbclient`, `snmpget`, `snmpwalk`) : SIM01 (cadrage et preuves), SIM02 (reconnaissance), SIM03 (scan), SIM04 (énumération SMB et SNMP), SIM05 (analyse de vulnérabilités), SIM06 (comptes et privilèges), SIM08 (capture de trafic), SIM10 (disponibilité), SIM11 (sessions et cookies), SIM12 (pare-feu et détection), SIM13 (serveur web), SIM14 (application web), SIM15 (couche SQL sur base fictive), soit 28 missions. Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
 
 ## Cours
-30 leçons originales réparties en cinq parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours avancés P12 à P14, Parcours sécurité offensive SO1 à SO5, Parcours pentest SIM01 à SIM06, SIM08 et SIM10 à SIM12) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
+33 leçons originales réparties en cinq parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours avancés P12 à P14, Parcours sécurité offensive SO1 à SO5, Parcours pentest SIM01 à SIM06, SIM08 et SIM10 à SIM15) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
 
 ## Pourquoi c'est réaliste
 - `auth.log` au format syslog Debian, avec du bruit crédible (cron, scanners, fautes de frappe d'un admin, sudo), généré par gawk.

@@ -24,9 +24,9 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM10 | Disponibilité, DoS | Livré : missions SIM10-1 (rafale dans le journal web) et SIM10-2 (ressource saturée) |
 | SIM11 | Sessions, cookies | Livré : missions SIM11-1 (attributs et valeur prévisible) et SIM11-2 (fixation de session) |
 | SIM12 | Périmètre, IDS, pare-feu | Livré : missions SIM12-1 (revue de règles) et SIM12-2 (tri des alertes IDS) |
-| SIM13 | Serveur web | Défi 05 |
-| SIM14 | Application web | Défi 13 (revue de code) |
-| SIM15 | SQL et couche données | Absent |
+| SIM13 | Serveur web | Livré : missions SIM13-1 (configuration nginx) et SIM13-2 (sondage dans le journal) |
+| SIM14 | Application web | Livré : missions SIM14-1 (XSS réfléchi via curl) et SIM14-2 (revue de code PHP) |
+| SIM15 | SQL et couche données | Livré : route /produit à requête vulnérable simulée (mini-évaluateur SQL, base fictive) ; missions SIM15-1 (erreur) et SIM15-2 (filtre neutralisé) ; panneau Base SQL graphique encore à faire |
 | SIM16 | Sans fil (simulé) | Absent |
 | SIM17 | Mobile (artefacts) | Absent |
 | SIM18 | IoT / OT | Absent |
