@@ -1,0 +1,18 @@
+name: tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y gawk openssh-server && sudo mkdir -p /run/sshd
+      - run: bash tests/check-cours.sh
+      - run: bash tests/run-solution.sh
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tests/docker-integration.sh

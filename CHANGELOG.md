@@ -1,4 +1,8 @@
 # Changelog
+## v0.8.0 — tests d'intégration
+- `tests/docker-integration.sh` : construit l'image, vérifie ttyd, rejoue chaque corrigé dans le conteneur.
+- Workflow GitHub Actions `tests` : contrôle des leçons, corrigés hors conteneur, intégration Docker.
+
 ## v0.7.0 — parcours avancés
 - Leçons P12 (annuaire), P13 (forensic), P14 (segmentation) et défis 15 à 17 : audit d'un export d'annuaire, chronologie et IOC, matrice de flux et pivot.
 - Analyse hors ligne et défense uniquement.
