@@ -1,6 +1,6 @@
 # CyberLab
 
-Laboratoire de cyber-défense en ligne de commande : un vrai terminal Linux par stagiaire (Docker + ttyd), des défis auto-corrigés sur des données réalistes générées au hasard à chaque session. Même moteur que BashLab (`defi liste`, `defi start`, `defi indice`, `defi valider`).
+Laboratoire de cyber-défense et de pentest en ligne de commande, en deux formes qui partagent les mêmes défis : un vrai terminal Linux par stagiaire (Docker + ttyd), ou un simulateur 100 % navigateur (GitHub Pages) avec un jumeau numérique d'organisation fictive (DNS, scan réseau, web) tiré au hasard à chaque session. Les défis sont auto-corrigés sur des données réalistes différentes pour chaque stagiaire, avec un mode Guidé, un mode Expert, un Casebook de preuves et un cursus Ethical Hacking. Le moteur de défis (`defi liste`, `defi start`, `defi indice`, `defi valider`) est issu de BashLab, mais CyberLab évolue désormais de façon autonome.
 
 Créé par Formaxion Landes — © Yahn LE PRETTRE 2026. 
 
