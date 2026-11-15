@@ -20,7 +20,7 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM06 | Accès contrôlé, privilèges | Livré : missions SIM06-1 (comptes) et SIM06-2 (sudo et SUID) |
 | SIM07 | Analyse de malwares (inerte) | Absent |
 | SIM08 | Capture et trafic | Livré : missions SIM08-1 (balayage, mot de passe en clair) et SIM08-2 (exfiltration DNS) |
-| SIM09 | Ingénierie sociale (sensibilisation) | Absent |
+| SIM09 | Ingénierie sociale (sensibilisation) | Livré, volet défensif : tri de messages fictifs et mesure de campagne (SIM09-1, SIM09-2) |
 | SIM10 | Disponibilité, DoS | Livré : missions SIM10-1 (rafale dans le journal web) et SIM10-2 (ressource saturée) |
 | SIM11 | Sessions, cookies | Livré : missions SIM11-1 (attributs et valeur prévisible) et SIM11-2 (fixation de session) |
 | SIM12 | Périmètre, IDS, pare-feu | Livré : missions SIM12-1 (revue de règles) et SIM12-2 (tri des alertes IDS) |
