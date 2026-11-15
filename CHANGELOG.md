@@ -1,8 +1,12 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçons SIM01 (cadrage, règles d'engagement, preuves), SIM04 (énumération SMB et SNMP) et SIM05 (analyse de vulnérabilités et priorisation).
+- 6 nouvelles missions : SIM01-1 (mandat et périmètre), SIM01-2 (preuve de scan scellée par SHA-256), SIM04-1 (partages SMB anonymes), SIM04-2 (SNMP et communauté devinée), SIM05-1 (avis de sécurité et versions), SIM05-2 (priorisation gravité × exposition).
+- Jumeau numérique : partages SMB (dont un partage sensible lisible sans compte), imprimante SNMP, périmètre d'un mandat ; outils simulés `smbclient`, `snmpget`, `snmpwalk` avec traces côté défense.
+- Tests : 12 missions résolues uniquement avec les sorties des outils simulés (680 contrôles), mission SIM01-2 jouée dans le terminal du navigateur, 25 leçons contrôlées.
 - Parcours pentest : leçons SIM02 (reconnaissance et empreinte) et SIM03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
-- `tests/check-cours.sh` contrôle désormais 22 leçons.
+- `tests/check-cours.sh` contrôle désormais 25 leçons.
 
 ## v0.13.0 — jumeau numérique et parcours pentest (SIM02, SIM03)
 - **Jumeau numérique** : une plage fictive générée par session (domaine en .example, réseau 192.168.x.0/24, plages 203.0.113.x), conservée avec la progression : 8 hôtes dont un équipement inconnu et un hôte disparu, DNS public et interne, serveur web avec en-têtes et fuite, un port non prévu, un service obsolète.

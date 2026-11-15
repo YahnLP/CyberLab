@@ -50,6 +50,12 @@ export function makeTwin(seed) {
   const leakFile = R.pick(['dump-clients.sql.gz', 'export-2025.csv', 'sauvegarde.tar.gz']);
   const twin = { seed, orgName, slug, domain, net, hosts, H, dns, hidden, spfKind, exHost, exPort, outdated, policy: policyRows, inventory: hosts.filter(h => !h.shadow && !h.self).map(h => ({ name: h.name, ip: h.ip, role: h.role, ports: h.ports.filter(p => p !== exPort).map(p => p.port) })),
     web: { host: H.www, server: serverHdr, poweredBy, present, missing, leakPath, leakFile, tech: web[0] }, events: [], subdomainWords: R.shuffle([...NAMES.slice(0, 9), hidden, 'ns1', 'staging', 'backup']).filter((x, i, a) => a.indexOf(x) === i) };
+  // partages SMB (serveur files) et SNMP (imprimante non inventoriée) : tirés dans un générateur séparé pour ne pas décaler les autres données
+  const R2 = rng(seed * 977 + 13); const sens = R2.pick([['rh', 'Dossiers RH', 'paie-2026.xlsx'], ['scans', 'Documents numérisés', 'contrats-clients.zip'], ['archives', 'Archives anciennes', 'export-comptabilite.csv']]);
+  twin.smb = { host: 'files', shares: [{ name: 'public', comment: 'Documents publics', anon: true, files: [['plaquette.pdf', 482113], ['tarifs-2026.pdf', 120934]] }, { name: sens[0], comment: sens[1], anon: true, sensitive: true, files: [['lisez-moi.txt', 214], [sens[2], R2.int(90000, 900000)]] }, { name: 'compta', comment: 'Comptabilité', anon: false, files: [] }], sensitive: { share: sens[0], file: sens[2] } };
+  const fw = R2.pick(['2.4.1', '3.1.0', '4.0.2', '5.2.7']); const model = R2.pick(['Kyocera ECOSYS M2540', 'Ricoh MP 2014', 'Brother MFC-L8690']); const who = R2.pick([['marie', 'durand'], ['paul', 'lenoir'], ['sophie', 'garcia']]);
+  twin.snmp = { host: 'imprimante-rdc', candidates: ['public', 'private', 'community', 'admin', 'snmp', slug], community: R2.pick(['public', 'private', 'community']), sysDescr: `${model} firmware ${fw}`, firmware: fw, model, sysName: `IMPR-RDC-${R2.int(10, 99)}`, contact: `${who[0]}.${who[1]}@${domain}`, location: 'Rez-de-chaussée, accueil', serial: `${R2.pick(['VKH', 'W3Q', 'XR7'])}${R2.int(100000, 999999)}` };
+  twin.scope = { start: R2.pick([19, 20, 21]), end: 6, excluded: H.db.ip, thirdParty: dns.find(d => d.name === 'mail.' + domain).value };
   return twin;
 }
 export function cmpVer(a, b) { const pa = String(a).match(/\d+/g)?.map(Number) || [0], pb = String(b).match(/\d+/g)?.map(Number) || [0]; for (let i = 0; i < Math.max(pa.length, pb.length); i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d < 0 ? -1 : 1; } return 0; }
