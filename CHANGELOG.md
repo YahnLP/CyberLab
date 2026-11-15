@@ -1,4 +1,9 @@
 # Changelog
+## v0.3.0 — défis P1 à P4
+- Défis 02 à 05 : fiche de reconnaissance, écarts d'inventaire, services exposés, audit HTTP (données aléatoires, formats réels : zone DNS, nmap -oG, ip neigh, curl -si).
+- engine/lib.sh : aides communes (réponses hachées, comparaison d'ensembles).
+- tests/run-solution.sh joue tous les corrigés.
+
 ## v0.2.0 — cours
 - 17 leçons : prise en main, parcours métier P1 à P11, cycle HAC 1 à 5 (contenu original).
 - `tests/check-cours.sh` : structure, exercices corrigés, liens, adresses fictives.

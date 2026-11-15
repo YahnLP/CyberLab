@@ -1,0 +1,19 @@
+AUDIT HTTP — les en-têtes de sécurité sont-ils en place ?
+
+Dans pages/ : six réponses HTTP capturées avec « curl -si » (accueil, login,
+panier, api, admin, aide). Les noms d'en-têtes peuvent varier en casse (HTTP/1
+et HTTP/2 n'écrivent pas pareil) : un en-tête est présent quelle que soit sa casse.
+
+À produire :
+ 1 audit.txt              une ligne « page;en-tête » pour chaque en-tête de
+                          sécurité ABSENT, parmi : Content-Security-Policy,
+                          X-Content-Type-Options, Strict-Transport-Security,
+                          X-Frame-Options.  Exemple : login;X-Frame-Options
+                          (si rien ne manque, écrivez : aucun)
+ 2 pages-en-erreur.txt    les pages dont le code de statut est 400 ou plus
+                          (une par ligne, ou : aucun)
+ 3 cookies-sans-httponly.txt   les NOMS de cookies sans l'attribut HttpOnly
+                          (un par ligne, ou : aucun)
+
+Un en-tête absent est un contrôle à examiner, pas une compromission.
+Validation : defi valider

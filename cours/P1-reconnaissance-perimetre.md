@@ -1,6 +1,6 @@
 # P1 · Reconnaissance et périmètre
 
-Durée : 1 h · Prérequis : leçon 00 · Défi associé : à créer
+Durée : 1 h · Prérequis : leçon 00 · Défi associé : 02 · Fiche de reconnaissance
 
 ## Objectifs
 - Distinguer reconnaissance passive et active.

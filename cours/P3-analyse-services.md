@@ -1,6 +1,6 @@
 # P3 · Analyse des services
 
-Durée : 1 h 15 · Prérequis : P2 · Défi associé : à créer
+Durée : 1 h 15 · Prérequis : P2 · Défi associé : 04 · Services exposés
 
 ## Objectifs
 - Interpréter les états de port.

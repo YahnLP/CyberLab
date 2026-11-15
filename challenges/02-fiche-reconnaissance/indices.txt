@@ -1,0 +1,6 @@
+grep -E ' IN +A ' zone.txt liste les noms avec leur adresse ; un CNAME n'a pas d'adresse propre.
+Un nom est hors périmètre si son adresse est dans la plage OUT du fichier scope.txt ou en dehors de 198.51.100.0/24.
+Pour un alias : trouvez son enregistrement CNAME, puis l'adresse de la cible.
+grep -c ' IN MX ' zone.txt compte les enregistrements MX.
+Une version lue dans une bannière n'est pas confirmée : c'est une hypothèse.
+Les en-têtes qui trahissent la technologie : Server (avec version) et X-Powered-By s'il existe.

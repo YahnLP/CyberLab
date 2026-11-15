@@ -17,10 +17,10 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 | Leçon | Titre | Durée | Défi associé |
 |---|---|---|---|
 | [00](00-prise-en-main.md) | Prise en main du terminal et de la méthode | 45 min | à créer |
-| [P1](P1-reconnaissance-perimetre.md) | Reconnaissance et périmètre | 1 h | à créer |
-| [P2](P2-inventaire-reseau.md) | Inventaire réseau | 1 h | à créer |
-| [P3](P3-analyse-services.md) | Analyse des services | 1 h 15 | à créer |
-| [P4](P4-http-parcours-applicatifs.md) | HTTP et parcours applicatifs | 1 h 15 | à créer |
+| [P1](P1-reconnaissance-perimetre.md) | Reconnaissance et périmètre | 1 h | 02 · Fiche de reconnaissance |
+| [P2](P2-inventaire-reseau.md) | Inventaire réseau | 1 h | 03 · Écarts d'inventaire |
+| [P3](P3-analyse-services.md) | Analyse des services | 1 h 15 | 04 · Services exposés |
+| [P4](P4-http-parcours-applicatifs.md) | HTTP et parcours applicatifs | 1 h 15 | 05 · Audit HTTP |
 | [P5](P5-analyse-vulnerabilites.md) | Analyse des vulnérabilités | 1 h 30 | à créer |
 | [P6](P6-applications-api.md) | Applications et API | 1 h 30 | à créer |
 | [P7](P7-identites-reseau.md) | Identités et réseau | 1 h 30 | 01 (volet mots de passe) |
@@ -34,4 +34,4 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 | [HAC4](HAC4-securite-web.md) | Sécurité des applications web | 2 h | à créer |
 | [HAC5](HAC5-analyse-applicative-restitution.md) | Analyse applicative, Metasploit, restitution | 2 h | à créer |
 
-Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis `defi` à créer pour les parcours restants suivront le modèle du défi 01.
+Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 05 (P1 à P4) suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Les défis des parcours restants restent à créer.

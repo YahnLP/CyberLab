@@ -1,0 +1,5 @@
+Chaque hôte tient sur une ligne : les ports sont séparés par « , » après « Ports: ».
+tr ',' '\n' sépare les ports ; grep '/open/' garde ceux qui sont ouverts.
+Format d'un port : numéro/état/protocole//service//version/
+Comparez avec la politique de l'hôte (même ip) ; attention aux espaces.
+awk -F'\t' sépare les champs de la ligne gnmap (Host, Ports, Ignored State).
