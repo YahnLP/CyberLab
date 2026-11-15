@@ -1,6 +1,6 @@
 # 00 · Prise en main du terminal et de la méthode
 
-Durée : 45 min · Prérequis : aucun · Défi associé : à créer
+Durée : 45 min · Prérequis : aucun · Défi associé : 00 · Prise en main : preuve et premières commandes
 
 ## Objectifs
 - Se repérer dans une arborescence et manipuler des fichiers.

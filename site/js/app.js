@@ -1,7 +1,7 @@
 import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js';
 const $ = s => document.querySelector(s); const KEY = 'cyberlab.v1';
 const store = { load() { try { return JSON.parse(localStorage.getItem(KEY)) || { prog: {}, cur: null, work: {} }; } catch { return { prog: {}, cur: null, work: {} }; } }, save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { } } };
-let S = store.load(); const cache = {}; let index = [], lessons = [];
+let S = store.load(); const cache = {}; let index = [], lessons = [], parcours = [];
 const get = async u => { if (cache[u]) return cache[u]; const r = await fetch(u); if (!r.ok) throw new Error(u); return cache[u] = u.endsWith('.json') ? await r.json() : await r.text(); };
 const B = '\x1b[1m', R = '\x1b[0m', DIM = '\x1b[2m', GRN = '\x1b[32m', RED = '\x1b[31m', YEL = '\x1b[33m', CYA = '\x1b[36m';
 const stars = n => '★'.repeat(Math.min(n, 3)) + '☆'.repeat(Math.max(0, 3 - n)) + (n > 3 ? '+' : '');
@@ -20,13 +20,17 @@ async function startDef(id, io, fresh = true) {
   if (io) { io.out.write(header(`Défi ${id} — ${def.title}   [${stars(def.difficulty)} · ${def.points} pts]`) + '\n' + indent(def.enonce) + `\n  ${B}Atelier :${R} ${CYA}${wd(def)}${R}\n  ${DIM}defi enonce · defi indice · defi valider${R}\n\n`); }
   return def;
 }
+const stepsAll = () => parcours.flatMap(g => g.steps.map(st => ({ ...st, group: g.name })));
+const pcOf = id => stepsAll().find(st => st.defi === id);
+const orderedIds = () => { const seen = new Set(); const o = []; for (const st of stepsAll()) if (st.defi && st.onWeb && !seen.has(st.defi)) { seen.add(st.defi); o.push(st.defi); } for (const d of index) if (!seen.has(d.id)) o.push(d.id); return o; };
+const byId = id => index.find(d => d.id === id);
 const normId = x => /^\d$/.test(x) ? '0' + x : x;
 async function defiCmd(args, io) {
   const out = io.out; const sub = args[0] || 'aide'; const rest = args.slice(1);
   if (['aide', 'help', '--help', '-h'].includes(sub)) { out.write(`\n  ${B}CyberLab — commandes${R}\n  ${B}defi liste${R}              Tous les défis\n  ${B}defi start <n>${R}          Commencer un défi\n  ${B}defi enonce${R}             Revoir l'énoncé\n  ${B}defi indice${R}             Obtenir un indice (-2 pts)\n  ${B}defi valider${R}            Vérifier la solution\n  ${B}defi suivant${R}            Prochain défi non réussi\n  ${B}defi score${R}              Progression et points\n  ${B}defi reset <n>${R}          Recommencer un défi\n\n`); return 0; }
-  if (['liste', 'list', 'ls'].includes(sub)) { let last = ''; out.write(`\n  ${B}DÉFIS DISPONIBLES${R}\n`); for (const d of index) { if (d.module !== last) { out.write(`\n  ${CYA}${B}── ${d.module} ──${R}\n`); last = d.module; } const st = S.prog[d.id]?.st; const mark = st === 'reussi' ? `${GRN}✔ réussi ${R}` : st === 'en_cours' ? `${YEL}▶ en cours${R}` : `${DIM}· à faire ${R}`; out.write(`   ${mark}  ${B}${d.id}${R}  ${d.title.padEnd(40)} ${stars(d.difficulty)}  ${DIM}${String(d.points).padStart(2)} pts${R}\n`); } out.write(`\n  ${DIM}Pour commencer : ${R}${B}defi start <numéro>${R}\n\n`); return 0; }
+  if (['liste', 'list', 'ls'].includes(sub)) { let last = ''; out.write(`\n  ${B}DÉFIS DISPONIBLES${R}\n`); for (const id of orderedIds()) { const d = byId(id); const g = pcOf(id)?.group || 'Autres'; if (g !== last) { out.write(`\n  ${CYA}${B}── ${g} ──${R}\n`); last = g; } const st = S.prog[d.id]?.st; const mark = st === 'reussi' ? `${GRN}✔ réussi ${R}` : st === 'en_cours' ? `${YEL}▶ en cours${R}` : `${DIM}· à faire ${R}`; out.write(`   ${mark}  ${B}${d.id}${R}  ${d.title.padEnd(48)} ${stars(d.difficulty)}  ${DIM}${String(d.points).padStart(2)} pts${R}\n`); } out.write(`\n  ${DIM}Pour commencer : ${R}${B}defi start <numéro>${R}\n\n`); return 0; }
   if (['start', 'go', 'reset'].includes(sub)) { const id = normId(rest[0] || ''); if (!index.find(d => d.id === id)) { out.write(`${RED}${B}Erreur :${R} défi '${rest[0] ?? ''}' inexistant.\n`); return 1; } await startDef(id, io); if (location.hash !== '#/defi/' + id) history.replaceState(null, '', '#/defi/' + id); renderDefHeader(); return 0; }
-  if (sub === 'suivant' || sub === 'next') { const n = index.find(d => S.prog[d.id]?.st !== 'reussi'); if (!n) { out.write(`\n  ${GRN}${B}Tous les défis sont réussis !${R}\n\n`); return 0; } return defiCmd(['start', n.id], io); }
+  if (sub === 'suivant' || sub === 'next') { const nid = orderedIds().find(i => S.prog[i]?.st !== 'reussi'); const n = nid && byId(nid); if (!n) { out.write(`\n  ${GRN}${B}Tous les défis sont réussis !${R}\n\n`); return 0; } return defiCmd(['start', n.id], io); }
   if (sub === 'score' || sub === 'points') { let tot = 0, max = 0, dn = 0; out.write(`\n  ${B}PROGRESSION${R}\n\n`); for (const d of index) { max += d.points; const p = S.prog[d.id]; if (p?.st === 'reussi') { tot += p.pts; dn++; out.write(`   ${GRN}✔${R} ${d.id} ${d.title.padEnd(40)} ${B}${String(p.pts).padStart(2)}${R}${DIM}/${d.points} pts${R}\n`); } } if (!dn) out.write(`   ${DIM}Aucun défi réussi. Lancez : defi start 02${R}\n`); const w = 30, f = Math.floor(dn * w / index.length); out.write(`\n   [${'█'.repeat(f)}${'░'.repeat(w - f)}]  ${dn}/${index.length} défis\n   ${B}Score : ${tot}/${max} points${R}\n\n`); return 0; }
   if (!curDef) { out.write(`${RED}${B}Erreur :${R} aucun défi en cours. Essayez : defi start 02\n`); return 1; }
   if (sub === 'enonce' || sub === 'énoncé') { out.write(header(`Défi ${curDef.id} — ${curDef.title}`) + '\n' + indent(curDef.enonce) + '\n'); return 0; }
@@ -41,13 +45,16 @@ async function defiCmd(args, io) {
 }
 
 function updateScore() { let t = 0, d = 0; for (const x of index) { const p = S.prog[x.id]; if (p?.st === 'reussi') { t += p.pts; d++; } } const e = $('#score'); if (e) e.textContent = `${d}/${index.length} défis · ${t} pts`; }
-function renderDefHeader() { if (!curDef) return; $('#enonce-body').textContent = curDef.enonce; $('#def-title').textContent = `Défi ${curDef.id} — ${curDef.title}`; $('#def-meta').textContent = `${curDef.module} · ${stars(curDef.difficulty)} · ${curDef.points} pts`; }
+function renderDefHeader() { if (!curDef) return; $('#enonce-body').textContent = curDef.enonce; $('#def-title').textContent = `Défi ${curDef.id} — ${curDef.title}`; const pc = pcOf(curDef.id); $('#def-meta').innerHTML = `${pc ? pc.group : ''} · ${stars(curDef.difficulty)} · ${curDef.points} pts` + (pc ? ` · <a href="#/cours/${pc.file}">Leçon ${pc.code}</a>` : ''); }
 
 const views = {
   async home() {
-    let last = ''; let h = `<section class="intro"><h1>CyberLab</h1><p>Simulateur de laboratoire de cybersécurité, <strong>100 % dans le navigateur</strong> : aucune installation, aucun serveur. Chaque défi vous donne des données fictives réalistes, un terminal et un correcteur automatique. Votre progression reste sur cet appareil.</p><p class="note">Terminal simulé : commandes usuelles (grep, awk, sed, sort, cut…) réimplémentées en JavaScript. Pour le laboratoire complet avec un vrai Linux, utilisez l'image Docker du dépôt.</p></section><h2>Défis</h2><div class="cards">`;
-    for (const d of index) { if (d.module !== last) { h += `</div><h3>${d.module}</h3><div class="cards">`; last = d.module; } const p = S.prog[d.id]; const st = p?.st === 'reussi' ? `<span class="tag ok">réussi ${p.pts}/${d.points}</span>` : p?.st === 'en_cours' ? '<span class="tag wip">en cours</span>' : '<span class="tag">à faire</span>'; h += `<a class="card" href="#/defi/${d.id}"><div class="num">${d.id}</div><div><strong>${d.title}</strong><br><small>${stars(d.difficulty)} · ${d.points} pts</small></div>${st}</a>`; }
-    h += `</div><h2>Leçons</h2><ul class="lessons">${lessons.map(l => `<li><a href="#/cours/${l.replace('.md', '')}">${l.replace('.md', '').replace(/-/g, ' ')}</a></li>`).join('')}</ul>`;
+    const tot = index.length, done = index.filter(d => S.prog[d.id]?.st === 'reussi').length; const cur = S.cur && byId(S.cur) && S.prog[S.cur]?.st !== 'reussi' ? S.cur : null;
+    const nextId = orderedIds().find(i => S.prog[i]?.st !== 'reussi');
+    let h = `<section class="hero"><h1>CyberLab</h1><p>Simulateur de laboratoire de cybersécurité, <strong>100 % dans le navigateur</strong> : aucune installation, aucun serveur. Chaque étape propose une <strong>leçon</strong> puis un <strong>défi</strong> : données fictives réalistes, terminal et correcteur automatique. Votre progression reste sur cet appareil.</p><p class="cta">`;
+    if (!done && !cur) h += `<a class="btn" href="#/cours/00-prise-en-main">Commencer par la prise en main</a>`; else { h += cur ? `<a class="btn" href="#/defi/${cur}">Reprendre le défi ${cur}</a>` : (nextId ? `<a class="btn" href="#/defi/${nextId}">Défi suivant : ${nextId}</a>` : ''); h += `<span class="muted"> ${done}/${tot} défis réussis</span>`; }
+    h += `</p><p class="note">Terminal simulé : commandes usuelles (grep, awk, sed, sort, cut…) réimplémentées en JavaScript. Pour le laboratoire complet avec un vrai Linux, utilisez l'image Docker du dépôt.</p></section>`;
+    parcours.forEach((g, gi) => { h += `<h2>${gi + 1}. ${g.name}</h2><ol class="steps">`; for (const st of g.steps) { const d = st.defi && st.onWeb ? byId(st.defi) : null; const p = d && S.prog[d.id]; const tag = p?.st === 'reussi' ? `<span class="tag ok">réussi ${p.pts}/${d.points}</span>` : p?.st === 'en_cours' ? '<span class="tag wip">en cours</span>' : ''; h += `<li class="step"><span class="code">${st.code}</span><div class="sb"><strong>${st.title}</strong><small>${st.duree}</small></div><div class="acts"><a class="btn ghost small" href="#/cours/${st.file}">Leçon</a>` + (d ? `<a class="btn small" href="#/defi/${d.id}">Défi ${d.id}</a>${tag}` : st.defi ? `<span class="muted small" title="Ce défi utilise des outils réels (sshd, ssh-keygen) : image Docker">Défi ${st.defi} : Docker</span>` : '') + `</div></li>`; } h += '</ol>'; });
     $('#main').innerHTML = h;
   },
   async defi(id) {
@@ -63,11 +70,11 @@ const views = {
     if (!S.work[id]?.seen) { const io = { out: { write: w } }; w(header(`Défi ${id} — ${def.title}   [${stars(def.difficulty)} · ${def.points} pts]`) + '\n' + indent(def.enonce) + `\n  ${B}Atelier :${R} ${CYA}${wd(def)}${R}\n  ${DIM}Commencez par : ls puis cat <fichier> · defi indice · defi valider${R}\n\n`); S.work[id].seen = true; store.save(S); } else w(`\n  ${DIM}Atelier restauré : ${wd(def)}${R}\n\n`);
     term.inp.focus();
   },
-  async cours(name) { const t = await get(`cours/${name}.md`); $('#main').innerHTML = `<article class="lesson">${md(t)}<p><a href="#/">&larr; Retour</a></p></article>`; },
+  async cours(name) { const t = await get(`cours/${name}.md`); const all = stepsAll(); const i = all.findIndex(x => x.file === name); const st = all[i]; const nx = all[i + 1]; const d = st && st.defi && st.onWeb ? byId(st.defi) : null; $('#main').innerHTML = `<article class="lesson">${md(t)}<p class="nav2">${d ? `<a class="btn" href="#/defi/${d.id}">Passer au défi ${d.id}</a> ` : ''}${nx ? `<a class="btn ghost" href="#/cours/${nx.file}">Leçon suivante : ${nx.code}</a> ` : ''}<a href="#/">&larr; Retour au parcours</a></p></article>`; },
 };
 async function route() {
   const [, k, a] = location.hash.split('/'); document.querySelectorAll('nav a').forEach(x => x.classList.toggle('on', x.getAttribute('href') === '#/' + (k || ''))); term = null;
   try { if (k === 'defi') await views.defi(a); else if (k === 'cours' && a) await views.cours(a); else await views.home(); } catch (e) { $('#main').innerHTML = `<p class="err">Erreur de chargement : ${e.message}</p>`; }
   window.scrollTo(0, 0);
 }
-(async function init() { try { index = await get('data/index.json'); lessons = await get('data/cours.json'); } catch (e) { $('#main').innerHTML = '<p class="err">Données introuvables : lancez <code>node tools/build-site-data.mjs</code> (voir README).</p>'; return; } updateScore(); window.addEventListener('hashchange', route); route(); })();
+(async function init() { try { index = await get('data/index.json'); lessons = await get('data/cours.json'); parcours = await get('data/parcours.json'); } catch (e) { $('#main').innerHTML = '<p class="err">Données introuvables : lancez <code>node tools/build-site-data.mjs</code> (voir README).</p>'; return; } updateScore(); window.addEventListener('hashchange', route); route(); })();

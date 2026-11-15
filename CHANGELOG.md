@@ -1,4 +1,8 @@
 # Changelog
+## v0.9.1 — accueil en parcours guidé
+- Accueil du simulateur web réorganisé : Fondations, Parcours métier, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
+- Nouveau défi 00 « Prise en main : preuve et premières commandes » (copie de preuve, empreinte, premières mesures).
+
 ## v0.9.0 — simulateur web (GitHub Pages)
 - Site statique `site/` : terminal simulé (shell, awk, sed, sort, grep...), défis 02 à 17, correcteur, indices, score local, leçons.
 - `tools/build-site-data.mjs` : génère 30 variantes par défi à partir des vrais `setup.sh`.

@@ -1,0 +1,15 @@
+PRISE EN MAIN — premières commandes et réflexe de la preuve
+
+Votre atelier contient journal.log : un extrait de journal fictif, une ligne par événement
+(date, heure, hôte, niveau INFO / AVERT / ERREUR, message).
+
+À faire :
+ 1 Créer le dossier preuves/ et y COPIER journal.log (cp -p), sans jamais modifier l'original.
+ 2 Dans preuves/, créer SHA256SUMS contenant l'empreinte de la copie (sha256sum), de façon
+   que « sha256sum -c SHA256SUMS » réussisse.
+ 3 Compléter reponses.txt :
+     nb_lignes           nombre de lignes du journal
+     nb_erreurs          nombre de lignes de niveau ERREUR
+     hote_le_plus_actif  l'hôte qui apparaît le plus souvent
+
+Rappel : on n'écrit jamais dans l'original. Validation : defi valider

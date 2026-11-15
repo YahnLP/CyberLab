@@ -17,7 +17,7 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 
 | Leçon | Titre | Durée | Défi associé |
 |---|---|---|---|
-| [00](00-prise-en-main.md) | Prise en main du terminal et de la méthode | 45 min | à créer |
+| [00](00-prise-en-main.md) | Prise en main du terminal et de la méthode | 45 min | 00 · Prise en main : preuve et premières commandes |
 | [P1](P1-reconnaissance-perimetre.md) | Reconnaissance et périmètre | 1 h | 02 · Fiche de reconnaissance |
 | [P2](P2-inventaire-reseau.md) | Inventaire réseau | 1 h | 03 · Écarts d'inventaire |
 | [P3](P3-analyse-services.md) | Analyse des services | 1 h 15 | 04 · Services exposés |
@@ -38,4 +38,4 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 | [HAC4](HAC4-securite-web.md) | Sécurité des applications web | 2 h | 13 · Revue de code d'une application web |
 | [HAC5](HAC5-analyse-applicative-restitution.md) | Analyse applicative, Metasploit, restitution | 2 h | 14 · Protections mémoire et base Metasploit |
 
-Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 17 suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Chaque leçon a désormais son défi.
+Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 00 et 02 à 17 suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Chaque leçon a désormais son défi.
