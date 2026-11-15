@@ -1,6 +1,6 @@
 # Cadrage des modules SIM07, SIM09, SIM16 et SIM18
 
-Statut : **proposition à valider par le formateur** avant toute écriture. Aucun de ces modules n'est réalisé.
+Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Aucun n'est encore réalisé ; ordre prévu : SIM09, SIM07, SIM16, SIM18.
 
 ## Principe commun
 
@@ -57,7 +57,7 @@ Statut : **proposition à valider par le formateur** avant toute écriture. Aucu
 | Charge estimée | 2 missions, 1 leçon, ~0,5 jour |
 | Risque | Moyen : lecture seule. **Exclus** : écriture sur des automates, commandes de pilotage, exploitation de protocoles industriels |
 
-## Décisions attendues
+## Décisions (validées)
 
 1. Valider, ajuster ou écarter chacun des quatre modules.
 2. Confirmer la règle « effets observables et contre-mesures, jamais d'outil offensif ».
