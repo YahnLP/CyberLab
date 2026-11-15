@@ -97,6 +97,36 @@ export function makeTools(tw) {
     let cur = path, res = httpGet(cur, head ? 'HEAD' : 'GET'), hops = 0; while (follow && /^30[12]/.test(res.status) && hops++ < 5) { const loc = res.headers.find(x => x.startsWith('Location: ')).slice(10); cur = loc; res = httpGet(cur, head ? 'HEAD' : 'GET'); }
     let o = ''; if (head || incl) o += res.headers.join('\r\n') + '\r\n\r\n'; if (!head) o += res.body; if (w) o += w.replace('%{http_code}', res.status.split(' ')[0]).replace(/\\n/g, '\n'); io.out.write(o); return 0;
   }
-  return { dig, host, nslookup, ping, nmap, curl, _http: (url) => { const r = httpGet(url); return r; } };
+  // --- SMB / SNMP ------------------------------------------------------
+  const target = t => { const ip = isIp(t) ? t : resolve(tw, t); return ip ? hostByIp(tw, ip) : null; };
+  const fileDate = 'Sun Nov 15 09:12:44 2026';
+  async function smbclient(args, io) {
+    let list = false, anon = false, user = null, cmd = null, tgt = null; for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '-L') { list = true; const n = args[i + 1]; if (n && !n.startsWith('-')) { tgt = n; i++; } } else if (a === '-N' || a === '--no-pass') anon = true; else if (a === '-U') user = args[++i]; else if (a === '-c') cmd = args[++i]; else if (!a.startsWith('-') && !tgt) tgt = a; }
+    if (!tgt) { err(io).write('Usage: smbclient [-L host] [-N] [-U user] [-c cmd] //host/share\n'); return 1; }
+    const m = /^(?:\\\\|\/\/)([^\\/]+)(?:[\\/](.+))?$/.exec(tgt); const hostArg = m ? m[1] : tgt; const share = m && m[2] ? m[2] : null; const h = target(hostArg);
+    if (!h || !h.up) { err(io).write(`do_connect: Connection to ${hostArg} failed (Error NT_STATUS_HOST_UNREACHABLE)\n`); return 1; }
+    if (h.name !== tw.smb.host) { err(io).write(`do_connect: Connection to ${hostArg} failed (Error NT_STATUS_CONNECTION_REFUSED)\n`); return 1; }
+    if (user && !user.includes('%') ? false : !!user) { log(tw, 'smb', `Tentative d'ouverture de session SMB avec le compte ${user.split('%')[0]} sur ${h.name}`, { src: ME, sev: 'alerte' }); err(io).write('session setup failed: NT_STATUS_LOGON_FAILURE\n'); return 1; }
+    if (list || !share) { log(tw, 'smb', `Liste des partages demandée sur ${h.name} sans authentification`, { src: ME, sev: 'alerte' }); let o = '\n\tSharename       Type      Comment\n\t---------       ----      -------\n'; for (const sh of tw.smb.shares) o += `\t${pad(sh.name, 16)}Disk      ${sh.comment}\n`; o += `\tIPC$            IPC       IPC Service (${h.name} server)\nSMB1 disabled -- no workgroup available\n`; io.out.write(o); return 0; }
+    const sh = tw.smb.shares.find(x => x.name.toLowerCase() === share.toLowerCase()); if (!sh) { err(io).write(`tree connect failed: NT_STATUS_BAD_NETWORK_NAME\n`); return 1; }
+    if (!anon || !sh.anon) { log(tw, 'smb', `Accès refusé au partage ${sh.name} (${anon ? 'anonyme' : 'sans mot de passe'})`, { src: ME, sev: 'info' }); err(io).write('tree connect failed: NT_STATUS_ACCESS_DENIED\n'); return 1; }
+    log(tw, 'smb', `Accès anonyme réussi au partage ${sh.name} sur ${h.name}`, { src: ME, sev: 'alerte' });
+    if (!cmd) { err(io).write('smbclient : mode interactif non disponible dans le simulateur, utilisez -c "ls"\n'); return 1; }
+    for (const c of cmd.split(';').map(x => x.trim()).filter(Boolean)) { if (c === 'ls' || c.startsWith('ls ')) { let o = `  .                                   D        0  ${fileDate}\n  ..                                  D        0  ${fileDate}\n`; for (const [n, sz] of sh.files) o += `  ${pad(n, 36)}N${String(sz).padStart(9)}  ${fileDate}\n`; o += `\n\t\t10253032 blocks of size 1024. 6840112 blocks available\n`; io.out.write(o); } else err(io).write(`${c.split(' ')[0]}: commande non disponible dans le simulateur (utilisez ls)\n`); }
+    return 0;
+  }
+  const MIB = [['1.3.6.1.2.1.1.1.0', 'SNMPv2-MIB::sysDescr.0', 'STRING', () => `"${tw.snmp.sysDescr}"`], ['1.3.6.1.2.1.1.3.0', 'DISMAN-EVENT-MIB::sysUpTimeInstance', 'Timeticks', () => '(8412330) 9 days, 17:22:03.30'], ['1.3.6.1.2.1.1.4.0', 'SNMPv2-MIB::sysContact.0', 'STRING', () => `"${tw.snmp.contact}"`], ['1.3.6.1.2.1.1.5.0', 'SNMPv2-MIB::sysName.0', 'STRING', () => `"${tw.snmp.sysName}"`], ['1.3.6.1.2.1.1.6.0', 'SNMPv2-MIB::sysLocation.0', 'STRING', () => `"${tw.snmp.location}"`], ['1.3.6.1.2.1.2.1.0', 'IF-MIB::ifNumber.0', 'INTEGER', () => '1'], ['1.3.6.1.2.1.43.5.1.1.17.1', 'Printer-MIB::prtGeneralSerialNumber.1', 'STRING', () => `"${tw.snmp.serial}"`]];
+  const snmpParse = (args, io, tool) => {
+    let ver = null, comm = null; const pos = []; for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '-v') ver = args[++i]; else if (a.startsWith('-v')) ver = a.slice(2); else if (a === '-c') comm = args[++i]; else if (a.startsWith('-')) continue; else pos.push(a); }
+    if (!ver || !comm || !pos.length) { err(io).write(`Usage: ${tool} -v 1|2c -c COMMUNITY HOST [OID]\n`); return null; }
+    const h = target(pos[0]); if (!h || !h.up || h.name !== tw.snmp.host) { log(tw, 'snmp', `Requête SNMP sans réponse vers ${pos[0]}`, { src: ME, sev: 'info' }); err(io).write(`Timeout: No Response from ${pos[0]}.\n`); return null; }
+    if (ver !== '1' && ver !== '2c') { err(io).write(`snmp : version ${ver} non disponible dans le simulateur (utilisez 1 ou 2c)\n`); return null; }
+    if (comm !== tw.snmp.community) { log(tw, 'snmp', `Requête SNMP avec une communauté inconnue ("${comm}") vers ${h.name}`, { src: ME, sev: 'info' }); err(io).write(`Timeout: No Response from ${pos[0]}.\n`); return null; }
+    log(tw, 'snmp', `Lecture SNMP réussie sur ${h.name} avec la communauté "${comm}"`, { src: ME, sev: 'alerte' }); return { h, oid: pos[1] || null };
+  };
+  const oidOf = o => { if (!o) return null; o = o.replace(/^\./, '').replace(/^iso\./, '1.'); const f = MIB.find(r => r[0] === o || r[1].toLowerCase().endsWith('::' + o.toLowerCase()) || r[1].toLowerCase() === o.toLowerCase()); return f ? f[0] : o; };
+  async function snmpwalk(args, io) { const p = snmpParse(args, io, 'snmpwalk'); if (!p) return 1; const base = oidOf(p.oid) || '1.3.6.1.2.1'; const rows = MIB.filter(r => r[0] === base || r[0].startsWith(base + '.')); if (!rows.length) { io.out.write(`${p.oid}: No more variables left in this MIB View (It is past the end of the MIB tree)\n`); return 0; } io.out.write(rows.map(r => `${r[1]} = ${r[2]}: ${r[3]()}`).join('\n') + '\n'); return 0; }
+  async function snmpget(args, io) { const p = snmpParse(args, io, 'snmpget'); if (!p) return 1; const oid = oidOf(p.oid); const r = oid && MIB.find(x => x[0] === oid); if (!r) { io.out.write(`${p.oid || ''}: No Such Object available on this agent at this OID\n`); return 0; } io.out.write(`${r[1]} = ${r[2]}: ${r[3]()}\n`); return 0; }
+  return { dig, host, nslookup, ping, nmap, curl, smbclient, snmpget, snmpwalk, _http: (url) => { const r = httpGet(url); return r; } };
 }
-export const TOOL_NAMES = ['dig', 'host', 'nslookup', 'ping', 'nmap', 'curl'];
+export const TOOL_NAMES = ['dig', 'host', 'nslookup', 'ping', 'nmap', 'curl', 'smbclient', 'snmpget', 'snmpwalk'];

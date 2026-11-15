@@ -24,5 +24,15 @@ const rep = Object.entries({ ...facts, defense: letter }).map(([k, v]) => `${k}=
 await run(`printf '${rep}\\n' > reponses.txt`); await run('defi valider', 800);
 const t2 = await pg.textContent('#term'); ok(/DÉFI RÉUSSI/.test(t2), 'mission validée sur les faits du jumeau');
 await pg.reload(); await pg.waitForSelector('#term input'); const seed2 = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['SIM03-1'].seed); ok(seed2 === seed, 'la plage est la même après rechargement');
+
+// SIM01-2 de bout en bout dans le terminal : scan redirigé, empreinte, validation, puis preuve modifiée refusée
+await pg.goto(BASE + '#/defi/SIM01-2'); await pg.waitForSelector('#term input');
+const seedP = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['SIM01-2'].seed); const bp = build(TW['SIM01-2'], seedP);
+await run(`nmap -sV ${bp.tw.H.www.ip} > preuve-scan.txt`, 700); await run('sha256sum preuve-scan.txt', 500);
+const hash = /([0-9a-f]{64})\s+preuve-scan\.txt/.exec(await pg.textContent('#term'))[1]; ok(!!hash, 'sha256sum affiche une empreinte de 64 caractères');
+await run('grep -c open preuve-scan.txt', 400); await pg.waitForFunction(() => document.querySelector('#enonce-body')?.textContent.includes('Scellez la preuve')); const enP = await pg.textContent('#enonce-body'); const lp = enP.split('\n').find(l => /^\s+[abc]\) Calculer/.test(l)).trim()[0];
+const nb = bp.tw.H.www.ports.length;
+await run(`printf 'nb_ports_ouverts=${nb}\\nempreinte=${hash}\\ndefense=${lp}\\n' > reponses.txt`); await run('defi valider', 800); ok(/DÉFI RÉUSSI/.test(await pg.textContent('#term')), 'SIM01-2 validée avec une preuve scellée');
+await run('echo "retouche" >> preuve-scan.txt'); await run('defi valider', 800); ok(!/ \.\.\.DÉFI RÉUSSI[\s\S]*$/.test('') && (await pg.textContent('#term')).lastIndexOf('empreinte : valeur incorrecte') > (await pg.textContent('#term')).lastIndexOf('DÉFI RÉUSSI'), 'preuve modifiée après scellage : empreinte refusée');
 ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
 await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI jumeau numérique : OK'); process.exit(bad ? 1 : 0);

@@ -12,11 +12,11 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 
 | Module de la référence | Thème | Dans CyberLab aujourd'hui |
 |---|---|---|
-| SIM01 | Fondations, périmètre, preuves | Défis 00, 10 (mandat) ; leçons de base |
+| SIM01 | Fondations, périmètre, preuves | Livré : leçon SIM01, missions SIM01-1 (mandat et périmètre) et SIM01-2 (preuve scellée SHA-256) |
 | SIM02 | Reconnaissance | Défi 02 (fiche de reconnaissance), pas d'outils dig/whatweb |
 | SIM03 | Scan réseau | Défis 03, 04, 12 (sorties fournies), pas de nmap simulé |
-| SIM04 | Énumération | Défi 12 ; pas de SMB/SNMP |
-| SIM05 | Analyse de vulnérabilités | Défis 06, 09 |
+| SIM04 | Énumération | Livré : smbclient, snmpget, snmpwalk simulés ; missions SIM04-1 (SMB) et SIM04-2 (SNMP) |
+| SIM05 | Analyse de vulnérabilités | Livré : missions SIM05-1 (avis et versions) et SIM05-2 (priorisation par exposition) |
 | SIM06 | Accès contrôlé, privilèges | Défi 14 (protections), partiel |
 | SIM07 | Analyse de malwares (inerte) | Absent |
 | SIM08 | Capture et trafic | Défi 11 (lecture d'une capture) |
