@@ -732,6 +732,125 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['Les dates au format AAAA-MM-JJ se comparent comme du texte : awk -F";" \'$2<"2026-11-15"\'.', 'Pour la fenêtre de 30 jours, gardez les dates comprises entre 2026-11-15 et 2026-12-15.', 'awk -F";" \'$3=="sha1" {print $1}\' liste les signatures obsolètes.', 'Ignorez la ligne d\'en-tête et la ligne de commentaire (#).'],
     check: checker('SIM20-2', tw => { const c = certInventory(tw); return [ask('certificats_expires', 'set', c.expired.join(',')), ask('expirent_sous_30_jours', 'set', c.soon.join(',')), ask('signatures_sha1', 'set', c.weak.join(','))]; }, d2), finish: 'Inventaire trié : certificats expirés, proches de l\'échéance et à signature obsolète.' });
 }
+// ---------------------------------------------------------------- SIM23 : SOC, forensic et purple team (analyse défensive)
+const authLog = tw => { const R = rng(tw.seed * 149 + 1); const ext = `198.51.100.${R.int(10, 240)}`; const acct = R.pick(['deploy', 'support', 'compta']); const nFail = R.int(12, 25); const rows = []; let t = 2 * 3600 + 40 * 60; const ts = () => { t += R.int(1, 6); return `Nov 15 ${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t % 3600 / 60))}:${pad2(t % 60)}`; }; let ok = '';
+  for (let i = 0; i < 6; i++) rows.push({ t: R.int(0, 7200), l: `Accepted publickey for dsi from ${tw.net}.${R.int(100, 120)} port ${R.int(40000, 60000)} ssh2` });
+  const base = []; for (let i = 0; i < nFail; i++) base.push(`Failed password for ${R.pick(['invalid user admin', 'invalid user test', 'root', acct, 'invalid user oracle'])} from ${ext} port ${R.int(30000, 60000)} ssh2`); base.push(`Accepted password for ${acct} from ${ext} port ${R.int(30000, 60000)} ssh2`, `pam_unix(sshd:session): session opened for user ${acct}`);
+  const lines = base.map(l => { const x = ts(); if (l.startsWith('Accepted password')) ok = x.slice(7); return `${x} www sshd[${R.int(1000, 9999)}]: ${l}`; }); const others = rows.map(r => `Nov 15 ${pad2(Math.floor(r.t / 3600))}:${pad2(Math.floor(r.t % 3600 / 60))}:${pad2(r.t % 60)} www sshd[${R.int(1000, 9999)}]: ${r.l}`);
+  const all = [...lines, ...others].sort(); return { text: all.join('\n') + '\n', ext, acct, nFail: lines.filter(l => l.includes('Failed password')).length, ok }; };
+const purple = tw => { const R = rng(tw.seed * 149 + 2); const steps = ['Reconnaissance', 'Accès initial', 'Exécution', 'Persistance', 'Élévation de privilèges', 'Mouvement latéral', 'Collecte', 'Exfiltration']; const miss = R.shuffle(steps.map((_, i) => i)).slice(0, R.int(2, 4)).sort((a, b) => a - b); const rows = steps.map((n, i) => `${i + 1};${n};${miss.includes(i) ? 'non' : 'oui'};${miss.includes(i) ? '-' : `REGLE-${R.int(100, 999)}`}`);
+  return { text: 'ordre;etape;detectee;regle\n' + rows.join('\n') + '\n', missing: miss.map(i => steps[i]), first: steps[miss[0]], n: miss.length, rate: Math.round((steps.length - miss.length) / steps.length * 100) }; };
+const integrity = tw => { const R = rng(tw.seed * 149 + 3); const files = ['/etc/passwd', '/etc/ssh/sshd_config', '/etc/sudoers', '/usr/bin/sudo', '/usr/sbin/sshd', '/var/www/html/index.php', '/var/www/html/config.php', '/etc/crontab', '/etc/hosts', '/usr/local/bin/sauvegarde']; const added = R.pick(['/var/www/html/.cache.php', '/usr/local/bin/.update', '/etc/cron.d/maintenance']); const mod = R.pick(files.slice(0, 8)); const gone = R.pick(files.slice(8).concat(['/etc/hosts']));
+  const ref = files.map(f => `${sha256(f + ':ref:' + tw.seed)}  ${f}`); const cur = files.filter(f => f !== gone).map(f => `${sha256(f + (f === mod ? ':modifie:' : ':ref:') + tw.seed)}  ${f}`); cur.push(`${sha256(added + tw.seed)}  ${added}`);
+  return { ref: ref.join('\n') + '\n', cur: R.shuffle(cur).join('\n') + '\n', mod, added, gone }; };
+{
+  const d1 = tw => defense(tw, 231, 'Bloquer l\'adresse source, désactiver la connexion SSH par mot de passe au profit des clés, limiter les tentatives et vérifier la session du compte', ['Supprimer le journal d\'authentification pour repartir de zéro', 'Changer le port SSH et ne rien vérifier d\'autre']);
+  M.push({ id: 'SIM23-1', title: 'SOC : reconstituer une connexion suspecte dans le journal', module: 'SIM23 · SOC, forensic et purple team', points: 35, difficulty: 2, lesson: 'SIM23-soc-forensic', code: 'SIM23·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ip_source', 'compte_utilise', 'nombre_echecs', 'heure_acces_reussi', 'defense']), 'auth.log': authLog(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : l'alerte du SOC signale un accès SSH inhabituel au serveur www cette nuit (auth.log, format syslog).
+Reconstituez ce qui s'est passé.
+
+À FAIRE
+  1 ip_source          l'adresse externe (198.51.100.x) qui accumule des échecs
+  2 compte_utilise     le compte avec lequel elle a fini par se connecter
+  3 nombre_echecs      le nombre de lignes « Failed password » venant de cette adresse
+  4 heure_acces_reussi l'heure (HH:MM:SS) de la ligne « Accepted password » de cette adresse
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep "Failed password" auth.log | grep -o "from [0-9.]*" | sort | uniq -c | sort -rn montre les adresses qui échouent.', 'grep "Accepted password" auth.log donne la connexion réussie et le compte.', 'grep -c "Failed password.*ADRESSE" auth.log compte les échecs de cette adresse.', 'La ligne « Accepted publickey » des administrateurs internes est normale : ne la comptez pas.'],
+    check: checker('SIM23-1', tw => { const a = authLog(tw); return [ask('ip_source', 'txt', a.ext), ask('compte_utilise', 'txt', a.acct), ask('nombre_echecs', 'num', a.nFail), ask('heure_acces_reussi', 'txt', a.ok)]; }, d1), finish: 'Chronologie établie : une série d\'échecs suivie d\'une connexion réussie depuis l\'extérieur.' });
+  const d2 = tw => defense(tw, 232, 'Ajouter des règles de détection pour les étapes non couvertes, rejouer le scénario autorisé et mesurer à nouveau le taux de détection', ['Retirer les étapes non détectées du tableau', 'Désactiver les règles qui génèrent des alertes']);
+  M.push({ id: 'SIM23-2', title: 'Purple team : mesurer la couverture de détection', module: 'SIM23 · SOC, forensic et purple team', points: 35, difficulty: 2, lesson: 'SIM23-soc-forensic', code: 'SIM23·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['etapes_non_detectees', 'nombre_etapes_non_detectees', 'taux_de_detection', 'defense']), 'exercice-purple.csv': purple(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : lors d'un exercice autorisé, l'équipe rouge a déroulé un scénario en huit étapes ; l'équipe bleue note si
+chaque étape a déclenché une alerte (exercice-purple.csv).
+
+À FAIRE
+  1 etapes_non_detectees          les étapes dont la colonne detectee vaut « non » (noms exacts, séparés par des virgules)
+  2 nombre_etapes_non_detectees   leur nombre
+  3 taux_de_detection             pourcentage d'étapes détectées, arrondi à l'entier
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$3=="non" {print $2}\' exercice-purple.csv liste les étapes non détectées.', 'Comptez-les avec wc -l ; le tableau compte 8 étapes.', 'Taux = (8 − non détectées) / 8 × 100.', 'Conservez les accents des noms d\'étapes (Accès initial, Élévation de privilèges…).'],
+    check: checker('SIM23-2', tw => { const p = purple(tw); return [ask('etapes_non_detectees', 'set', p.missing.join(',')), ask('nombre_etapes_non_detectees', 'num', p.n), ask('taux_de_detection', 'num', p.rate)]; }, d2), finish: 'Couverture mesurée : vous savez quelles étapes passent inaperçues et quoi ajouter.' });
+  const d3 = tw => defense(tw, 233, 'Isoler le serveur, comparer aux sauvegardes saines, analyser le fichier ajouté et restaurer les fichiers modifiés avant remise en service', ['Supprimer le fichier ajouté et remettre le serveur en ligne', 'Recalculer les empreintes de référence à partir de l\'état actuel']);
+  M.push({ id: 'SIM23-3', title: 'Forensic : comparer les empreintes de fichiers à la référence', module: 'SIM23 · SOC, forensic et purple team', points: 40, difficulty: 3, lesson: 'SIM23-soc-forensic', code: 'SIM23·3', duree: '40 min',
+    setup: tw => { const i = integrity(tw); return { 'reponses.txt': tmpl(['fichier_modifie', 'fichier_ajoute', 'fichier_supprime', 'defense']), 'empreintes-reference.txt': i.ref, 'empreintes-actuelles.txt': i.cur }; },
+    enonce: tw => `${head(tw)}
+MISSION : un contrôle d'intégrité compare l'état du serveur www à une référence saine (empreintes-reference.txt
+et empreintes-actuelles.txt, format sha256sum).
+
+À FAIRE
+  1 fichier_modifie    le fichier présent des deux côtés dont l'empreinte a changé
+  2 fichier_ajoute     le fichier présent seulement dans l'état actuel
+  3 fichier_supprime   le fichier présent seulement dans la référence
+${faceBlue(d3(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['sort -k2 sur chaque fichier met les deux listes dans le même ordre (par chemin).', 'awk \'{print $2}\' empreintes-reference.txt | sort > a.txt, puis comparez avec comm.', 'comm -23 liste ce qui n\'est que dans le premier fichier, comm -13 ce qui n\'est que dans le second.', 'Pour le fichier modifié : même chemin, empreinte différente (grep CHEMIN dans chaque fichier).'],
+    check: checker('SIM23-3', tw => { const i = integrity(tw); return [ask('fichier_modifie', 'txt', i.mod), ask('fichier_ajoute', 'txt', i.added), ask('fichier_supprime', 'txt', i.gone)]; }, d3), finish: 'Intégrité contrôlée : un fichier modifié, un ajouté et un supprimé par rapport à la référence.' });
+}
+// ---------------------------------------------------------------- SIM21 : annuaire (audit défensif d'un export fictif)
+const adUsers = tw => { const R = rng(tw.seed * 151 + 1); const names = R.shuffle(['amartin', 'bdupont', 'clefort', 'dgarcia', 'emoreau', 'fbernard', 'gpetit', 'hroux', 'ilambert', 'jfournier', 'kgirard', 'lmercier']); const groups = names.map(() => 'Utilisateurs'); const adm = R.shuffle([0, 1, 2, 3, 4]).slice(0, R.int(2, 3)); for (const i of adm) groups[i] = 'Admins du domaine';
+  const stale = R.shuffle([2, 5, 6, 7, 8, 9]).slice(0, 3); const noexp = R.shuffle([0, 3, 5, 10, 11]).slice(0, 3);
+  const rows = names.map((n, i) => ({ n, g: groups[i], last: stale.includes(i) ? R.pick(['2026-03-02', '2026-05-18', '2026-06-30']) : `2026-11-${pad2(R.int(1, 14))}`, noexp: noexp.includes(i) ? 'oui' : 'non', on: 'oui' })); rows[R.int(5, 11)].on = 'non';
+  const staleOn = rows.filter(r => r.last < '2026-08-17' && r.on === 'oui').map(r => r.n); if (!staleOn.length) { rows[stale[0]].on = 'oui'; staleOn.push(rows[stale[0]].n); }
+  return { text: 'compte;groupe;derniere_connexion;mdp_sans_expiration;actif\n' + rows.map(r => `${r.n};${r.g};${r.last};${r.noexp};${r.on}`).join('\n') + '\n', nAdm: rows.filter(r => r.g === 'Admins du domaine').length, staleOn: rows.filter(r => r.last < '2026-08-17' && r.on === 'oui').map(r => r.n), noexp: rows.filter(r => r.mdp === undefined && r.noexp === 'oui').map(r => r.n) }; };
+const adPolicy = tw => { const R = rng(tw.seed * 151 + 2); const minLen = R.pick([6, 8, 10, 14]); const lock = R.pick([0, 5, 10]); const maxAge = R.pick([0, 90, 180]); const svc = R.shuffle(['svc-sauvegarde', 'svc-web', 'svc-impression', 'svc-supervision']); const adm = R.shuffle(svc).slice(0, 2).sort(); const text = `# Politique de mot de passe du domaine (extrait)\nMinimumPasswordLength = ${minLen}\nMaximumPasswordAge = ${maxAge}\nLockoutBadCount = ${lock}\nPasswordComplexity = 1\n`; const csv = 'compte;groupe\n' + svc.map(x => `${x};${adm.includes(x) ? 'Admins du domaine' : 'Comptes de service'}`).join('\n') + '\n'; return { text, csv, minLen, lock, adm }; };
+{
+  const d1 = tw => defense(tw, 211, 'Désactiver les comptes inactifs, retirer les droits d\'administration inutiles et imposer l\'expiration des mots de passe', ['Supprimer le groupe Admins du domaine', 'Renommer les comptes inactifs']);
+  M.push({ id: 'SIM21-1', title: 'Annuaire : comptes à privilèges, inactifs et sans expiration', module: 'SIM21 · Annuaire', points: 35, difficulty: 2, lesson: 'SIM21-annuaire', code: 'SIM21·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_admins_domaine', 'comptes_inactifs_actifs', 'comptes_sans_expiration', 'defense']), 'export-annuaire.csv': adUsers(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : un export fictif de l'annuaire de ${tw.orgName} (export-annuaire.csv) sert de base à une revue des comptes.
+Date du jour : 2026-11-15. Un compte est inactif si sa dernière connexion date de plus de 90 jours (avant le 2026-08-17).
+
+À FAIRE
+  1 nombre_admins_domaine     le nombre de comptes du groupe « Admins du domaine »
+  2 comptes_inactifs_actifs   les comptes inactifs qui sont encore activés (actif = oui), séparés par des virgules
+  3 comptes_sans_expiration   les comptes dont le mot de passe n'expire jamais (colonne mdp_sans_expiration = oui)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep -c "Admins du domaine" export-annuaire.csv compte les administrateurs.', 'awk -F";" \'$3<"2026-08-17" && $5=="oui" {print $1}\' liste les comptes inactifs encore activés.', 'awk -F";" \'$4=="oui" {print $1}\' liste les mots de passe sans expiration.', 'Ignorez la ligne d\'en-tête.'],
+    check: checker('SIM21-1', tw => { const a = adUsers(tw); return [ask('nombre_admins_domaine', 'num', a.nAdm), ask('comptes_inactifs_actifs', 'set', a.staleOn.join(',')), ask('comptes_sans_expiration', 'set', a.noexp.join(','))]; }, d1), finish: 'Revue faite : privilèges, inactivité et mots de passe sans expiration relevés.' });
+  const d2 = tw => defense(tw, 212, 'Porter la longueur minimale à 14 caractères, activer le verrouillage après quelques échecs et retirer les comptes de service du groupe d\'administration', ['Imposer des changements de mot de passe tous les jours', 'Désactiver la complexité pour faciliter la saisie']);
+  M.push({ id: 'SIM21-2', title: 'Annuaire : politique de mot de passe et comptes de service', module: 'SIM21 · Annuaire', points: 35, difficulty: 2, lesson: 'SIM21-annuaire', code: 'SIM21·2', duree: '35 min',
+    setup: tw => { const p = adPolicy(tw); return { 'reponses.txt': tmpl(['longueur_minimale', 'seuil_de_verrouillage', 'comptes_service_administrateurs', 'defense']), 'politique-mdp.txt': p.text, 'comptes-service.csv': p.csv }; },
+    enonce: tw => `${head(tw)}
+MISSION : relisez la politique de mot de passe du domaine (politique-mdp.txt) et la liste des comptes de service
+(comptes-service.csv).
+
+À FAIRE
+  1 longueur_minimale              valeur de MinimumPasswordLength
+  2 seuil_de_verrouillage          valeur de LockoutBadCount (0 = jamais de verrouillage)
+  3 comptes_service_administrateurs les comptes de service qui appartiennent au groupe « Admins du domaine »
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep Minimum politique-mdp.txt et grep Lockout politique-mdp.txt donnent les valeurs.', 'Un seuil de 0 veut dire que le compte n\'est jamais verrouillé : essais illimités.', 'grep "Admins du domaine" comptes-service.csv liste les comptes de service à privilèges.', 'Un compte de service n\'a pas besoin de droits d\'administration du domaine.'],
+    check: checker('SIM21-2', tw => { const p = adPolicy(tw); return [ask('longueur_minimale', 'num', p.minLen), ask('seuil_de_verrouillage', 'num', p.lock), ask('comptes_service_administrateurs', 'set', p.adm.join(','))]; }, d2), finish: 'Politique relue : longueur, verrouillage et comptes de service à privilèges évalués.' });
+}
+// ---------------------------------------------------------------- SIM22 : mouvement latéral (détection dans les journaux internes)
+const lateral = tw => { const R = rng(tw.seed * 157 + 1); const src = tw.H['compta-pc'].ip; const servers = R.shuffle([['gw', 22], ['www', 22], ['db', 22]]); const n = R.int(2, 3); const rows = []; let t = 13 * 3600 + 5 * 60; const ts = () => { t += R.int(2, 12); return `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t % 3600 / 60))}:${pad2(t % 60)}`; };
+  for (let i = 0; i < 14; i++) rows.push(`${ts()} ${R.pick([src, `${tw.net}.${R.int(100, 120)}`])} -> ${tw.H.files.ip}:445 smb ok`); const first = servers[0][0]; const seq = servers.slice(0, n).map(([h, p]) => `${tw.H[h].ip}:${p}`); const times = []; for (const d of seq) times.push(`${ts()} ${src} -> ${d} ${d.endsWith(':445') ? 'smb' : 'ssh'} ok`);
+  const sorted = [...rows, ...times].sort(); return { text: sorted.join('\n') + '\n', src, n, first, firstTarget: seq[0].split(':')[0] }; };
+{
+  const d1 = tw => defense(tw, 221, 'Isoler le poste, réinitialiser ses identifiants et segmenter le réseau pour qu\'un poste ne puisse pas joindre directement plusieurs serveurs d\'administration', ['Supprimer les journaux de connexion internes', 'Autoriser tous les postes à joindre tous les serveurs pour simplifier le suivi']);
+  M.push({ id: 'SIM22-1', title: 'Mouvement latéral : un poste qui enchaîne les serveurs', module: 'SIM22 · Mouvement latéral', points: 40, difficulty: 3, lesson: 'SIM22-mouvement-lateral', code: 'SIM22·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['poste_source', 'premier_serveur_atteint', 'nombre_serveurs_atteints', 'defense']), 'connexions-internes.log': lateral(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : le journal des connexions internes (connexions-internes.log) montre un poste qui, en quelques minutes,
+se connecte à plusieurs serveurs en SSH, alors que les postes n'accèdent normalement qu'au serveur de fichiers (port 445).
+
+À FAIRE
+  1 poste_source             l'adresse du poste qui se connecte en SSH à des serveurs
+  2 premier_serveur_atteint  l'adresse du premier serveur contacté en SSH par ce poste
+  3 nombre_serveurs_atteints le nombre de serveurs différents contactés par ce poste en SSH
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep ssh connexions-internes.log isole les connexions SSH.', 'awk \'{print $2}\' sur ces lignes | sort -u donne le poste source.', 'La première ligne SSH (par heure) donne le premier serveur : le champ 4 sans le port.', 'Comptez les destinations distinctes avec sort -u | wc -l.'],
+    check: checker('SIM22-1', tw => { const l = lateral(tw); return [ask('poste_source', 'txt', l.src), ask('premier_serveur_atteint', 'txt', tw.H[l.first].ip), ask('nombre_serveurs_atteints', 'num', l.n)]; }, d1), finish: 'Enchaînement repéré : un poste a rebondi sur plusieurs serveurs en SSH.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

@@ -32,9 +32,9 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM18 | IoT / OT | Reporté : à cadrer avec le formateur |
 | SIM19 | Cloud (IAM, métadonnées) | Livré, volet audit défensif : droits, stockage, clés (SIM19-1, SIM19-2) ; métadonnées à cadrer |
 | SIM20 | Cryptographie et PKI | Livré, volet certificats : lecture et inventaire (SIM20-1, SIM20-2) |
-| SIM21 | Active Directory | Défi 15 |
-| SIM22 | Pivot, mouvement latéral | Défi 17 |
-| SIM23 | SOC, forensic, purple team | Défis 01, 16 |
+| SIM21 | Annuaire (Active Directory fictif) | Livré, volet revue défensive (SIM21-1, SIM21-2) |
+| SIM22 | Pivot, mouvement latéral | Livré, volet détection dans les journaux (SIM22-1) |
+| SIM23 | SOC, forensic, purple team | Livré (SIM23-1, SIM23-2, SIM23-3) |
 | SIM24 | Scénario final multi-systèmes | Absent |
 
 Bilan : 18 défis couvrent environ la moitié des thèmes, surtout par l'analyse de données fournies. Il manque la **pratique outillée** sur une plage vivante et 9 thèmes.
