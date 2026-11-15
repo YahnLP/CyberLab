@@ -2,7 +2,7 @@
 # Vérifie la structure des leçons : sections obligatoires, exercices corrigés, liens, adresses fictives, pas d'emoji.
 cd "$(dirname "$0")/../cours" || exit 1
 fail=0
-for f in [0-9]*.md P*.md HAC*.md EH*.md; do
+for f in [0-9]*.md P*.md SO*.md EH*.md; do
   [ -f "$f" ] || continue
   grep -q '^## Objectifs' "$f" || { echo "KO $f : section Objectifs manquante"; fail=1; }
   grep -qE '^## [0-9]+\. Exercices' "$f" || { echo "KO $f : section Exercices manquante"; fail=1; }
@@ -14,7 +14,7 @@ for f in [0-9]*.md P*.md HAC*.md EH*.md; do
 done
 # liens du README
 grep -oE '\]\(([^)]+\.md)\)' README.md | sed 's/](\(.*\))/\1/' | while read -r l; do [ -f "$l" ] || { echo "KO lien mort : $l"; exit 1; }; done || fail=1
-n=$(ls [0-9]*.md P*.md HAC*.md EH*.md 2>/dev/null | wc -l)
+n=$(ls [0-9]*.md P*.md SO*.md EH*.md 2>/dev/null | wc -l)
 [ "$n" -eq 22 ] || { echo "KO : $n leçons au lieu de 22"; fail=1; }
 [ $fail = 0 ] && echo "OK : $n leçons conformes"
 exit $fail

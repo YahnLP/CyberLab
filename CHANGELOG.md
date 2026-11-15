@@ -39,7 +39,7 @@
 - Accueil : progression globale, progression par parcours, état par étape ; accessibilité (lien d'évitement, focus visible, mouvement réduit).
 
 ## v0.9.1 — accueil en parcours guidé
-- Accueil du simulateur web réorganisé : Fondations, Parcours professionnalisant, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
+- Accueil du simulateur web réorganisé : Fondations, Parcours professionnalisant, Parcours avancés, Parcours sécurité offensive ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
 - Nouveau défi 00 « Prise en main : preuve et premières commandes » (copie de preuve, empreinte, premières mesures).
 
 ## v0.9.0 — simulateur web (GitHub Pages)
@@ -55,7 +55,7 @@
 - Leçons P12 (annuaire), P13 (forensic), P14 (segmentation) et défis 15 à 17 : audit d'un export d'annuaire, chronologie et IOC, matrice de flux et pivot.
 - Analyse hors ligne et défense uniquement.
 
-## v0.6.0 — défis du cycle HAC
+## v0.6.0 — défis du parcours sécurité offensive
 - Défis 10 à 14 : analyse d'un mandat (et Cyber Kill Chain), lecture d'une capture réseau (identifiants en clair, empoisonnement ARP), énumération DNS/SMB/SNMP, revue de code web, protections mémoire et base Metasploit.
 - Tous orientés analyse et défense, sans exploitation ni fabrication de charge.
 
@@ -73,7 +73,7 @@
 - tests/run-solution.sh joue tous les corrigés.
 
 ## v0.2.0 — cours
-- 17 leçons : prise en main, parcours métier P1 à P11, cycle HAC 1 à 5 (contenu original).
+- 17 leçons : prise en main, parcours métier P1 à P11, parcours sécurité offensive SO1 à SO5 (contenu original).
 - `tests/check-cours.sh` : structure, exercices corrigés, liens, adresses fictives.
 
 ## v0.1.0 — proposition
