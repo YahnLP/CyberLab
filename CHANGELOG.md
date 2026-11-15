@@ -1,4 +1,8 @@
 # Changelog
+## v0.11.0 — Casebook (simulateur web)
+- Onglet « Casebook » sous le terminal : ajouter la sortie d'une commande aux preuves (empreinte SHA-256 de la sortie, horodatage, 20 preuves maximum), rédiger la conclusion, exporter le rapport en Markdown ou en HTML autonome. Tout reste dans le navigateur, conservé avec la progression.
+- Test navigateur `tests/web/ui-casebook.mjs`, exécuté en CI.
+
 ## v0.10.1 — guide « Lab complet »
 - Page `#/installer` du simulateur (bouton sur l'accueil et dans le menu) : installer le laboratoire complet sur une vraie machine avec Docker : poste seul, mode terminal, salle de formation (un conteneur par stagiaire), vérification, mise à jour, avertissement sur le port ouvert sans mot de passe. Blocs de commandes avec bouton Copier.
 - Test navigateur `tests/web/ui-install.mjs` (mobile, copie, menu), exécuté en CI.
