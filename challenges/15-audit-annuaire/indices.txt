@@ -1,0 +1,5 @@
+awk -F';' 'NR>1 && $2==1' annuaire.csv ne garde que les comptes actifs.
+La colonne 4 (spn) est vide pour un compte sans SPN : awk -F';' '$2==1 && $4!=""'.
+La colonne 5 contient des drapeaux séparés par | : utilisez ~ /DONT_REQ_PREAUTH/ en awk.
+Un administrateur : $3=="Domain Admins" ; inactif : $6>90.
+Un compte de service géré (gMSA) change son secret automatiquement : c'est la correction durable.

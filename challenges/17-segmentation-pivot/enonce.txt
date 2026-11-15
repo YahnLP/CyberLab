@@ -1,0 +1,14 @@
+SEGMENTATION ET PIVOT — un serveur de la DMZ est compromis
+
+Fichier : regles.txt. Chaque ligne « Rnn allow source -> destination protocole/port »
+autorise un flux initié depuis la source. Tout le reste est refusé. Les règles sont à sens
+unique : seul le flux aller est autorisé.
+
+À produire :
+ 1 zones-atteignables.txt   toutes les zones (hors dmz) qu'un hôte de la DMZ compromis peut atteindre,
+                            directement ou en passant de zone en zone ; une par ligne
+ 2 regles-larges.txt        les identifiants des règles dont le port, la source ou la destination est « any »
+                            (écrire « aucun » s'il n'y en a pas)
+ 3 reponses.txt             sauts_vers_db : nombre minimal de sauts pour joindre la zone db depuis la DMZ
+
+Validation : defi valider

@@ -1,0 +1,5 @@
+sort -t';' -k1,1n timeline.csv remet les événements dans l'ordre.
+grep uploads timeline.csv | grep '\.php' repère le fichier de téléversement.
+date -u -d @<epoch> +%H:%M:%S convertit l'epoch en heure UTC.
+Pour rapprocher les empreintes : grep -F -f ioc.txt hashes.txt.
+awk -F';' -v t=<epoch> '$1>t' timeline.csv | wc -l compte les événements strictement postérieurs.

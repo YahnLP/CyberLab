@@ -1,0 +1,17 @@
+AUDIT D'UN ANNUAIRE — export en lecture seule, analyse hors ligne
+
+Fichier : annuaire.csv (séparateur « ; ») avec les colonnes
+sam, actif (1 = activé, 0 = désactivé), groupes, spn, uac, derniere_connexion_jours.
+Seuls les comptes ACTIFS comptent comme constats.
+
+À produire (un compte par ligne) :
+ 1 comptes-kerberoastables.txt   comptes actifs qui portent un SPN
+ 2 comptes-sans-preauth.txt      comptes actifs sans pré-authentification Kerberos (DONT_REQ_PREAUTH)
+ 3 admins-inactifs.txt           comptes actifs du groupe Domain Admins sans connexion depuis plus de 90 jours
+ 4 admins-sans-expiration.txt    comptes actifs de Domain Admins dont le mot de passe n'expire jamais
+ 5 reponses.txt                  nb_comptes_actifs : leur nombre ;
+                                 correction_services : meilleure correction durable parmi
+                                   gmsa · mot-de-passe-court · desactiver-audit
+
+Si un fichier de résultat est vide, écrivez le mot « aucun ».
+Validation : defi valider
