@@ -39,7 +39,7 @@
 - Accueil : progression globale, progression par parcours, état par étape ; accessibilité (lien d'évitement, focus visible, mouvement réduit).
 
 ## v0.9.1 — accueil en parcours guidé
-- Accueil du simulateur web réorganisé : Fondations, Filière audit, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
+- Accueil du simulateur web réorganisé : Fondations, Parcours professionnalisant, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
 - Nouveau défi 00 « Prise en main : preuve et premières commandes » (copie de preuve, empreinte, premières mesures).
 
 ## v0.9.0 — simulateur web (GitHub Pages)
