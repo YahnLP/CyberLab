@@ -9,14 +9,14 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 |---|---|---|
 | 01 · Incident SSH : détecter, contenir, corriger | Séquence 5 · Cyber-défense | 60 |
 | 00 · Prise en main : preuve et premières commandes | Fondations | 25 |
-| 02 · Fiche de reconnaissance | Séquence 6 · Parcours métier | 30 |
-| 03 · Écarts d'inventaire | Séquence 6 · Parcours métier | 30 |
-| 04 · Services exposés | Séquence 6 · Parcours métier | 35 |
-| 05 · Audit HTTP | Séquence 6 · Parcours métier | 35 |
-| 06 · Trier les résultats d'un scanner | Séquence 6 · Parcours métier | 40 |
-| 07 · Contrôle d'accès d'une API | Séquence 6 · Parcours métier | 40 |
-| 08 · Disponibilité sous pression | Séquence 6 · Parcours métier | 40 |
-| 09 · Priorisation des risques | Séquence 6 · Parcours métier | 45 |
+| 02 · Fiche de reconnaissance | Séquence 6 · Filière audit | 30 |
+| 03 · Écarts d'inventaire | Séquence 6 · Filière audit | 30 |
+| 04 · Services exposés | Séquence 6 · Filière audit | 35 |
+| 05 · Audit HTTP | Séquence 6 · Filière audit | 35 |
+| 06 · Trier les résultats d'un scanner | Séquence 6 · Filière audit | 40 |
+| 07 · Contrôle d'accès d'une API | Séquence 6 · Filière audit | 40 |
+| 08 · Disponibilité sous pression | Séquence 6 · Filière audit | 40 |
+| 09 · Priorisation des risques | Séquence 6 · Filière audit | 45 |
 | 10 · Analyse d'un mandat d'audit | Séquence 7 · Cycle HAC | 40 |
 | 11 · Lire une capture réseau | Séquence 7 · Cycle HAC | 45 |
 | 12 · Énumération de services | Séquence 7 · Cycle HAC | 45 |
@@ -30,7 +30,7 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`) : EH02-1 à EH02-3 (reconnaissance), EH03-1 à EH03-3 (scan). Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
 
 ## Cours
-17 leçons originales réparties en trois parcours (Fondations, Parcours métier P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
+17 leçons originales réparties en trois parcours (Fondations, Filière audit P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
 
 ## Pourquoi c'est réaliste
 - `auth.log` au format syslog Debian, avec du bruit crédible (cron, scanners, fautes de frappe d'un admin, sudo), généré par gawk.
