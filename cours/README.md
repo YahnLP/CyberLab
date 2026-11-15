@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM10 à SIM15, SIM17, SIM19, SIM20 |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM10 à SIM15, SIM17, SIM19 à SIM23 |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -61,3 +61,6 @@ Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les dé
 | [SIM17](SIM17-mobile.md) | Mobile : audit d'une application avant publication | 1 h 15 | SIM17-1, SIM17-2 |
 | [SIM19](SIM19-cloud.md) | Cloud : audit d'un compte (droits, stockage, clés) | 1 h 15 | SIM19-1, SIM19-2 |
 | [SIM20](SIM20-cryptographie.md) | Cryptographie : lire et suivre des certificats | 1 h | SIM20-1, SIM20-2 |
+| [SIM21](SIM21-annuaire.md) | Annuaire : revue des comptes et de la politique de mot de passe | 1 h 15 | SIM21-1, SIM21-2 |
+| [SIM22](SIM22-mouvement-lateral.md) | Mouvement latéral : le repérer dans les journaux | 1 h | SIM22-1 |
+| [SIM23](SIM23-soc-forensic.md) | SOC, forensic et purple team | 1 h 30 | SIM23-1, SIM23-2, SIM23-3 |
