@@ -1,18 +1,34 @@
 # Formation à distance : plan, durée et coût (proposition)
 
-Statut : **proposition à valider**. Les chiffres de coût sont des estimations posées sur des hypothèses explicites, à ajuster.
+Statut : **cadrage validé sur l'offre, le prix, le créneau et le financement** (échange du 15/11/2026). Reste à valider : le nom définitif. Les chiffres de coût sont des estimations posées sur des hypothèses explicites, à ajuster.
 
-## 1. Nom
+**Décisions prises** : une seule offre (14 semaines) à **990 €**, tarif réduit **690 €** (étudiants et demandeurs d'emploi) ; pas de CPF ni de Qualiopi pour le moment ; webinaires en soirée, **à 20 h** (créneau à gérer en temps voulu). L'option courte « Découverte » à 290 € n'est **pas retenue**.
 
-Trois pistes (vérifier la disponibilité auprès de l'INPI avant usage) :
+## 1. Nom (pour le site formaxionlandes.fr)
 
-| Nom | Idée |
-|---|---|
-| **Cap Cyber** (recommandé) | Court, parlant pour des reconversions : un cap à franchir, de la découverte à la pratique |
-| Cyber Pratique | Insiste sur la pratique en laboratoire |
-| CyberLab Campus | Rappelle le lab et la plateforme Campus, moins distinctif |
+Constat du marché : les formations à distance en cybersécurité portent surtout des noms génériques (« Bootcamp cybersécurité », « Fondamentaux de la cybersécurité », « Cyber Academy », « Cyber University »), ce qui les rend peu mémorables. Le nom **« Cyber Academy »** est déjà utilisé par plusieurs acteurs (Deloitte, SysDream, Mailinblack) : à éviter. Un nom vendeur pour des reconversions et des curieux doit promettre un **changement** et une **pratique**, pas décrire un programme.
 
-Sous-titre proposé : *S'initier à la cybersécurité par la pratique, avec un formateur et un laboratoire fictif*.
+| Rang | Nom | Pourquoi | Sous-titre type |
+|---|---|---|---|
+| 1 (recommandé) | **Cyber Déclic** | Parle du moment où l'on décide de se lancer (reconversion, curiosité) ; court, mémorable, aucun résultat identique trouvé parmi les formations en cybersécurité | *14 semaines pour se lancer en cybersécurité, par la pratique, avec un formateur* |
+| 2 | **Objectif Cyber** | Clair, orienté but ; plus banal | *De zéro à votre premier audit, à distance* |
+| 3 | **Cyber Immersion** | Insiste sur la pratique en laboratoire ; évoque un bootcamp | *Un laboratoire fictif, un formateur, 14 semaines* |
+| 4 | **Cap Cyber** | Proposition initiale, sobre | *S'initier et pratiquer la cybersécurité* |
+
+Avant adoption : vérifier la disponibilité auprès de l'INPI (marque) et du nom de domaine ou de la page dédiée. La recherche web effectuée n'est pas une garantie juridique.
+
+### Texte d'accroche proposé pour le site (version « Cyber Déclic »)
+
+> **Cyber Déclic : passez de curieux à praticien en 14 semaines**
+> Une formation 100 % à distance pour se lancer en cybersécurité, sans prérequis technique. Chaque semaine : des leçons, des missions sur un laboratoire fictif réaliste et un webinaire en direct avec votre formateur. Vous terminez avec un rapport d'audit complet à montrer à un employeur ou à un jury.
+>
+> - 14 semaines, environ 105 heures, à votre rythme (≈ 7 h 30 par semaine)
+> - 14 webinaires en direct à 20 h, enregistrés
+> - Laboratoire en ligne : rien à installer
+> - Suivi personnalisé et attestation de réussite
+> - **990 €** (690 € étudiants et demandeurs d'emploi)
+
+Points à garder prudents sur le site : ne pas promettre un emploi ni une certification reconnue ; préciser « attestation de formation, non certifiante » et « laboratoire fictif ».
 
 ## 2. Public et prérequis
 
@@ -34,7 +50,7 @@ Sous-titre proposé : *S'initier à la cybersécurité par la pratique, avec un 
 
 - **Durée** : 14 semaines, environ **105 heures** par apprenant (≈ 7 h 30 par semaine).
 - **Autonomie** : ≈ 84 h (leçons, défis, missions du simulateur, projet final).
-- **Webinaires** : 14 séances de 1 h 30 (≈ 21 h), une par semaine, en soirée, **enregistrées**. Contenu : démonstration, correction commentée d'une mission, questions, point de motivation.
+- **Webinaires** : 14 séances de 1 h 30 (≈ 21 h), une par semaine, en soirée **à 20 h** (20 h à 21 h 30), **enregistrées**. Contenu : démonstration, correction commentée d'une mission, questions, point de motivation.
 - **Suivi** : permanence en ligne (forum ou messagerie de Campus) 1 h 30 par semaine, bilan individuel de mi-parcours (15 min), bilan final (30 min).
 - **Preuve de progression** : chaque semaine l'apprenant exporte son **bilan** (page `#/bilan`, .txt ou .json) et le dépose sur Campus. Le formateur suit l'avancement sans envoi automatique de données.
 - **Évaluation** : quiz de fin de niveau (Campus) et projet final noté sur grille (voir § 6).
@@ -75,10 +91,6 @@ Les références renvoient aux leçons (`cours/`) et missions déjà livrées.
 
 Parcours **optionnels** pour les plus avancés (hors volume ci-dessus) : Parcours sécurité offensive SO1 à SO5, SIM08 (capture de trafic), SIM07/09/16/18 une fois validés.
 
-### Option courte : **Cap Cyber Découverte** (niveau 1 seul)
-
-4 semaines, ≈ 30 h, 4 webinaires. Entrée en matière pour curieux et étudiants, avec passerelle vers le parcours complet.
-
 ## 6. Évaluation
 
 - Quiz de fin de niveau : 10 questions, seuil indicatif 70 %.
@@ -91,18 +103,25 @@ Parcours **optionnels** pour les plus avancés (hors volume ci-dessus) : Parcour
 
 ## 7. Plateforme Campus (http://localhost:8000)
 
-Constat : la page est atteignable depuis le navigateur de l'ordinateur et affiche une **connexion** (comptes créés par l'administrateur). Le contenu interne n'a pas été consulté : aucun identifiant n'a été saisi. Ce qui est supposé, à confirmer :
+Consultée avec votre session ouverte, en lecture seule (aucune modification, aucun identifiant saisi). Fonctions constatées :
+
+- **Modules** composés de leçons et de QCM, regroupés en **formations** ; 20 modules existent déjà (TSSR, démonstration, CSE), ce qui donne le modèle à suivre.
+- **Suivi des apprenants** par formation, avec avancement individuel et nombre de **certificats valides** : la page de suivi sert de tableau de bord du formateur.
+- **Certificats** : à utiliser pour l'attestation de réussite non certifiante.
+- Pages légales, politique de confidentialité et « Mes données personnelles » (RGPD) présentes.
+
+Non constaté (à vérifier) : dépôt de fichiers par l'apprenant, planification des webinaires, forum ou messagerie.
 
 | Besoin | Rôle proposé |
 |---|---|
-| Parcours, calendrier, annonces | Campus |
-| Webinaires | Lien de visio planifié dans Campus, enregistrements déposés |
-| Exercices pratiques | Simulateur CyberLab (page publique, hors Campus) lié depuis chaque semaine |
-| Dépôt des bilans et rapports | Campus (dépôt de fichiers) |
-| Forum et permanence | Campus |
-| Quiz | Campus, si disponible ; sinon quiz dans le simulateur |
+| Parcours, leçons, QCM | Campus : une formation « Cyber Déclic » avec 3 modules (un par niveau) et 14 sous-parties hebdomadaires ; les QCM de fin de niveau y sont saisis |
+| Exercices pratiques | Simulateur CyberLab (page publique), lié depuis chaque semaine |
+| Suivi | Page « Suivi des apprenants » de Campus + bilan exporté (`#/bilan`) |
+| Webinaires | Lien de visio dans l'annonce de la semaine ; enregistrements en lien |
+| Dépôt des bilans et rapports | Campus si disponible, sinon e-mail dédié |
+| Attestation | Certificat Campus |
 
-À vérifier avant la mise en ligne : accessibilité, sauvegarde, RGPD (données des apprenants), droit d'auteur des enregistrements.
+À vérifier avant la mise en ligne publique : accessibilité depuis Internet, sauvegarde, RGPD pour les apprenants extérieurs, droit d'auteur des enregistrements.
 
 ## 8. Estimation du temps de préparation (une fois)
 
@@ -145,12 +164,11 @@ Soit environ **600 € par apprenant** à 15 inscrits.
 
 ### Prix proposés (hors financement public)
 
-| Offre | Durée | Prix proposé |
+| Offre | Durée | Prix retenu |
 |---|---|---|
-| **Cap Cyber** (14 semaines, ≈ 105 h) | 14 sem. | **990 €** (tarif réduit étudiants et demandeurs d'emploi : 690 €) |
-| **Cap Cyber Découverte** (≈ 30 h) | 4 sem. | **290 €** |
+| **Cyber Déclic** (nom à confirmer ; ≈ 105 h) | 14 sem. | **990 €** (tarif réduit étudiants et demandeurs d'emploi : **690 €**) |
 
-Repères du marché relevés en 2026 : formation débutant 75 h à 1 500 € (Jedha), 105 h à 1 800 € (via MaFormation), 130 h à 1 990 € (Studi), formations de 1 190 à 1 980 € non éligibles CPF (Esecad, Dawan). Ces offres sont souvent éligibles CPF, ce que Cap Cyber ne sera pas au lancement ; un prix inférieur se justifie.
+Repères du marché relevés en 2026 : formation débutant 75 h à 1 500 € (Jedha), 105 h à 1 800 € (via MaFormation), 130 h à 1 990 € (Studi), formations de 1 190 à 1 980 € non éligibles CPF (Esecad, Dawan). Ces offres sont souvent éligibles CPF, ce que la formation ne sera pas au lancement ; un prix inférieur se justifie.
 
 ### Équilibre par cohorte (offre complète à 990 €)
 
@@ -162,15 +180,15 @@ Repères du marché relevés en 2026 : formation débutant 75 h à 1 500 € (Je
 | 15 | 14 850 € | + 5 900 € |
 | 20 (coût d'animation en hausse non compté) | 19 800 € | + 10 850 € environ |
 
-Seuil de rentabilité : **9 apprenants** (≈ 8 950 ÷ 990). Découverte : coût d'animation ≈ 24 h (≈ 1 900 €), seuil ≈ 7 apprenants à 290 €.
+Seuil de rentabilité : **9 apprenants** au tarif plein (≈ 8 950 ÷ 990) ; avec un tarif réduit à 690 € pour une partie des inscrits, viser **10 à 11 apprenants**.
 
 Le résultat est une **valorisation de votre temps**, avant cotisations, impôts et TVA. Le régime de TVA de la formation et les cotisations sont à valider avec votre comptable.
 
 ## 10. Financement et conformité
 
-- **CPF** : exige une certification inscrite au RNCP ou au Répertoire spécifique ; non visé au lancement. Piste ultérieure : faire reconnaître un bloc de compétences ou s'adosser à un organisme certificateur.
-- **France Travail et OPCO** : exigent en général un organisme certifié **Qualiopi**. À étudier si la cible reconversion en dépend.
-- **Paiement par les particuliers** : possible sans Qualiopi, avec contrat de formation, délai de rétractation de 14 jours, règlement intérieur et programme remis avant inscription.
+- **Décision** : ni CPF ni Qualiopi pour le moment. Le CPF exige une certification inscrite au RNCP ou au Répertoire spécifique ; France Travail et les OPCO demandent en général un organisme certifié Qualiopi. Ces pistes restent possibles plus tard.
+- **Paiement par les particuliers** : possible sans Qualiopi, avec programme et conditions remis avant inscription, contrat de formation, délai de rétractation de 14 jours et règlement intérieur. À faire valider par votre comptable ou conseil (régime de TVA, mentions obligatoires).
+- **Communication** : ne pas laisser croire que la formation est finançable CPF ; parler d'« attestation de formation ».
 
 ## 11. Calendrier proposé
 
@@ -193,14 +211,14 @@ Le résultat est une **valorisation de votre temps**, avant cotisations, impôts
 
 ## 13. Questions ouvertes
 
-1. Nom retenu : Cap Cyber ou autre ?
-2. Offre : une seule (14 semaines) ou deux (avec Découverte) ?
-3. Fonctions réelles de Campus (dépôt de fichiers, quiz, visio, forum) ?
-4. Visez-vous Qualiopi et le CPF à moyen terme ?
-5. Rythme des webinaires : soirée (18 h 30) ou autre créneau ?
+1. Nom définitif : Cyber Déclic (recommandé) ou une des alternatives ?
+2. Campus : dépôt de fichiers, visio, forum disponibles ou à prévoir ?
+3. Date de la cohorte pilote et nombre de places ?
+4. Pilote gratuit ou à tarif symbolique ?
 
 ## Sources des repères de marché
 
+- Panorama des noms de formations : Studi, Liora, Guardia, OpenClassrooms, Deloitte Cyber Academy, SysDream (consultés en 2026)
 - Jedha, formation cybersécurité à distance : https://www.jedha.co/formation-cybersecurite/formation-cybersecurite-100-en-ligne
 - MaFormation, fondamentaux de la cybersécurité (105 h) : https://www.maformation.fr/formation/les-fondamentaux-de-la-cybersecurite-formation-pour-les-debutants-204310
 - Studi, participer à la gestion de la cybersécurité : https://www.studi.com/fr/formation/infrastructures-et-systemes/gestion-cybersecurite
