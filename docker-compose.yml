@@ -1,0 +1,11 @@
+services:
+  cyberlab:
+    build: .
+    image: cyberlab:latest
+    ports: ["0.0.0.0:7681:7681"]
+    environment: { MODE: web }
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 256
+    security_opt: [no-new-privileges:true]

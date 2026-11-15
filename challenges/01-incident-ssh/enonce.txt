@@ -1,0 +1,37 @@
+INCIDENT SSH SUR srv01 — vous êtes l'analyste d'astreinte.
+
+La supervision signale un pic d'échecs d'authentification cette nuit sur
+srv01. Tout est dans votre atelier (données fictives, rien ne touche au
+vrai système) :
+
+  srv01/var/log/auth.log                  journal d'authentification
+  srv01/etc/ssh/sshd_config               configuration SSH à durcir
+  srv01/etc/nftables.conf                 pare-feu
+  srv01/home/<compte>/.ssh, .bash_history, srv01/var/spool/cron/crontabs/
+  reponses.txt   rapport.md   retest.sh   (à compléter / à utiliser)
+
+Chaque stagiaire reçoit son propre incident : IP, compte et chiffres
+diffèrent d'une session à l'autre.
+
+DÉROULÉ (comme sur le terrain, 8 phases)
+  1 Préparer      copier auth.log dans preuves/ et créer preuves/SHA256SUMS
+                  (sha256sum), sans jamais modifier l'original
+  2 Énumérer      echecs_total, ip_attaquante, echecs_ip  → reponses.txt
+  3 Qualifier     compte, heure_succes (HH:MM:SS), statut (tentative ou
+                  compromission)
+  4 Preuve        empreinte_cle (SHA256:...) de la clé SSH posée par
+                  l'attaquant, cron_malveillant (chemin du script)
+  5 Détecter      écrire ./detecte.sh FICHIER [SEUIL]  (seuil par défaut 10)
+                  affiche une ligne « IP NOMBRE » par IP au-dessus du seuil.
+                  Il sera rejoué sur un autre journal : pas de faux positif.
+  6 Corriger      sshd : mots de passe interdits, root interdit,
+                  MaxAuthTries <= 3 ; nftables : bloquer l'IP avant la règle
+                  qui accepte le port 22 ; retirer la clé et la tâche cron
+                  frauduleuses SANS casser la sauvegarde légitime
+  7 Retester      ./retest.sh (à lancer après les corrections)
+  8 Restituer     compléter rapport.md : Faits / Interprétation / Impact /
+                  Remédiation / Retest (15 mots minimum par section)
+
+Distinguez ce que vous avez observé de ce que vous supposez.
+Mode expert : n'utilisez pas « defi indice » (chaque indice coûte 2 points).
+Validation : defi valider
