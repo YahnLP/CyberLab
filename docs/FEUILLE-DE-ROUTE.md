@@ -48,7 +48,7 @@ Une plage fictive générée par session (hôtes, ports, bannières, routes web,
 Cohérence exigée : une même ligne de données apparaît dans le terminal, la page web et la requête SQL.
 
 ## Phases proposées
-1. **Socle jumeau numérique** : modèle de plage, générateur à graine, `ping`, `dig`/`host`, `nmap`, `curl`, panneaux Web et Base SQL, tests de cohérence. Modules **EH01 à EH05**.
+1. **Socle jumeau numérique (livré en v0.13.0 : plage, ping, host, dig, nslookup, nmap, curl, panneaux Vue du lab et Web, missions EH02 et EH03)** : modèle de plage, générateur à graine, `ping`, `dig`/`host`, `nmap`, `curl`, panneaux Web et Base SQL, tests de cohérence. Modules **EH01 à EH05**.
 2. **EH06 à EH12** : accès et privilèges, analyse de capture, disponibilité, sessions, périmètre (règles pare-feu et IDS rejouées).
 3. **EH13 à EH15** : serveur web, application web, couche SQL sur base de démonstration (démonstration d'une requête vulnérable et de sa correction).
 4. **EH16 à EH20** : sans fil, mobile, IoT/OT, cloud, cryptographie (hachage, certificats, encodage : possibles en vrai, hors ligne).
