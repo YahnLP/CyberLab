@@ -1,6 +1,6 @@
 # CyberLab
 
-Laboratoire de cyber-défense et de pentest en ligne de commande, en deux formes qui partagent les mêmes défis : un vrai terminal Linux par stagiaire (Docker + ttyd), ou un simulateur 100 % navigateur (GitHub Pages) avec un jumeau numérique d'organisation fictive (DNS, scan réseau, web) tiré au hasard à chaque session. Les défis sont auto-corrigés sur des données réalistes différentes pour chaque stagiaire, avec un mode Guidé, un mode Expert, un Casebook de preuves et un cursus Ethical Hacking. Le moteur de défis (`defi liste`, `defi start`, `defi indice`, `defi valider`) est issu de BashLab, mais CyberLab évolue désormais de façon autonome.
+Laboratoire de cyber-défense et de pentest en ligne de commande, en deux formes qui partagent les mêmes défis : un vrai terminal Linux par stagiaire (Docker + ttyd), ou un simulateur 100 % navigateur (GitHub Pages) avec un jumeau numérique d'organisation fictive (DNS, scan réseau, web) tiré au hasard à chaque session. Les défis sont auto-corrigés sur des données réalistes différentes pour chaque stagiaire, avec un mode Guidé, un mode Expert, un Casebook de preuves et un parcours pentest. Le moteur de défis (`defi liste`, `defi start`, `defi indice`, `defi valider`) est issu de BashLab, mais CyberLab évolue désormais de façon autonome.
 
 Créé par Formaxion Landes — © Yahn LE PRETTRE 2026. 
 
@@ -9,28 +9,28 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 |---|---|---|
 | 01 · Incident SSH : détecter, contenir, corriger | Séquence 5 · Cyber-défense | 60 |
 | 00 · Prise en main : preuve et premières commandes | Fondations | 25 |
-| 02 · Fiche de reconnaissance | Séquence 6 · Filière audit | 30 |
-| 03 · Écarts d'inventaire | Séquence 6 · Filière audit | 30 |
-| 04 · Services exposés | Séquence 6 · Filière audit | 35 |
-| 05 · Audit HTTP | Séquence 6 · Filière audit | 35 |
-| 06 · Trier les résultats d'un scanner | Séquence 6 · Filière audit | 40 |
-| 07 · Contrôle d'accès d'une API | Séquence 6 · Filière audit | 40 |
-| 08 · Disponibilité sous pression | Séquence 6 · Filière audit | 40 |
-| 09 · Priorisation des risques | Séquence 6 · Filière audit | 45 |
-| 10 · Analyse d'un mandat d'audit | Séquence 7 · Cycle HAC | 40 |
-| 11 · Lire une capture réseau | Séquence 7 · Cycle HAC | 45 |
-| 12 · Énumération de services | Séquence 7 · Cycle HAC | 45 |
-| 13 · Revue de code d'une application web | Séquence 7 · Cycle HAC | 45 |
-| 14 · Protections mémoire et base Metasploit | Séquence 7 · Cycle HAC | 50 |
+| 02 · Fiche de reconnaissance | Séquence 6 · Parcours professionnalisant | 30 |
+| 03 · Écarts d'inventaire | Séquence 6 · Parcours professionnalisant | 30 |
+| 04 · Services exposés | Séquence 6 · Parcours professionnalisant | 35 |
+| 05 · Audit HTTP | Séquence 6 · Parcours professionnalisant | 35 |
+| 06 · Trier les résultats d'un scanner | Séquence 6 · Parcours professionnalisant | 40 |
+| 07 · Contrôle d'accès d'une API | Séquence 6 · Parcours professionnalisant | 40 |
+| 08 · Disponibilité sous pression | Séquence 6 · Parcours professionnalisant | 40 |
+| 09 · Priorisation des risques | Séquence 6 · Parcours professionnalisant | 45 |
+| 10 · Analyse d'un mandat d'audit | Séquence 7 · Parcours sécurité offensive | 40 |
+| 11 · Lire une capture réseau | Séquence 7 · Parcours sécurité offensive | 45 |
+| 12 · Énumération de services | Séquence 7 · Parcours sécurité offensive | 45 |
+| 13 · Revue de code d'une application web | Séquence 7 · Parcours sécurité offensive | 45 |
+| 14 · Protections mémoire et base Metasploit | Séquence 7 · Parcours sécurité offensive | 50 |
 | 15 · Audit d'un annuaire | Séquence 8 · Parcours avancés | 50 |
 | 16 · Reconstituer une chronologie | Séquence 8 · Parcours avancés | 50 |
 | 17 · Segmentation et pivot | Séquence 8 · Parcours avancés | 45 |
 
-## Cursus Ethical Hacking (simulateur web)
-Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`) : EH02-1 à EH02-3 (reconnaissance), EH03-1 à EH03-3 (scan). Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
+## Parcours pentest (simulateur web)
+Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`) : SIM02-1 à SIM02-3 (reconnaissance), SIM03-1 à SIM03-3 (scan). Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
 
 ## Cours
-17 leçons originales réparties en trois parcours (Fondations, Filière audit P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
+17 leçons originales réparties en trois parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours sécurité offensive SO1 à SO5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
 
 ## Pourquoi c'est réaliste
 - `auth.log` au format syslog Debian, avec du bruit crédible (cron, scanners, fautes de frappe d'un admin, sudo), généré par gawk.

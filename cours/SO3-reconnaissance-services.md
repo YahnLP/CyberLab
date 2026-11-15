@@ -1,4 +1,4 @@
-# HAC 3 · Reconnaissance avancée et énumération de services
+# SO3 · Reconnaissance avancée et énumération de services
 
 Durée : 1 h 30 · Prérequis : P1 à P3 · Défi associé : 12 · Énumération de services
 

@@ -1,4 +1,4 @@
-# HAC 4 · Sécurité des applications web
+# SO4 · Sécurité des applications web
 
 Durée : 2 h · Prérequis : P4, P5, P6 · Défi associé : 13 · Revue de code d'une application web
 

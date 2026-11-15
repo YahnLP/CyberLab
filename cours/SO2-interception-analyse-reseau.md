@@ -1,4 +1,4 @@
-# HAC 2 · Interception et analyse réseau
+# SO2 · Interception et analyse réseau
 
 Durée : 1 h 30 · Prérequis : P2, P7 · Défi associé : 11 · Lire une capture réseau
 

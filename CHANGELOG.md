@@ -1,16 +1,16 @@
 # Changelog
 ## Non publié
 
-- Cursus Ethical Hacking : leçons EH02 (reconnaissance et empreinte) et EH03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
+- Parcours pentest : leçons SIM02 (reconnaissance et empreinte) et SIM03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
 - `tests/check-cours.sh` contrôle désormais 22 leçons.
 
-## v0.13.0 — jumeau numérique et cursus Ethical Hacking (EH02, EH03)
+## v0.13.0 — jumeau numérique et parcours pentest (SIM02, SIM03)
 - **Jumeau numérique** : une plage fictive générée par session (domaine en .example, réseau 192.168.x.0/24, plages 203.0.113.x), conservée avec la progression : 8 hôtes dont un équipement inconnu et un hôte disparu, DNS public et interne, serveur web avec en-têtes et fuite, un port non prévu, un service obsolète.
 - **Outils simulés** au format des vrais outils : `ping`, `host`, `dig`, `nslookup`, `nmap` (-sn, -sV, -p, -p-, -F, --open) et `curl` (-I, -i, -s, -L, -w). Chaque action laisse une trace côté défense.
-- **6 missions** : EH02 (noms publics, en-têtes et fuites web, messagerie SPF) et EH03 (hôtes actifs, ports du serveur web, écart inventaire et politique de versions). Chaque mission a une face Red (constats corrigés sur les faits du jumeau) et une face Blue (mesure à choisir, ordre tiré de la graine). Nouveau groupe « Cursus Ethical Hacking » sur l'accueil.
+- **6 missions** : SIM02 (noms publics, en-têtes et fuites web, messagerie SPF) et SIM03 (hôtes actifs, ports du serveur web, écart inventaire et politique de versions). Chaque mission a une face Red (constats corrigés sur les faits du jumeau) et une face Blue (mesure à choisir, ordre tiré de la graine). Nouveau groupe « Parcours pentest » sur l'accueil.
 - Panneaux **Vue du lab** (ce que voit la défense, alertes) et **Web** (même réponse que curl -i) sous le terminal des missions.
 - Tests : invariants de la plage sur 200 graines, les 6 missions sont résolues UNIQUEMENT à partir des sorties des outils (40 plages), mauvaises réponses refusées, test navigateur `ui-twin.mjs`.
-- La couche SQL (panneau Base SQL) arrive avec le module EH15.
+- La couche SQL (panneau Base SQL) arrive avec le module SIM15.
 
 ## v0.12.0 — défi 01 sur le simulateur web
 - Défi 01 (incident SSH, 60 points, 8 phases) jouable dans le navigateur : commandes `ssh-keygen -lf` et `sshd -T` simulées, retest 6 contrôles, détection rejouée sur un second journal, rapport contrôlé. La clé d'hôte privée n'est pas publiée.
@@ -39,7 +39,7 @@
 - Accueil : progression globale, progression par parcours, état par étape ; accessibilité (lien d'évitement, focus visible, mouvement réduit).
 
 ## v0.9.1 — accueil en parcours guidé
-- Accueil du simulateur web réorganisé : Fondations, Filière audit, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
+- Accueil du simulateur web réorganisé : Fondations, Parcours professionnalisant, Parcours avancés, Parcours sécurité offensive ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
 - Nouveau défi 00 « Prise en main : preuve et premières commandes » (copie de preuve, empreinte, premières mesures).
 
 ## v0.9.0 — simulateur web (GitHub Pages)
@@ -55,7 +55,7 @@
 - Leçons P12 (annuaire), P13 (forensic), P14 (segmentation) et défis 15 à 17 : audit d'un export d'annuaire, chronologie et IOC, matrice de flux et pivot.
 - Analyse hors ligne et défense uniquement.
 
-## v0.6.0 — défis du cycle HAC
+## v0.6.0 — défis du parcours sécurité offensive
 - Défis 10 à 14 : analyse d'un mandat (et Cyber Kill Chain), lecture d'une capture réseau (identifiants en clair, empoisonnement ARP), énumération DNS/SMB/SNMP, revue de code web, protections mémoire et base Metasploit.
 - Tous orientés analyse et défense, sans exploitation ni fabrication de charge.
 
@@ -73,7 +73,7 @@
 - tests/run-solution.sh joue tous les corrigés.
 
 ## v0.2.0 — cours
-- 17 leçons : prise en main, parcours métier P1 à P11, cycle HAC 1 à 5 (contenu original).
+- 17 leçons : prise en main, parcours métier P1 à P11, parcours sécurité offensive SO1 à SO5 (contenu original).
 - `tests/check-cours.sh` : structure, exercices corrigés, liens, adresses fictives.
 
 ## v0.1.0 — proposition

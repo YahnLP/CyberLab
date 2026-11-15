@@ -1,6 +1,6 @@
-# HAC 5 · Analyse applicative, Metasploit et restitution
+# SO5 · Analyse applicative, Metasploit et restitution
 
-Durée : 2 h · Prérequis : P5, HAC 3, HAC 4 · Défi associé : 14 · Protections mémoire et base Metasploit
+Durée : 2 h · Prérequis : P5, SO3, SO4 · Défi associé : 14 · Protections mémoire et base Metasploit
 
 ## Objectifs
 - Se repérer dans le framework Metasploit en laboratoire.
