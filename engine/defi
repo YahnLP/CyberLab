@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -u
+LAB_DIR="${BASHLAB_HOME:-/opt/bashlab}"; CH_DIR="$LAB_DIR/challenges"; LAB_LIB="$LAB_DIR/engine/lib.sh"
+STATE_DIR="$HOME/.bashlab"; ANSWERS_DIR="$STATE_DIR/reponses"; PROGRESS="$STATE_DIR/progression"
+CURRENT_FILE="$STATE_DIR/courant"; WORK_ROOT="$HOME/atelier"
+if [ -t 1 ]; then R=$'\033[0m';B=$'\033[1m';DIM=$'\033[2m';GREEN=$'\033[32m';RED=$'\033[31m';YELLOW=$'\033[33m';CYAN=$'\033[36m'
+else R="";B="";DIM="";GREEN="";RED="";YELLOW="";CYAN=""; fi
+init(){ mkdir -p "$ANSWERS_DIR" "$WORK_ROOT"; touch "$PROGRESS"; }
+die(){ echo "${RED}${B}Erreur :${R} $*" >&2; exit 1; }
+normalize_id(){ case "$1" in [0-9]) echo "0$1";; *) echo "$1";; esac; }
+find_challenge(){ local id d; id=$(normalize_id "$1"); for d in "$CH_DIR/$id"-*; do [ -d "$d" ] && { echo "$d"; return 0; }; done; return 1; }
+load_meta(){ TITLE="(sans titre)";MODULE="(divers)";POINTS=10;DIFFICULTY=1; . "$1/meta.conf"; }
+challenge_id(){ basename "$1" | cut -d- -f1; }
+status_of(){ grep "^$1|" "$PROGRESS" 2>/dev/null | tail -n1 | cut -d'|' -f2; }
+points_of(){ grep "^$1|" "$PROGRESS" 2>/dev/null | tail -n1 | cut -d'|' -f3; }
+hints_used(){ local h; h=$(grep "^$1|" "$PROGRESS" 2>/dev/null | tail -n1 | cut -d'|' -f4); echo "${h:-0}"; }
+set_status(){ grep -v "^$1|" "$PROGRESS" > "$PROGRESS.tmp" 2>/dev/null || true; echo "$1|$2|$3|$4" >> "$PROGRESS.tmp"; mv "$PROGRESS.tmp" "$PROGRESS"; }
+current_id(){ [ -f "$CURRENT_FILE" ] && cat "$CURRENT_FILE" || true; }
+require_current(){ CUR=$(current_id); [ -n "$CUR" ] || die "aucun défi en cours."; DIR=$(find_challenge "$CUR") || die "défi introuvable."; }
+difficulty_stars(){ local i out=""; for ((i=1;i<=3;i++)); do [ "$i" -le "$1" ] && out+="★" || out+="☆"; done; echo "$out"; }
+header(){ echo; echo "${CYAN}${B}╔══════════════════════════════════════════════════════════╗${R}"; printf "${CYAN}${B}║${R}  %-56s${CYAN}${B}║${R}\n" "$1"; echo "${CYAN}${B}╚══════════════════════════════════════════════════════════╝${R}"; }
+cmd_liste(){ init; local d id st mark last_module=""; echo; echo "  ${B}DÉFIS DISPONIBLES${R}"
+for d in "$CH_DIR"/[0-9]*-*/; do d=${d%/}; [ -d "$d" ] || continue; id=$(challenge_id "$d"); load_meta "$d"
+if [ "$MODULE" != "$last_module" ]; then echo; echo "  ${CYAN}${B}── $MODULE ──${R}"; last_module="$MODULE"; fi
+st=$(status_of "$id"); case "$st" in reussi)mark="${GREEN}✔ réussi ${R}";; en_cours)mark="${YELLOW}▶ en cours${R}";; *)mark="${DIM}· à faire ${R}";; esac
+printf "   %s  ${B}%s${R}  %-28s %s  ${DIM}%2d pts${R}\n" "$mark" "$id" "$TITLE" "$(difficulty_stars "$DIFFICULTY")" "$POINTS"
+done; echo; echo "  ${DIM}Pour commencer : ${R}${B}defi start <numéro>${R}"; echo; }
+cmd_start(){ init; [ $# -ge 1 ] || die "indiquez un numéro."; local dir id work
+dir=$(find_challenge "$1") || die "défi '$1' inexistant."; id=$(challenge_id "$dir"); load_meta "$dir"
+work="$WORK_ROOT/$(basename "$dir")"; rm -rf "$work"; mkdir -p "$work"
+( cd "$work" && WORK="$work" CH="$dir" LAB_LIB="$LAB_LIB" ANSWER_FILE="$ANSWERS_DIR/$id" bash "$dir/setup.sh" ) || die "échec de la préparation."
+echo "$id" > "$CURRENT_FILE"; set_status "$id" "en_cours" 0 0
+header "Défi $id — $TITLE   [$(difficulty_stars "$DIFFICULTY") · $POINTS pts]"; echo; sed 's/^/  /' "$dir/enonce.txt"
+echo; echo "  ${B}Atelier :${R} ${CYAN}$work${R}"; echo "  ${DIM}defi enonce · defi indice · defi valider${R}"; echo; }
+cmd_enonce(){ init; require_current; load_meta "$DIR"; header "Défi $CUR — $TITLE"; echo; sed 's/^/  /' "$DIR/enonce.txt"; echo; }
+cmd_indice(){ init; require_current; local used total next; used=$(hints_used "$CUR"); total=$(grep -c '' "$DIR/indices.txt")
+if [ "$used" -ge "$total" ]; then echo; echo "  ${YELLOW}Tous les indices révélés :${R}"; echo; nl -w2 -s'. ' "$DIR/indices.txt" | sed 's/^/  /'; echo; return; fi
+next=$((used+1)); set_status "$CUR" "en_cours" 0 "$next"; echo; echo "  ${YELLOW}${B}Indice $next/$total${R}"; echo; sed -n "${next}p" "$DIR/indices.txt" | sed 's/^/  💡 /'; echo; }
+cmd_valider(){ init; require_current; load_meta "$DIR"; local work answer st
+work="$WORK_ROOT/$(basename "$DIR")"; answer="${1:-}"; st=$(status_of "$CUR")
+if WORK="$work" CH="$DIR" LAB_LIB="$LAB_LIB" ANSWER_FILE="$ANSWERS_DIR/$CUR" bash "$DIR/check.sh" "$answer"; then
+local used earned min; used=$(hints_used "$CUR"); earned=$((POINTS-2*used)); min=$((POINTS/2)); [ "$earned" -lt "$min" ] && earned=$min
+if [ "$st" = "reussi" ]; then echo; echo "  ${GREEN}${B}✔ Toujours juste !${R}"
+else set_status "$CUR" "reussi" "$earned" "$used"; echo
+echo "  ${GREEN}${B}╔═══════════════════════════════════╗${R}"
+echo "  ${GREEN}${B}║   ✔  DÉFI RÉUSSI ! Bravo !        ║${R}"
+echo "  ${GREEN}${B}╚═══════════════════════════════════╝${R}"
+echo "    Points : ${B}$earned/$POINTS${R}  ${DIM}(indices: $used)${R}"; fi; echo
+else echo; echo "  ${RED}${B}✘ Pas encore...${R} ${DIM}defi enonce · defi indice${R}"; echo; return 1; fi; }
+cmd_suivant(){ init; for d in "$CH_DIR"/[0-9]*-*/; do d=${d%/}; id=$(challenge_id "$d")
+[ "$(status_of "$id")" != "reussi" ] && { cmd_start "$id"; return; }; done
+echo; echo "  ${GREEN}${B}🏆 Tous les défis sont réussis !${R}"; echo; }
+cmd_score(){ init; local d id st pts total=0 max=0 done_c=0 count=0; echo; echo "  ${B}PROGRESSION${R}"; echo
+for d in "$CH_DIR"/[0-9]*-*/; do d=${d%/}; id=$(challenge_id "$d"); load_meta "$d"; count=$((count+1)); max=$((max+POINTS))
+st=$(status_of "$id"); if [ "$st" = "reussi" ]; then pts=$(points_of "$id"); total=$((total+pts)); done_c=$((done_c+1))
+printf "   ${GREEN}✔${R} %s %-28s ${B}%2d${R}${DIM}/%d pts${R}\n" "$id" "$TITLE" "$pts" "$POINTS"; fi; done
+[ "$done_c" -eq 0 ] && echo "   ${DIM}Aucun défi réussi. Lancez : defi start 01${R}"
+echo; local w=30 f=$((done_c*w/count)) i bar=""; for((i=0;i<w;i++)); do [ "$i" -lt "$f" ] && bar+="█" || bar+="░"; done
+echo "   [$bar]  $done_c/$count défis"; echo "   ${B}Score : $total/$max points${R}"; echo; }
+cmd_aide(){ cat <<EOF
+
+  ${B}BashLab — commandes${R}
+  ${B}defi liste${R}              Tous les défis
+  ${B}defi start <n>${R}          Commencer un défi
+  ${B}defi enonce${R}             Revoir l'énoncé
+  ${B}defi indice${R}             Obtenir un indice (-2 pts)
+  ${B}defi valider [réponse]${R}  Vérifier la solution
+  ${B}defi suivant${R}            Prochain défi non réussi
+  ${B}defi score${R}              Progression et points
+  ${B}defi reset <n>${R}          Recommencer un défi
+
+EOF
+}
+[ -d "$CH_DIR" ] || die "répertoire des défis introuvable."
+case "${1:-aide}" in
+    liste|list|ls) cmd_liste;; start|go) shift; cmd_start "$@";; enonce|énoncé) cmd_enonce;;
+    indice|hint) cmd_indice;; valider|check) shift||true; cmd_valider "${1:-}";; suivant|next) cmd_suivant;;
+    score|points) cmd_score;; reset) shift; cmd_start "$@";; aide|help|--help|-h) cmd_aide;;
+    *) die "commande inconnue '$1'. Voir : defi aide";;
+esac

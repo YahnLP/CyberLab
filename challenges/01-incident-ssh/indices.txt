@@ -1,0 +1,14 @@
+Phase 1 : cp -p srv01/var/log/auth.log preuves/ puis cd preuves && sha256sum auth.log > SHA256SUMS
+Phase 2 : grep -c "Failed password" srv01/var/log/auth.log compte les échecs. Les lignes « Invalid user » et « authentication failure » ne sont pas des échecs de mot de passe.
+Phase 2 : grep "Failed password" LOG | grep -oE "([0-9]{1,3}\.){3}[0-9]{1,3}" | sort | uniq -c | sort -rn  classe les sources.
+Phase 3 : grep Accepted LOG | grep IP — le premier « Accepted password » depuis l'IP attaquante est la compromission (3e champ = l'heure).
+Phase 3 : des échecs seuls = tentative ; un succès depuis la même IP = compromission.
+Phase 4 : lisez srv01/home/<compte>/.bash_history : les lignes #nombre sont des horodatages (date -d @nombre).
+Phase 4 : ssh-keygen -lf srv01/home/<compte>/.ssh/authorized_keys affiche une empreinte par clé : repérez celle dont le commentaire apparaît dans l'historique.
+Phase 4 : crontab -l n'est pas utilisable ici ; lisez le fichier dans srv01/var/spool/cron/crontabs/.
+Phase 5 : awk '/Failed password/{for(i=1;i<=NF;i++) if($i=="from") c[$(i+1)]++} END{for(ip in c) if(c[ip]>=s) print ip, c[ip]}' s="${2:-10}" "$1"
+Phase 6 : sshd_config : PasswordAuthentication no, PermitRootLogin no, MaxAuthTries 3. Vérifiez avec /usr/sbin/sshd -T -f srv01/etc/ssh/sshd_config -h srv01/etc/ssh/ssh_host_ed25519_key
+Phase 6 : nftables : une ligne « ip saddr IP drop » doit précéder « tcp dport 22 accept » (le premier qui correspond gagne).
+Phase 6 : sed -i '/sync@localhost/d' ...authorized_keys et sed -i '\#CHEMIN#d' ...crontab : supprimez uniquement les lignes frauduleuses.
+Phase 7 : relancez ./retest.sh après chaque correction jusqu'à 6/6.
+Phase 8 : citez dans le rapport l'IP, le compte, l'empreinte, les chiffres observés ; séparez faits et interprétation.
