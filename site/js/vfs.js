@@ -1,6 +1,6 @@
 // Système de fichiers virtuel en mémoire.
 export class VFS {
-  constructor() { this.f = new Map(); this.d = new Set(['/']); this.now = 1767225600; }
+  constructor() { this.f = new Map(); this.d = new Set(['/', '/tmp']); this.now = 1767225600; }
   static norm(p) { const out = []; for (const s of p.split('/')) { if (!s || s === '.') continue; if (s === '..') out.pop(); else out.push(s); } return '/' + out.join('/'); }
   resolve(p, cwd) { return VFS.norm(p.startsWith('/') ? p : cwd + '/' + p); }
   isFile(p) { return this.f.has(p); } isDir(p) { return this.d.has(p); } exists(p) { return this.isFile(p) || this.isDir(p); }

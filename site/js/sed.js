@@ -7,6 +7,7 @@ function parseScript(script, ere) {
     if (script[i] === '$') { i++; return { k: 'last' }; }
     if (/\d/.test(script[i])) { let s = ''; while (/\d/.test(script[i] || '')) s += script[i++]; return { k: 'n', v: +s }; }
     if (script[i] === '/') { i++; const re = readDelim('/'); return { k: 're', re: toJS(re, { ere }) }; }
+    if (script[i] === '\\' && script[i + 1] && !/[\s\\]/.test(script[i + 1])) { const d = script[i + 1]; i += 2; const re = readDelim(d); return { k: 're', re: toJS(re, { ere }) }; }
     return null;
   };
   while (i < n) {

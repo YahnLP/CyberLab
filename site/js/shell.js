@@ -4,6 +4,7 @@ import { runAwk } from './awk.js';
 import { runSed } from './sed.js';
 import { toJS } from './regex.js';
 import { sha256 } from './sha256.js';
+import { sshdT, keygenLf, controls } from './ssh01.js';
 
 class Stream { constructor(s = '') { this.s = s; this.p = 0; } write(x) { this.s += x; } readLine() { if (this.p >= this.s.length) return null; let e = this.s.indexOf('\n', this.p); if (e < 0) e = this.s.length; const l = this.s.slice(this.p, e); this.p = e + 1; return l; } rest() { const r = this.s.slice(this.p); this.p = this.s.length; return r; } }
 const lines = s => { if (s === '') return []; const a = s.split('\n'); if (a[a.length - 1] === '') a.pop(); return a; };
@@ -11,7 +12,7 @@ const joinL = a => a.length ? a.join('\n') + '\n' : '';
 
 // ---------- analyse lexicale ----------
 function tokenize(src) {
-  const t = []; let i = 0; const n = src.length;
+  const t = []; let i = 0; let n = src.length;
   const isOpCh = c => '|&;<>()'.includes(c);
   while (i < n) {
     const c = src[i];
@@ -22,6 +23,17 @@ function tokenize(src) {
     if (isOpCh(c)) {
       const two = src.slice(i, i + 2), three = src.slice(i, i + 3);
       if (three === '<<<') { t.push({ op: '<<<' }); i += 3; continue; }
+      if (two === '<<') { // document en ligne (heredoc)
+        let j = i + 2; const strip = src[j] === '-'; if (strip) j++; while (src[j] === ' ' || src[j] === '\t') j++;
+        let delim = '', quoted = false; while (j < n && !/[ \t\n;&|<>()]/.test(src[j])) { const ch = src[j]; if (ch === "'" || ch === '"') { quoted = true; const q = ch; j++; while (j < n && src[j] !== q) delim += src[j++]; j++; } else if (ch === '\\') { quoted = true; delim += src[j + 1] ?? ''; j += 2; } else { delim += ch; j++; } }
+        if (!delim) { t.push({ op: '<<' }); i += 2; continue; }
+        let nlp = src.indexOf('\n', j); const lines = []; let end = src.length;
+        if (nlp >= 0) { let k = nlp + 1; end = src.length; while (k <= src.length) { let e = src.indexOf('\n', k); if (e < 0) e = src.length; let ln = src.slice(k, e); if (strip) ln = ln.replace(/^\t+/, ''); if (ln === delim) { end = Math.min(e + 1, src.length); break; } lines.push(strip ? ln : src.slice(k, e)); if (e >= src.length) { end = src.length; break; } k = e + 1; } src = src.slice(0, nlp + 1) + src.slice(end); n = src.length; }
+        const body = lines.join('\n'); let part;
+        if (quoted) part = { q: 's', t: body };
+        else { let s = ''; for (let k = 0; k < body.length; k++) { const ch = body[k]; if (ch === '\\' && body[k + 1] === '\n') { k++; continue; } if (ch === '\\' && '\\$`'.includes(body[k + 1])) { s += '\\' + body[k + 1]; k++; continue; } if (ch === '$' && body[k + 1] === '(') { const e = matchParen(body, k + 1); s += body.slice(k, e + 1); k = e; continue; } s += ch; } part = { q: 'd', t: s }; }
+        t.push({ op: '<<<' }); t.push({ w: [part] }); i = j; continue;
+      }
       if (['&&', '||', '>>', ';;'].includes(two)) { t.push({ op: two }); i += 2; continue; }
       if (c === '>' && src[i + 1] === '&') { t.push({ op: '>&' }); i += 2; continue; }
       t.push({ op: c }); i++; continue;
@@ -96,7 +108,7 @@ export class Shell {
     this.fs = vfs; this.home = home; this.cwd = cwd || home; this.env = { HOME: home, USER: 'stagiaire', PATH: '/usr/bin:/bin', PWD: this.cwd, SHELL: '/bin/bash', LANG: 'fr_FR.UTF-8' };
     this.last = 0; this.hooks = { edit, defi }; this.args = []; this.history = []; this.depth = 0; this.steps = 0;
   }
-  vget(n) { if (n === '?') return String(this.last); if (n === 'RANDOM') return String(Math.floor(Math.random() * 32768)); if (n === '#') return String(this.args.length); if (/^[0-9]+$/.test(n)) return n === '0' ? 'bash' : (this.args[+n - 1] ?? ''); if (n === '@' || n === '*') return this.args.join(' '); if (n === 'PWD') return this.cwd; return this.env[n] ?? ''; }
+  vget(n) { if (n === '$') return '4242'; if (n === '?') return String(this.last); if (n === 'RANDOM') return String(Math.floor(Math.random() * 32768)); if (n === '#') return String(this.args.length); if (/^[0-9]+$/.test(n)) return n === '0' ? 'bash' : (this.args[+n - 1] ?? ''); if (n === '@' || n === '*') return this.args.join(' '); if (n === 'PWD') return this.cwd; return this.env[n] ?? ''; }
   path(p) { if (p === '~') p = this.home; else if (p.startsWith('~/')) p = this.home + p.slice(1); return this.fs.resolve(p, this.cwd); }
   async run(line, io) {
     io = io || { in: new Stream(''), out: new Stream(), err: null };
@@ -204,7 +216,7 @@ export class Shell {
       if (d === '(' && s[i + 2] === '(') { const e = matchParen(s, i + 1); const expr = s.slice(i + 3, e - 1); out += String(await this.arith(expr)); i = e + 1; continue; }
       if (d === '(') { const e = matchParen(s, i + 1); out += await this.subst(s.slice(i + 2, e)); i = e + 1; continue; }
       if (d === '{') { const e = s.indexOf('}', i); const inner = s.slice(i + 2, e); out += this.paramExp(inner); i = e + 1; continue; }
-      const m = /^([A-Za-z_][A-Za-z_0-9]*|[0-9?#@*])/.exec(s.slice(i + 1));
+      const m = /^([A-Za-z_][A-Za-z_0-9]*|[0-9?#@*$])/.exec(s.slice(i + 1));
       if (m) { out += this.vget(m[1]); i += 1 + m[1].length; continue; }
       out += '$'; i++;
     }
@@ -381,6 +393,17 @@ export const CMDS = {
   async source(args, io) { const code = this.fs.read(this.path(args[0])); return this.run2(code, io); },
   async xargs(args, io) { const items = io.in.rest().split(/\s+/).filter(Boolean); const cmd = args.length ? args : ['echo']; return this.command(cmd[0], [...cmd.slice(1), ...items], io); },
   async tree(args, io) { const root = this.path(args[0] ?? '.'); const walk = (d, pre) => { const names = this.fs.list(d).filter(n => !n.startsWith('.')); names.forEach((n, i) => { const last = i === names.length - 1; io.out.write(pre + (last ? '└── ' : '├── ') + n + '\n'); const p = VFS.norm(d + '/' + n); if (this.fs.isDir(p)) walk(p, pre + (last ? '    ' : '│   ')); }); }; io.out.write(args[0] ?? '.' + '\n'.replace('\n', '') ); io.out.write('\n'); walk(root, ''); return 0; },
+  async sshd(args, io) { const err = io.err || io.out; let f = '/etc/ssh/sshd_config', T = false, t = false; for (let i = 0; i < args.length; i++) { if (args[i] === '-f') f = args[++i]; else if (args[i] === '-T') T = true; else if (args[i] === '-t') t = true; else if (args[i] === '-h') i++; }
+    if (!T && !t) { err.write('usage: sshd [-46DdeGiqTtV] [-C connection_spec] [-c host_cert_file]\n            [-E log_file] [-f config_file] [-g login_grace_time]\n            [-h host_key_file] [-o option] [-p port] [-u len]\n'); return 1; }
+    const p = this.path(f); if (!this.fs.isFile(p)) { err.write(`Could not load host key: ${f}\n/usr/sbin/sshd: no hostkeys available -- exiting.\n`); return 255; }
+    const r = sshdT(this.fs.read(p)); if (!r.ok) { err.write(`${f}: ${r.err}\n${f}: terminating, 1 bad configuration options\n`); return 255; }
+    if (T) io.out.write(r.out.join('\n') + '\n'); return 0; },
+  async 'ssh-keygen'(args, io) { const err = io.err || io.out; const i = args.findIndex(a => a === '-lf' || a === '-l'); const f = i >= 0 ? (args[i] === '-lf' ? args[i + 1] : args[args.indexOf('-f') + 1]) : null;
+    if (!f) { err.write('ssh-keygen : seule la lecture d\'empreinte est disponible dans ce simulateur : ssh-keygen -lf FICHIER\n'); return 1; }
+    const p = this.path(f); if (!this.fs.isFile(p)) { err.write(`${f}: No such file or directory\n`); return 1; }
+    const lines = keygenLf(this.fs.read(p)); if (!lines.length) { err.write(`${f} is not a public key file.\n`); return 1; } io.out.write(lines.join('\n') + '\n'); return 0; },
+  async 'lab-controls'(args, io) { const files = this.fs.snapshot(this.cwd); const r = controls(files); io.out.write(`RETEST srv01 - ${dateFmt(this.fs.now, '%Y-%m-%d %H:%M:%S')}\n` + r.lines.join('\n') + '\n'); return 0; },
+  async set() { return 0; },
   async stat(args, io) { const p = this.path(args[0]); const f = this.fs.f.get(p); if (!f) { (io.err || io.out).write(`stat : impossible d'évaluer « ${args[0]} »\n`); return 1; } io.out.write(`  Fichier : ${args[0]}\n  Taille : ${f.c.length}\nModification : ${dateFmt(f.m, '%F %T')}\n`); return 0; },
   async file(args, io) { for (const a of args) io.out.write(`${a}: ${this.fs.isDir(this.path(a)) ? 'directory' : 'ASCII text'}\n`); return 0; },
   async diff(args, io) { const a = lines(this.fs.read(this.path(args[0]))), b = lines(this.fs.read(this.path(args[1]))); const sa = new Set(a), sb = new Set(b); let d = 0; for (const l of a) if (!sb.has(l)) { io.out.write(`< ${l}\n`); d = 1; } for (const l of b) if (!sa.has(l)) { io.out.write(`> ${l}\n`); d = 1; } return d; },
@@ -391,5 +414,5 @@ export const CMDS = {
   async help(args, io) { io.out.write('Commandes disponibles : ' + Object.keys(CMDS).filter(k => /^[a-z0-9]/.test(k) && k !== 'help').sort().join(' ') + '\n'); return 0; },
 };
 async function edit(args, io) { const f = args.find(a => !a.startsWith('-')); if (!f) return 0; const p = this.path(f); let cur = ''; try { cur = this.fs.read(p); } catch { } if (!this.hooks.edit) { (io.err || io.out).write('éditeur indisponible\n'); return 1; } const res = await this.hooks.edit(f, cur); if (res !== null) this.fs.write(p, res); return 0; }
-for (const n of ['curl', 'nmap', 'dig', 'ssh', 'nc', 'tcpdump', 'ssh-keygen', 'sshd', 'ping', 'wget', 'sudo']) CMDS[n] = async function (a, io) { (io.err || io.out).write(`${n} : non disponible dans le simulateur web (les données à analyser sont déjà fournies dans les fichiers).\n`); return 127; };
+for (const n of ['curl', 'nmap', 'dig', 'ssh', 'nc', 'tcpdump', 'ping', 'wget', 'sudo']) CMDS[n] = async function (a, io) { (io.err || io.out).write(`${n} : non disponible dans le simulateur web (les données à analyser sont déjà fournies dans les fichiers).\n`); return 127; };
 export { Stream };

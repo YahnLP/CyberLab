@@ -1,12 +1,14 @@
 // Correcteur : port JavaScript de engine/lib.sh (mêmes règles de normalisation et de hachage).
 import { sha256 } from './sha256.js';
+import { check01 } from './ssh01.js';
 const hashOf = s => sha256(s);
 const normSetLines = text => [...new Set(text.replace(/\r/g, '').split('\n').map(l => l.replace(/^[ \t]+|[ \t]+$/g, '')).filter(l => l !== ''))].sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
 const normList = v => [...new Set(v.replace(/[A-Z]/g, c => c.toLowerCase()).replace(/[èé]/g, 'e').replace(/ /g, '').split(',').filter(Boolean))].sort().join(',');
 const given = (files, key) => { const t = files['reponses.txt']; if (t === undefined) return ''; for (const l of t.split('\n')) if (l.startsWith(key + '=')) return l.slice(key.length + 1).replace(/^\s+|\s+$/g, ''); return ''; };
 
 // Prépare les réponses « vérité » d'une variante (déjà hachées par les scripts d'origine).
-export function runChecks(def, variant, files) {
+export function runChecks(def, variant, files, extra) {
+  if (def.special === 'ssh') return check01(def, variant, files, extra);
   const out = []; let fail = false; const T = variant.answers;
   const say = (k, t) => out.push({ k, t });
   let first = true;

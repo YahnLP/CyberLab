@@ -1,0 +1,21 @@
+// Test navigateur : le défi 01 (incident SSH) se joue et se valide dans le simulateur. Usage : node tests/web/ui-defi01.mjs [URL]
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import fs from 'node:fs';
+const BASE = process.argv[2] || 'http://127.0.0.1:8765/';
+const sol = fs.readFileSync(new URL('../../formateur/solutions/01-incident-ssh.sh', import.meta.url), 'utf8');
+const br = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--proxy-server=direct://', '--proxy-bypass-list=*'] });
+const pg = await br.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
+const run = async (l, w = 400) => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(w); };
+await pg.goto(BASE + '#/defi/01'); await pg.waitForSelector('#term input');
+ok((await pg.textContent('#def-title')).includes('Incident SSH'), 'défi 01 disponible sur le web');
+await run('ls -R srv01 | head -5'); await run('ssh-keygen -lf srv01/home/*/.ssh/authorized_keys');
+ok((await pg.textContent('#term')).includes('(ED25519)'), 'ssh-keygen -lf répond');
+await run('sshd -T -f srv01/etc/ssh/sshd_config | grep -E "^(passwordauthentication|permitrootlogin|maxauthtries)"');
+ok((await pg.textContent('#term')).includes('permitrootlogin yes'), 'sshd -T affiche la configuration effective');
+await run('defi valider', 1200); ok(/Pas encore/.test(await pg.textContent('#term')), 'refusé tant que rien n\'est fait');
+await run('echo ' + Buffer.from(sol).toString('base64') + ' | base64 -d > /tmp/sol.sh'); await run('bash /tmp/sol.sh', 2500);
+await run('defi valider', 2500); const t = await pg.textContent('#term');
+ok(/DÉFI RÉUSSI/.test(t), 'corrigé formateur validé'); ok(/RETEST : 6\/6/.test(t), 'retest 6/6 affiché');
+ok((await pg.textContent('#banner')).includes('Défi réussi'), 'bandeau de réussite');
+ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
+await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI défi 01 : OK'); process.exit(bad ? 1 : 0);
