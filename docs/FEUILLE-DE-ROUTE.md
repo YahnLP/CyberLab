@@ -21,9 +21,9 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM07 | Analyse de malwares (inerte) | Absent |
 | SIM08 | Capture et trafic | Livré : missions SIM08-1 (balayage, mot de passe en clair) et SIM08-2 (exfiltration DNS) |
 | SIM09 | Ingénierie sociale (sensibilisation) | Absent |
-| SIM10 | Disponibilité, DoS | Défi 08 |
-| SIM11 | Sessions, cookies | Défi 07 partiel |
-| SIM12 | Périmètre, IDS, pare-feu | Défi 01 (nftables), partiel |
+| SIM10 | Disponibilité, DoS | Livré : missions SIM10-1 (rafale dans le journal web) et SIM10-2 (ressource saturée) |
+| SIM11 | Sessions, cookies | Livré : missions SIM11-1 (attributs et valeur prévisible) et SIM11-2 (fixation de session) |
+| SIM12 | Périmètre, IDS, pare-feu | Livré : missions SIM12-1 (revue de règles) et SIM12-2 (tri des alertes IDS) |
 | SIM13 | Serveur web | Défi 05 |
 | SIM14 | Application web | Défi 13 (revue de code) |
 | SIM15 | SQL et couche données | Absent |

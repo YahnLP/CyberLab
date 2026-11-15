@@ -375,6 +375,132 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['grep TXT capture-dns.txt isole les requêtes de type TXT.', 'awk \'{print $3}\' capture-dns.txt | sort | uniq -c montre quelle adresse source domine.', 'host ADRESSE (résolution inverse) donne le nom de l\'hôte interne.', 'Le domaine suspect est ce qui suit les 40 caractères hexadécimaux.'],
     check: checker('SIM08-2', tw => { const c = dnsCapture(tw); return [ask('hote_source', 'txt', c.src.name), ask('domaine_suspect', 'txt', c.evil), ask('nombre_requetes', 'num', c.n)]; }, d2), finish: 'Canal caché repéré : un poste interne exfiltrait des données par des requêtes DNS.' });
 }
+// ---------------------------------------------------------------- SIM10 : disponibilité (journal web et métriques, données fictives)
+const pad2 = n => String(n).padStart(2, '0');
+const flood = tw => { const R = rng(tw.seed * 83 + 1); return { m0: R.int(8, 18), dur: 3, attacker: `198.51.100.${R.int(10, 240)}`, path: R.pick(['/recherche', '/export', '/api/catalogue']), n: R.int(220, 320), sat: R.pick(['cpu', 'memoire', 'connexions']) }; };
+const accessLog = tw => { const R = rng(tw.seed * 83 + 2); const F = flood(tw); const clients = Array.from({ length: 12 }, () => `203.0.113.${R.int(150, 250)}`); const pages = ['/', '/produits', '/contact', '/actualites', '/connexion', '/panier'];
+  const rows = []; const row = (t, ip, path, st, sz) => rows.push({ t, line: `${ip} - - [15/Nov/2026:14:${pad2(Math.floor(t / 60))}:${pad2(t % 60)} +0000] "GET ${path} HTTP/1.1" ${st} ${sz} "-" "${ip === F.attacker ? 'python-requests/2.31' : 'Mozilla/5.0'}"` });
+  for (let i = 0; i < 140; i++) row(R.int(0, 29 * 60 + 59), R.pick(clients), R.pick(pages), 200, R.int(800, 9000));
+  for (let i = 0; i < F.n; i++) { const t = F.m0 * 60 + R.int(0, F.dur * 60 - 1); row(t, F.attacker, `${F.path}?q=${R.int(1, 99999)}`, R.f() < 0.45 ? 503 : 200, R.int(300, 2000)); }
+  return rows.sort((a, b) => a.t - b.t).map(r => r.line).join('\n') + '\n'; };
+const metrics = tw => { const R = rng(tw.seed * 83 + 3); const F = flood(tw); let o = '# heure;cpu_pct;memoire_pct;connexions\n# seuils : cpu 90 ; memoire 90 ; connexions 1000 (limite du serveur)\n'; let first = null, max = 0;
+  for (let m = 0; m < 30; m++) { const hot = m >= F.m0 && m < F.m0 + F.dur; const v = { cpu: R.int(15, 30), memoire: R.int(40, 55), connexions: R.int(30, 60) };
+    if (hot) { v.cpu = F.sat === 'cpu' ? R.int(92, 99) : R.int(55, 75); v.memoire = F.sat === 'memoire' ? R.int(91, 98) : R.int(60, 72); v.connexions = F.sat === 'connexions' ? R.int(1000, 1400) : R.int(400, 800); }
+    o += `14:${pad2(m)};${v.cpu};${v.memoire};${v.connexions}\n`; const lim = { cpu: 90, memoire: 90, connexions: 1000 }[F.sat]; if (v[F.sat] >= lim) { if (first === null) first = `14:${pad2(m)}`; max = Math.max(max, v[F.sat]); } }
+  return { text: o, first, max }; };
+{
+  const d1 = tw => defense(tw, 101, 'Limiter le débit par adresse sur le chemin ciblé, bloquer l\'adresse abusive et mettre en cache la page coûteuse', ['Redémarrer le serveur à chaque pic', 'Doubler la mémoire sans changer la configuration']);
+  M.push({ id: 'SIM10-1', title: 'Disponibilité : retrouver la source d\'une saturation dans le journal web', module: 'SIM10 · Disponibilité sous pression', points: 35, difficulty: 2, lesson: 'SIM10-disponibilite', code: 'SIM10·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ip_source', 'chemin_cible', 'nombre_requetes', 'minute_debut', 'defense']), 'access.log': accessLog(tw) }),
+    enonce: tw => `${head(tw)}
+MISSION : le site de ${tw.orgName} a ralenti pendant la demi-heure écoulée. Le journal du serveur
+web (access.log, format nginx) est fourni. Retrouvez ce qui l'a saturé.
+
+À FAIRE
+  1 ip_source        l'adresse qui envoie une rafale de requêtes
+  2 chemin_cible     le chemin visé, sans les paramètres (ex : /export)
+  3 nombre_requetes  le nombre de requêtes de cette adresse
+  4 minute_debut     la minute où la rafale commence (format HH:MM, ex : 14:12)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk \'{print $1}\' access.log | sort | uniq -c | sort -rn | head montre qui envoie le plus de requêtes.', 'grep ADRESSE access.log | head montre le chemin visé : coupez avant le « ? ».', 'grep -c ADRESSE access.log compte les lignes de cette adresse.', 'Le champ 4 contient l\'heure : [15/Nov/2026:14:12:07 → gardez 14:12 de la première ligne.'],
+    check: checker('SIM10-1', tw => { const F = flood(tw); return [ask('ip_source', 'txt', F.attacker), ask('chemin_cible', 'txt', F.path), ask('nombre_requetes', 'num', F.n), ask('minute_debut', 'txt', `14:${pad2(F.m0)}`)]; }, d1), finish: 'Saturation expliquée : une adresse unique a monopolisé le serveur sur un chemin coûteux.' });
+  const d2 = tw => defense(tw, 102, 'Poser une limite de débit et une alerte sur la ressource qui sature, puis dimensionner après avoir confirmé la cause', ['Désactiver la supervision pour réduire la charge', 'Augmenter tous les seuils d\'alerte pour ne plus être dérangé']);
+  M.push({ id: 'SIM10-2', title: 'Disponibilité : quelle ressource sature, et quand ?', module: 'SIM10 · Disponibilité sous pression', points: 35, difficulty: 2, lesson: 'SIM10-disponibilite', code: 'SIM10·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ressource_saturee', 'premiere_minute_critique', 'valeur_max', 'defense']), 'metriques.csv': metrics(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : la supervision a relevé une mesure par minute (metriques.csv). Une seule ressource atteint
+son seuil critique pendant l'incident.
+
+À FAIRE
+  1 ressource_saturee         cpu, memoire ou connexions
+  2 premiere_minute_critique  la première minute où le seuil de cette ressource est atteint (HH:MM)
+  3 valeur_max                la valeur la plus haute atteinte par cette ressource
+${faceBlue(d2(tw))}
+Les seuils sont rappelés en tête du fichier. Les autres ressources montent aussi, sans atteindre le leur.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Comparez chaque colonne à son seuil : cpu et mémoire à 90, connexions à 1000.', 'awk -F";" \'$2>=90\' metriques.csv liste les minutes où le processeur dépasse 90.', 'Trouvez la première ligne qui atteint le seuil, puis le maximum de la même colonne.', 'Ignorez les lignes de commentaire (#).'],
+    check: checker('SIM10-2', tw => { const F = flood(tw); const m = metrics(tw); return [ask('ressource_saturee', 'txt', F.sat), ask('premiere_minute_critique', 'txt', m.first), ask('valeur_max', 'num', m.max)]; }, d2), finish: 'Saturation datée : vous savez quelle ressource a cédé en premier et à quelle minute.' });
+}
+// ---------------------------------------------------------------- SIM11 : sessions et cookies
+const cookieSet = tw => { const R = rng(tw.seed * 89 + 3); const names = ['PHPSESSID', 'panier', 'prefs', 'remember', 'csrf']; const rows = names.map(n => ({ n, secure: R.f() < 0.5, httponly: R.f() < 0.5, samesite: R.pick(['Lax', 'Strict', null]), path: '/' })); rows[0].httponly = false; rows[1].secure = false; rows[2].httponly = true; rows[2].secure = true; const prev = R.pick(['panier', 'prefs', 'remember']); for (const r of rows) r.val = r.n === prev ? String(100000 + R.int(0, 9000)) : hex(R, 32); const sans = f => rows.filter(r => !r[f]).map(r => r.n); return { rows, prev, noHttp: sans('httponly'), noSecure: sans('secure') }; };
+const cookieText = tw => { const c = cookieSet(tw); const pages = ['/connexion', '/panier', '/compte', '/preferences', '/profil']; return c.rows.map((r, i) => `### GET ${pages[i]}\nHTTP/1.1 200 OK\nServer: nginx\nSet-Cookie: ${r.n}=${r.val}; Path=${r.path}${r.secure ? '; Secure' : ''}${r.httponly ? '; HttpOnly' : ''}${r.samesite ? '; SameSite=' + r.samesite : ''}\n`).join('\n'); };
+const sessionLog = tw => { const R = rng(tw.seed * 89 + 5); const users = R.shuffle(['marie', 'paul', 'sophie', 'jean', 'lea']).slice(0, 4); const fixed = R.pick(users); const lines = []; let t = 9 * 3600; const ts = () => { t += R.int(3, 40); return `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t % 3600 / 60))}:${pad2(t % 60)}`; }; let fixedSid = '';
+  for (const u of users) { const sid = hex(R, 16); lines.push(`${ts()} user=${u} GET /accueil sid=${sid} state=anon`); const sid2 = u === fixed ? sid : hex(R, 16); if (u === fixed) fixedSid = sid; lines.push(`${ts()} user=${u} POST /connexion result=ok sid=${sid2} state=auth`); lines.push(`${ts()} user=${u} GET /compte sid=${sid2} state=auth`); }
+  return { text: lines.join('\n') + '\n', fixed, fixedSid, life: R.pick([1800, 3600, 7200, 14400, 86400]) }; };
+{
+  const d1 = tw => defense(tw, 111, 'Ajouter HttpOnly et Secure (et SameSite) sur les cookies de session et générer des identifiants aléatoires longs', ['Chiffrer la valeur du cookie avec une clé fixe visible dans le code', 'Raccourcir seulement le nom du cookie']);
+  M.push({ id: 'SIM11-1', title: 'Cookies : attributs manquants et identifiant prévisible', module: 'SIM11 · Sessions et cookies', points: 35, difficulty: 2, lesson: 'SIM11-sessions-cookies', code: 'SIM11·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['cookies_sans_httponly', 'cookies_sans_secure', 'cookie_previsible', 'defense']), 'reponses-http.txt': cookieText(tw) }),
+    enonce: tw => `${head(tw)}
+MISSION : l'application web de ${tw.orgName} pose cinq cookies. reponses-http.txt contient les cinq
+réponses (en-têtes Set-Cookie) relevées avec curl -i.
+
+À FAIRE
+  1 cookies_sans_httponly  les cookies SANS l'attribut HttpOnly (séparés par des virgules)
+  2 cookies_sans_secure    les cookies SANS l'attribut Secure
+  3 cookie_previsible      le cookie dont la valeur est un simple numéro : un attaquant peut deviner les autres
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep -v HttpOnly reponses-http.txt | grep Set-Cookie liste les cookies sans HttpOnly.', 'Même démarche pour Secure.', 'Une valeur aléatoire fait 32 caractères hexadécimaux ; une valeur de 6 chiffres est prévisible.', 'Notez le nom du cookie (avant le « = »).'],
+    check: checker('SIM11-1', tw => { const c = cookieSet(tw); return [ask('cookies_sans_httponly', 'set', c.noHttp.join(',')), ask('cookies_sans_secure', 'set', c.noSecure.join(',')), ask('cookie_previsible', 'txt', c.prev)]; }, d1), finish: 'Cookies audités : attributs manquants et identifiant prévisible repérés.' });
+  const d2 = tw => defense(tw, 112, 'Régénérer l\'identifiant de session à la connexion et invalider l\'ancien, avec une durée de vie courte', ['Allonger la durée de session pour éviter les reconnexions', 'Ajouter un mot de passe dans l\'URL de la page de connexion']);
+  M.push({ id: 'SIM11-2', title: 'Sessions : identifiant non régénéré à la connexion', module: 'SIM11 · Sessions et cookies', points: 40, difficulty: 3, lesson: 'SIM11-sessions-cookies', code: 'SIM11·2', duree: '40 min',
+    setup: tw => { const l = sessionLog(tw); return { 'reponses.txt': tmpl(['utilisateur_session_fixe', 'identifiant_reutilise', 'duree_session_minutes', 'defense']), 'connexions-web.log': l.text, 'config-session.txt': `# extrait de la configuration de l'application\nsession.cookie_httponly = 1\nsession.use_strict_mode = 0\nsession.gc_maxlifetime = ${l.life}   ; secondes\n` }; },
+    enonce: tw => `${head(tw)}
+MISSION : connexions-web.log relie, pour quatre utilisateurs, l'identifiant de session avant la
+connexion (state=anon) et après (state=auth).
+
+À FAIRE
+  1 utilisateur_session_fixe  l'utilisateur dont l'identifiant NE CHANGE PAS à la connexion
+  2 identifiant_reutilise     la valeur de cet identifiant (sid)
+  3 duree_session_minutes     la durée de vie d'une session en minutes (config-session.txt, en secondes)
+${faceBlue(d2(tw))}
+Un identifiant inchangé après connexion permet à un attaquant de s'en servir s'il l'a fixé avant.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Pour chaque utilisateur, comparez le sid de la ligne GET /accueil à celui de la ligne POST /connexion.', 'grep user=NOM connexions-web.log | grep -o "sid=[0-9a-f]*" montre les identifiants de cet utilisateur.', 'Comparez le sid de la ligne state=anon à celui de la ligne POST /connexion.', 'Divisez la valeur de gc_maxlifetime par 60.'],
+    check: checker('SIM11-2', tw => { const l = sessionLog(tw); return [ask('utilisateur_session_fixe', 'txt', l.fixed), ask('identifiant_reutilise', 'txt', l.fixedSid), ask('duree_session_minutes', 'num', l.life / 60)]; }, d2), finish: 'Fixation de session repérée : l\'identifiant ne changeait pas à la connexion.' });
+}
+// ---------------------------------------------------------------- SIM12 : périmètre, pare-feu, détection d'intrusion
+const fwRules = tw => { const R = rng(tw.seed * 97 + 2); const bad = R.pick([{ port: 3306, to: 'db' }, { port: 445, to: 'files' }, { port: 22, to: 'gw' }]); const dead = R.pick([8443, 9000, 7001]); const policy = R.pick(['accept', 'drop']); const rows = [[1, 'accept', 'tcp', 'etabli', 'any', 'connexions déjà établies'], [2, 'accept', 'tcp', 'poste-audit', tw.H.gw.ip + ':22', 'administration SSH depuis le poste d\'audit'], [3, 'accept', 'tcp', 'any', `${tw.H.www.ip}:80`, 'site web'], [4, 'accept', 'tcp', 'any', `${tw.H.www.ip}:443`, 'site web TLS'], [5, 'accept', 'tcp', 'any', `${tw.H[bad.to].ip}:${bad.port}`, 'ouvert pour un prestataire'], [6, 'accept', 'tcp', 'any', `${tw.H.www.ip}:${dead}`, 'ancien service de test'], [7, 'accept', 'udp', 'interne', `${tw.H.gw.ip}:53`, 'résolveur DNS']];
+  const text = '# n;action;proto;source;destination:port;commentaire\n' + rows.map(r => r.join(';')).join('\n') + `\n# politique par défaut du pare-feu : ${policy}\n`; return { text, bad: 5, dead: 6, policy, deadPort: dead }; };
+{
+  const d1 = tw => defense(tw, 121, 'Supprimer la règle ouverte à tous, restreindre aux adresses du prestataire, fermer la règle sans service et passer la politique par défaut à drop', ['Ajouter une règle drop à la fin et laisser les autres', 'Changer le commentaire de la règle ouverte']);
+  M.push({ id: 'SIM12-1', title: 'Pare-feu : revue de règles (trop large, sans service)', module: 'SIM12 · Périmètre, pare-feu et détection', points: 35, difficulty: 2, lesson: 'SIM12-parefeu-ids', code: 'SIM12·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['regle_trop_large', 'regle_sans_service', 'politique_par_defaut', 'defense']), 'regles-pare-feu.csv': fwRules(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : revue des règles du pare-feu (regles-pare-feu.csv). Le serveur web est www (${tw.H.www.ip}).
+Une règle ouvre un service d'infrastructure (base de données, fichiers, administration) à tout Internet ; une autre ouvre un port où rien n'écoute.
+
+À FAIRE
+  1 regle_trop_large     le numéro de la règle qui ouvre un service d'infrastructure à n'importe quelle source
+  2 regle_sans_service   le numéro de la règle qui ouvre un port où aucun service n'écoute (vérifiez avec nmap -p- sur le serveur)
+  3 politique_par_defaut accept ou drop (dernière ligne du fichier)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Une source « any » vers un port de base de données, de partage de fichiers ou d\'administration est un constat.', 'nmap -p- ADRESSE_WWW liste les ports réellement ouverts : comparez-les aux règles qui visent www.', 'Une règle qui autorise un port sans service ne sert qu\'à une surface d\'attaque inutile.', 'La politique est écrite dans le commentaire final du fichier.'],
+    check: checker('SIM12-1', tw => { const f = fwRules(tw); return [ask('regle_trop_large', 'num', f.bad), ask('regle_sans_service', 'num', f.dead), ask('politique_par_defaut', 'txt', f.policy)]; }, d1), finish: 'Règles revues : une ouverture trop large et une règle sans service identifiées.' });
+  const SIGS = [[2001219, 'ET SCAN Potential SSH Scan'], [2010937, 'ET SCAN Suspicious inbound to MySQL port 3306'], [2402000, 'ET DROP Dshield Block Listed Source'], [2013028, 'ET POLICY curl User-Agent Outbound'], [2100498, 'GPL ATTACK_RESPONSE id check returned root']];
+  const idsLog = tw => { const R = rng(tw.seed * 97 + 8); const ext = `198.51.100.${R.int(20, 230)}`; const ext2 = `198.51.100.${R.int(231, 250)}`; const rows = []; let t = 14 * 3600; const ts = () => { t += R.int(1, 25); return `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t % 3600 / 60))}:${pad2(t % 60)}`; }; const al = (sig, src, dst, dp) => rows.push(`${ts()} [**] [1:${sig[0]}:3] ${sig[1]} [**] {TCP} ${src}:${R.int(30000, 60000)} -> ${dst}:${dp}`);
+    const nExt = R.int(26, 34), nAudit = R.int(9, 14), nOther = R.int(5, 8); const audit = tw.H['poste-audit'].ip;
+    for (let i = 0; i < nExt; i++) al(SIGS[0], ext, tw.H.gw.ip, 22); for (let i = 0; i < nAudit; i++) al(R.pick([SIGS[0], SIGS[1], SIGS[3]]), audit, R.pick([tw.H.www.ip, tw.H.db.ip, tw.H.files.ip]), R.pick([22, 80, 445, 3306])); for (let i = 0; i < nOther; i++) al(R.pick([SIGS[2], SIGS[3]]), ext2, tw.H.www.ip, R.pick([80, 443]));
+    const lines = R.shuffle(rows).map((l, i) => l); lines.sort(); const cnt = {}; for (const l of lines) { const sid = /\[1:(\d+):/.exec(l)[1]; cnt[sid] = (cnt[sid] || 0) + 1; } const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0]; const auditN = lines.filter(l => l.includes(`] {TCP} ${audit}:`)).length; return { text: lines.join('\n') + '\n', ext, top, auditN, audit }; };
+  const d2 = tw => defense(tw, 122, 'Qualifier les alertes (rapprocher des tests autorisés), bloquer la source externe et ajuster les règles bruyantes plutôt que les désactiver', ['Désactiver la signature la plus bruyante', 'Ignorer toutes les alertes tant qu\'une seule n\'est pas confirmée']);
+  M.push({ id: 'SIM12-2', title: 'Détection : trier les alertes et reconnaître vos propres tests', module: 'SIM12 · Périmètre, pare-feu et détection', points: 40, difficulty: 3, lesson: 'SIM12-parefeu-ids', code: 'SIM12·2', duree: '45 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['sid_le_plus_frequent', 'ip_attaque_externe', 'alertes_du_poste_audit', 'defense']), 'alertes-ids.log': idsLog(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : le détecteur d'intrusion a levé des alertes pendant l'heure écoulée (alertes-ids.log).
+Certaines viennent de vos propres tests autorisés (votre poste : ${tw.H['poste-audit'].ip}), d'autres d'une source externe.
+
+À FAIRE
+  1 sid_le_plus_frequent    le numéro de signature (le nombre après [1:) qui apparaît le plus souvent
+  2 ip_attaque_externe      l'adresse externe (198.51.100.x) la plus active sur la passerelle
+  3 alertes_du_poste_audit  le nombre d'alertes dont la source est votre poste d'audit (faux positifs attendus)
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep -o \'\\[1:[0-9]*\' alertes-ids.log | sort | uniq -c | sort -rn | head -1 donne la signature la plus fréquente.', 'grep -o "{TCP} [0-9.]*" alertes-ids.log | sort | uniq -c | sort -rn compte les alertes par source.', 'grep -c ADRESSE_AUDIT alertes-ids.log compte les alertes de votre poste (cherchez « {TCP} ADRESSE »).', 'Une alerte provoquée par un test autorisé reste à noter, pas à traiter comme une attaque.'],
+    check: checker('SIM12-2', tw => { const l = idsLog(tw); return [ask('sid_le_plus_frequent', 'num', l.top), ask('ip_attaque_externe', 'txt', l.ext), ask('alertes_du_poste_audit', 'num', l.auditN)]; }, d2), finish: 'Alertes triées : l\'attaque externe est isolée et vos propres tests sont reconnus.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

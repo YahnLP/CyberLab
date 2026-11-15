@@ -1,6 +1,13 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçons SIM10 (disponibilité), SIM11 (sessions et cookies), SIM12 (pare-feu et détection d'intrusion) et 6 missions : SIM10-1, SIM10-2, SIM11-1, SIM11-2, SIM12-1, SIM12-2.
+- Données générées par graine : journal web nginx, métriques de supervision, en-têtes Set-Cookie, journal de connexions, règles de pare-feu, alertes IDS ; SIM12-1 se recoupe avec un scan `nmap -p-` du serveur web du jumeau.
+- Tests : 22 missions résolues dans le simulateur (1080 contrôles) ; correction d'un défaut du solveur de test (lecture des lignes de `nmap` sans `-sV`).
+- `tests/check-cours.sh` contrôle 30 leçons.
+
+## Non publié
+
 - Parcours pentest : leçons SIM06 (accès contrôlé et élévation de privilèges) et SIM08 (capture et analyse de trafic), 4 missions : SIM06-1 (UID 0 caché, mot de passe vide, hachages faibles), SIM06-2 (règle sudo dangereuse, SUID inattendu), SIM08-1 (balayage et mot de passe en clair), SIM08-2 (exfiltration par DNS).
 - Données générées par graine (passwd, shadow, sudoers, SUID, captures au format tcpdump) ; missions résolues dans le simulateur avec awk, grep, sort et uniq.
 - `tests/check-cours.sh` contrôle 27 leçons.
