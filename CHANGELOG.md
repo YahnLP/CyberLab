@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Formation Cyber Déclic : le simulateur reste indépendant, tout est géré sur Campus avec de nouveaux contenus illustrés ; capacités de Campus constatées (Markdown, Mermaid, QCM, livrables, forum) ; temps de préparation révisé (156 h).
 - Parcours pentest : leçon SIM09 (ingénierie sociale, côté défense) et missions SIM09-1 (tri de messages fictifs selon SPF, DKIM, DMARC, réponse et liens) et SIM09-2 (mesure d'une campagne de sensibilisation autorisée). Aucun message d'attaque n'est écrit.
 - Documents de cadrage : modules SIM07, SIM09, SIM16, SIM18 en version défensive (validés, à réaliser) et formation à distance Cyber Déclic (offre unique au fil de l'eau, 14 modules, 990 € / 690 €, effort moyen 6 h 30 par semaine).
 - Casebook côté Docker : commandes `defi preuve`, `defi preuves`, `defi preuve-suppr`, `defi conclusion` et `defi rapport` (rapport Markdown avec empreintes SHA-256, 20 preuves maximum, tout reste local). Test `tests/casebook-docker.sh`.
