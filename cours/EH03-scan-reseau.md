@@ -1,6 +1,6 @@
 # EH03 · Scan réseau : hôtes, ports et services
 
-Durée : 1 h 30 · Prérequis : P2, EH02 · Missions associées : EH03-1, EH03-2, EH03-3 (cursus Ethical Hacking)
+Durée : 1 h 30 · Prérequis : P2, EH02 · Missions associées : EH03-1, EH03-2, EH03-3 (parcours pentest)
 
 ## Objectifs
 - Découvrir les hôtes actifs d'une plage et comparer avec l'inventaire.

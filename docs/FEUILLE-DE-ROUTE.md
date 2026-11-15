@@ -1,4 +1,4 @@
-# Feuille de route : vers un cursus Ethical Hacking / Pentest complet
+# Feuille de route : vers un parcours pentest complet
 
 Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 modules (EH01 à EH24, 5 missions chacun, du cadrage au scénario final). Seules les thématiques sont reprises ici ; les missions, énoncés et données de CyberLab sont originaux et resteront les nôtres.
 

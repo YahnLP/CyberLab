@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Cursus Ethical Hacking** (simulateur web, jumeau numérique) | stagiaires avancés | EH02, EH03 (puis EH01, EH04 et suivants) |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | EH02, EH03 (puis EH01, EH04 et suivants) |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -41,7 +41,7 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours s�
 
 Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 00 et 02 à 17 suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Chaque leçon a désormais son défi.
 
-## Cursus Ethical Hacking
+## Parcours pentest
 
 | Leçon | Titre | Durée | Missions |
 |---|---|---|---|

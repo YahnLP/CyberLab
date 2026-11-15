@@ -7,7 +7,7 @@ const pg = await br.newPage(); const errs = []; pg.on('pageerror', e => errs.pus
 let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
 const run = async (l, w = 350) => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(w); };
 await pg.goto(BASE); await pg.waitForSelector('.group');
-ok((await pg.textContent('#parcours')).includes('Cursus Ethical Hacking'), 'groupe « Cursus Ethical Hacking » sur l\'accueil');
+ok((await pg.textContent('#parcours')).includes('Parcours pentest'), 'groupe « Parcours pentest » sur l\'accueil');
 await pg.goto(BASE + '#/defi/EH03-1'); await pg.waitForSelector('#term input');
 ok((await pg.textContent('#def-title')).includes('hôtes actifs'), 'mission EH03-1 ouverte');
 const seed = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['EH03-1'].seed); const b = build(TW['EH03-1'], seed); const tw = b.tw;

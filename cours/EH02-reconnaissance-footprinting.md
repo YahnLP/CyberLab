@@ -1,6 +1,6 @@
 # EH02 · Reconnaissance et empreinte d'une organisation
 
-Durée : 1 h 30 · Prérequis : P1 · Missions associées : EH02-1, EH02-2, EH02-3 (cursus Ethical Hacking)
+Durée : 1 h 30 · Prérequis : P1 · Missions associées : EH02-1, EH02-2, EH02-3 (parcours pentest)
 
 ## Objectifs
 - Distinguer reconnaissance passive (sans toucher la cible) et active (la cible voit la requête).
