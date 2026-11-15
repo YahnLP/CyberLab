@@ -879,6 +879,56 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['L\'adresse externe n\'est pas en ' + 'réseau interne : grep -v sur le préfixe du réseau, puis sort | uniq -c.', 'grep ADRESSE acces-web.log | grep -c " 404" compte les requêtes en erreur.', 'grep POST acces-web.log et grep uploads acces-web.log donnent le dépôt et le fichier demandé.', 'grep "Accepted password" auth-ssh.log donne le compte et l\'heure.'],
     check: checker('SIM24-1', tw => { const i = incident(tw); return [ask('adresse_source', 'txt', i.ext), ask('nombre_requetes_404', 'num', i.n404), ask('fichier_depose', 'txt', i.drop), ask('heure_televersement', 'txt', i.upload), ask('compte_utilise', 'txt', i.acct), ask('heure_connexion_ssh', 'txt', i.ok)]; }, d), finish: 'Investigation bouclée : de la reconnaissance web à la connexion SSH, la chronologie est reconstituée.' });
 }
+// ---------------------------------------------------------------- SIM09 : ingénierie sociale, reconnaître et mesurer (messages et campagne fictifs)
+const mails = tw => { const R = rng(tw.seed * 167 + 1); const dom = tw.domain; const lookalikes = [`${dom.replace('.', '-')}.net`, `secure-${dom}`, `${dom.replace(/[aeiou]/, 'x')}`];
+  const bad = R.pick(lookalikes); const subjects = ['Facture à régler', 'Mot de passe expiré', 'Colis en attente', 'Mise à jour de votre compte', 'Réunion de lundi', 'Planning des congés', 'Note de service', 'Livraison de matériel'];
+  const rows = []; const nSus = R.int(3, 4); const idx = R.shuffle([...Array(9).keys()]); const sus = idx.slice(0, nSus);
+  for (let i = 0; i < 9; i++) { const n = i + 1; const isSus = sus.includes(i); const who = R.pick(['rh', 'compta', 'support', 'direction', 'logistique']); const from = isSus ? `${who}@${bad}` : `${who}@${dom}`;
+    const spf = isSus ? 'fail' : 'pass'; const dkim = isSus ? R.pick(['fail', 'none']) : 'pass'; const dmarc = isSus ? 'fail' : 'pass'; const reply = isSus ? `${who}@${R.pick(['gmail.com', 'outlook.com'])}` : from; const shown = `https://www.${dom}/espace`; const real = isSus ? `http://${bad}/connexion` : shown;
+    rows.push({ n, line: `${n};${R.pick(subjects)};${from};${reply};${spf};${dkim};${dmarc};${shown};${real}`, sus: isSus }); }
+  // un message légitime avec un seul signal faible (DKIM absent) pour éviter la règle « un signal = suspect »
+  const legit = rows.filter(r => !r.sus); const l0 = legit[0]; l0.line = l0.line.replace(/;pass;pass;pass;/, ';pass;none;pass;');
+  return { text: 'id;objet;expediteur;repondre_a;spf;dkim;dmarc;lien_affiche;lien_reel\n' + rows.map(r => r.line).join('\n') + '\n', susIds: rows.filter(r => r.sus).map(r => r.n), n: nSus, bad }; };
+const campagne = tw => { const R = rng(tw.seed * 167 + 2); const services = R.shuffle(['Comptabilité', 'Ressources humaines', 'Production', 'Logistique', 'Direction', 'Accueil']).slice(0, 5);
+  let rows, rates, sig; for (let t = 0; ; t++) { rows = services.map(s => { const env = R.int(8, 30); const ouv = R.int(Math.floor(env / 2), env); const cli = R.int(0, Math.floor(ouv * 0.6)); const sg = R.int(0, Math.floor(env / 2)); return { s, env, ouv, cli, sg }; });
+    rates = rows.map(r => r.cli / r.env); sig = rows.map(r => r.sg / r.env); if (new Set(rates).size === rows.length && new Set(sig).size === rows.length) break; }
+  const top = rows[rates.indexOf(Math.max(...rates))].s; const best = rows[sig.indexOf(Math.max(...sig))].s; const totE = rows.reduce((a, r) => a + r.env, 0), totC = rows.reduce((a, r) => a + r.cli, 0);
+  return { text: 'service;envoyes;ouverts;cliques;signales\n' + rows.map(r => `${r.s};${r.env};${r.ouv};${r.cli};${r.sg}`).join('\n') + '\n', top, best, global: Math.round(totC * 100 / totE) }; };
+{
+  const d1 = tw => defense(tw, 291, 'Publier les enregistrements SPF, DKIM et DMARC en mode rejet, filtrer les domaines proches et ajouter un bouton de signalement', ['Bloquer toutes les pièces jointes et tous les liens', 'Demander aux utilisateurs de ne plus ouvrir leurs messages']);
+  M.push({ id: 'SIM09-1', title: 'Ingénierie sociale : trier des messages fictifs', module: 'SIM09 · Ingénierie sociale (défense)', points: 35, difficulty: 2, lesson: 'SIM09-ingenierie-sociale-defense', code: 'SIM09·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ids_suspects', 'nombre_suspects', 'domaine_usurpe', 'defense']), 'messages-recus.csv': mails(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : le service informatique de ${tw.orgName} a exporté neuf messages reçus (messages-recus.csv, données fictives).
+Un message est SUSPECT s'il cumule au moins DEUX signaux parmi :
+  - une authentification en échec (spf, dkim ou dmarc valant « fail ») ;
+  - une adresse de réponse (repondre_a) différente de l'expéditeur ;
+  - un lien réel (lien_reel) différent du lien affiché (lien_affiche).
+
+À FAIRE
+  1 ids_suspects     les numéros (colonne id) des messages suspects, séparés par des virgules
+  2 nombre_suspects  leur nombre
+  3 domaine_usurpe   le domaine proche du vôtre utilisé par ces messages (partie après @ de l'expéditeur)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$5=="fail" || $6=="fail" || $7=="fail"\' messages-recus.csv liste les échecs d\'authentification.', 'Comparez $3 et $4 (expéditeur et réponse), puis $8 et $9 (lien affiché et réel).', 'Un seul signal ne suffit pas : un message peut avoir DKIM absent et rester légitime.', 'awk -F";" \'$8!=$9 {print $1, $3}\' donne les liens trompeurs et leurs expéditeurs.'],
+    check: checker('SIM09-1', tw => { const m = mails(tw); return [ask('ids_suspects', 'set', m.susIds.join(',')), ask('nombre_suspects', 'num', m.n), ask('domaine_usurpe', 'txt', m.bad)]; }, d1), finish: 'Tri fait : les messages qui cumulent plusieurs signaux sont identifiés, sans rien ouvrir.' });
+  const d2 = tw => defense(tw, 292, 'Former en priorité les services les plus exposés, rendre le signalement simple et refaire une campagne pour mesurer le progrès', ['Sanctionner les personnes qui ont cliqué', 'Arrêter les campagnes de sensibilisation']);
+  M.push({ id: 'SIM09-2', title: 'Sensibilisation : mesurer une campagne fictive', module: 'SIM09 · Ingénierie sociale (défense)', points: 35, difficulty: 2, lesson: 'SIM09-ingenierie-sociale-defense', code: 'SIM09·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['service_le_plus_expose', 'meilleur_service_signalement', 'taux_de_clic_global', 'defense']), 'campagne-sensibilisation.csv': campagne(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : ${tw.orgName} a mené une campagne de sensibilisation AUTORISÉE avec des messages d'entraînement. Les résultats par
+service sont dans campagne-sensibilisation.csv (envoyés, ouverts, cliqués, signalés ; données fictives).
+
+À FAIRE
+  1 service_le_plus_expose        le service au plus fort taux de clic (cliqués ÷ envoyés)
+  2 meilleur_service_signalement  le service au plus fort taux de signalement (signalés ÷ envoyés)
+  3 taux_de_clic_global           le taux de clic de l'ensemble, en pourcentage arrondi à l'entier
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'NR>1 {printf "%s %.3f\\n", $1, $4/$2}\' campagne-sensibilisation.csv | sort -k2 -n affiche les taux de clic.', 'Même calcul avec $5/$2 pour les signalements.', 'Taux global = somme des cliqués ÷ somme des envoyés (pas la moyenne des taux).', 'Ignorez la ligne d\'en-tête avec NR>1.'],
+    check: checker('SIM09-2', tw => { const c = campagne(tw); return [ask('service_le_plus_expose', 'txt', c.top), ask('meilleur_service_signalement', 'txt', c.best), ask('taux_de_clic_global', 'num', c.global)]; }, d2), finish: 'Campagne mesurée : vous savez où former en priorité et qui signale le mieux.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

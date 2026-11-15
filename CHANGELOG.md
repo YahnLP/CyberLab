@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçon SIM09 (ingénierie sociale, côté défense) et missions SIM09-1 (tri de messages fictifs selon SPF, DKIM, DMARC, réponse et liens) et SIM09-2 (mesure d'une campagne de sensibilisation autorisée). Aucun message d'attaque n'est écrit.
 - Documents de cadrage : modules SIM07, SIM09, SIM16, SIM18 en version défensive (validés, à réaliser) et formation à distance Cyber Déclic (offre unique au fil de l'eau, 14 modules, 990 € / 690 €, effort moyen 6 h 30 par semaine).
 - Casebook côté Docker : commandes `defi preuve`, `defi preuves`, `defi preuve-suppr`, `defi conclusion` et `defi rapport` (rapport Markdown avec empreintes SHA-256, 20 preuves maximum, tout reste local). Test `tests/casebook-docker.sh`.
 - Bilan de l'élève : page `#/bilan` (progression par parcours, points, indices), saisie du nom, impression ou PDF, export .txt et .json. Calcul local, rien n'est envoyé. Test navigateur `ui-bilan.mjs`.
@@ -10,7 +11,7 @@
 - Correction : la commande `comm` du simulateur accepte maintenant les options -1, -2, -3 et leurs combinaisons (-12, -13, -23).
 - Parcours pentest : leçon SIM24 (synthèse) et mission SIM24-1 (investigation croisant journal web et journal SSH).
 - SIM16 (sans fil) et SIM18 (IoT/OT) sont reportés, à cadrer avec le formateur.
-- Tests : 41 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 40 leçons.
+- Tests : 43 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 41 leçons.
 
 ## Non publié
 
