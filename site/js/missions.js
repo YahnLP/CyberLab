@@ -851,6 +851,34 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['grep ssh connexions-internes.log isole les connexions SSH.', 'awk \'{print $2}\' sur ces lignes | sort -u donne le poste source.', 'La première ligne SSH (par heure) donne le premier serveur : le champ 4 sans le port.', 'Comptez les destinations distinctes avec sort -u | wc -l.'],
     check: checker('SIM22-1', tw => { const l = lateral(tw); return [ask('poste_source', 'txt', l.src), ask('premier_serveur_atteint', 'txt', tw.H[l.first].ip), ask('nombre_serveurs_atteints', 'num', l.n)]; }, d1), finish: 'Enchaînement repéré : un poste a rebondi sur plusieurs serveurs en SSH.' });
 }
+// ---------------------------------------------------------------- SIM24 : scénario de synthèse (investigation défensive multi-journaux)
+const incident = tw => { const R = rng(tw.seed * 163 + 1); const ext = `203.0.113.${R.int(10, 240)}`; const acct = R.pick(['deploy', 'support', 'compta']); const clean = []; let t = 1 * 3600 + 10 * 60; const hms = x => `${pad2(Math.floor(x / 3600))}:${pad2(Math.floor(x % 3600 / 60))}:${pad2(x % 60)}`; const adv = () => { t += R.int(2, 9); return hms(t); };
+  const web = []; for (let i = 0; i < 12; i++) web.push(`${tw.net}.${R.int(100, 120)} ${hms(R.int(0, 3600))} GET ${R.pick(['/', '/produit?id=1', '/contact'])} 200`);
+  const n404 = R.int(8, 16); for (let i = 0; i < n404; i++) web.push(`${ext} ${adv()} GET ${R.pick(['/admin', '/backup.zip', '/.git/config', '/phpinfo.php', '/wp-login.php', '/old', '/test', '/config.bak'])} 404`);
+  const upload = adv(); web.push(`${ext} ${upload} POST /televerser 200`); const drop = R.pick(['/uploads/image.php', '/uploads/logo.php', '/uploads/doc.php']); web.push(`${ext} ${adv()} GET ${drop} 200`);
+  const auth = []; for (let i = 0; i < 5; i++) auth.push(`${hms(R.int(0, 3600))} Accepted publickey for dsi from ${tw.net}.${R.int(100, 120)}`); const nf = R.int(5, 10); for (let i = 0; i < nf; i++) auth.push(`${adv()} Failed password for ${acct} from ${ext}`); const ok = adv(); auth.push(`${ok} Accepted password for ${acct} from ${ext}`);
+  return { web: web.sort((a, b) => a.split(' ')[1].localeCompare(b.split(' ')[1])).join('\n') + '\n', auth: auth.sort().join('\n') + '\n', ext, acct, n404, drop, ok, upload }; };
+{
+  const d = tw => defense(tw, 241, 'Isoler le serveur, bloquer l\'adresse, retirer le fichier déposé après en avoir fait une copie de preuve, interdire l\'exécution dans le dossier de dépôt et réinitialiser le compte concerné', ['Supprimer les journaux puis redémarrer le serveur', 'Bloquer l\'adresse et ne rien vérifier d\'autre']);
+  M.push({ id: 'SIM24-1', title: 'Synthèse : investiguer un incident à partir de deux journaux', module: 'SIM24 · Scénario de synthèse', points: 60, difficulty: 3, lesson: 'SIM24-synthese', code: 'SIM24·1', duree: '1 h 15',
+    setup: tw => { const i = incident(tw); return { 'reponses.txt': tmpl(['adresse_source', 'nombre_requetes_404', 'fichier_depose', 'heure_televersement', 'compte_utilise', 'heure_connexion_ssh', 'defense']), 'acces-web.log': i.web, 'auth-ssh.log': i.auth }; },
+    enonce: tw => `${head(tw)}
+MISSION DE SYNTHÈSE : le serveur web de ${tw.orgName} a déclenché une alerte. Deux journaux sont fournis :
+acces-web.log (format : adresse heure méthode chemin code) et auth-ssh.log (format : heure événement). Les adresses
+internes sont en ${tw.net}.x ; une seule adresse externe est suspecte et apparaît dans les deux journaux.
+
+À FAIRE
+  1 adresse_source          l'adresse externe présente dans les deux journaux
+  2 nombre_requetes_404     le nombre de requêtes de cette adresse qui ont reçu le code 404
+  3 fichier_depose          le fichier du dossier /uploads/ qu'elle a demandé avec succès (code 200)
+  4 heure_televersement     l'heure de sa requête POST
+  5 compte_utilise          le compte SSH avec lequel elle a fini par se connecter
+  6 heure_connexion_ssh     l'heure de la ligne « Accepted password » de cette adresse
+${faceBlue(d(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['L\'adresse externe n\'est pas en ' + 'réseau interne : grep -v sur le préfixe du réseau, puis sort | uniq -c.', 'grep ADRESSE acces-web.log | grep -c " 404" compte les requêtes en erreur.', 'grep POST acces-web.log et grep uploads acces-web.log donnent le dépôt et le fichier demandé.', 'grep "Accepted password" auth-ssh.log donne le compte et l\'heure.'],
+    check: checker('SIM24-1', tw => { const i = incident(tw); return [ask('adresse_source', 'txt', i.ext), ask('nombre_requetes_404', 'num', i.n404), ask('fichier_depose', 'txt', i.drop), ask('heure_televersement', 'txt', i.upload), ask('compte_utilise', 'txt', i.acct), ask('heure_connexion_ssh', 'txt', i.ok)]; }, d), finish: 'Investigation bouclée : de la reconnaissance web à la connexion SSH, la chronologie est reconstituée.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
