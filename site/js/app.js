@@ -1,4 +1,4 @@
-import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js';
+import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js';
 const $ = s => document.querySelector(s); const KEY = 'cyberlab.v1';
 const store = { load() { try { return JSON.parse(localStorage.getItem(KEY)) || { prog: {}, cur: null, work: {} }; } catch { return { prog: {}, cur: null, work: {} }; } }, save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { } } };
 let S = store.load(); const cache = {}; let index = [], lessons = [], parcours = [];
@@ -8,14 +8,14 @@ const stars = n => '★'.repeat(Math.min(n, 3)) + '☆'.repeat(Math.max(0, 3 - n
 const HOME = '/home/stagiaire'; const wd = def => `${HOME}/atelier/${def.name}`;
 let term = null, shell = null, fsv = null, curDef = null;
 
-function snapshot() { if (!curDef || !fsv) return; S.work[curDef.id] = { variant: S.work[curDef.id].variant, files: fsv.snapshot(wd(curDef)) }; store.save(S); }
+function snapshot() { if (!curDef || !fsv) return; S.work[curDef.id] = { ...S.work[curDef.id], files: fsv.snapshot(wd(curDef)) }; store.save(S); }
 function mount(def, variant, files) { fsv = new VFS(); fsv.mkdirp(wd(def)); fsv.mkdirp(HOME + '/.bashlab'); for (const [k, c] of Object.entries(files)) { const p = wd(def) + '/' + k; fsv.mkdirp(p.slice(0, p.lastIndexOf('/'))); fsv.write(p, c); } shell = new Shell(fsv, { home: HOME, cwd: wd(def), edit: editor, defi: defiCmd }); }
 const header = t => `\n${CYA}${B}╔══════════════════════════════════════════════════════════╗${R}\n${CYA}${B}║${R}  ${B}${t}${R}\n${CYA}${B}╚══════════════════════════════════════════════════════════╝${R}\n`;
 const indent = s => s.split('\n').map(l => '  ' + l).join('\n');
 
 async function startDef(id, io, fresh = true) {
   const def = await get(`data/${id}.json`); const had = S.work[id];
-  let vi, files; if (!fresh && had) { vi = had.variant; files = had.files; } else { vi = Math.floor(Math.random() * def.variants.length); files = def.variants[vi].files; S.work[id] = { variant: vi, files }; S.prog[id] = { st: 'en_cours', pts: 0, hints: 0 }; }
+  let vi, files; if (!fresh && had) { vi = had.variant; files = had.files; } else { vi = Math.floor(Math.random() * def.variants.length); files = def.variants[vi].files; S.work[id] = { variant: vi, files, mode: S.mode || 'guide', elapsed: 0, log: [] }; S.prog[id] = { st: 'en_cours', pts: 0, hints: 0 }; }
   S.cur = id; curDef = def; mount(def, def.variants[vi], files); store.save(S); updateScore();
   if (io) { io.out.write(header(`Défi ${id} — ${def.title}   [${stars(def.difficulty)} · ${def.points} pts]`) + '\n' + indent(def.enonce) + `\n  ${B}Atelier :${R} ${CYA}${wd(def)}${R}\n  ${DIM}defi enonce · defi indice · defi valider${R}\n\n`); }
   return def;
@@ -34,11 +34,11 @@ async function defiCmd(args, io) {
   if (sub === 'score' || sub === 'points') { let tot = 0, max = 0, dn = 0; out.write(`\n  ${B}PROGRESSION${R}\n\n`); for (const d of index) { max += d.points; const p = S.prog[d.id]; if (p?.st === 'reussi') { tot += p.pts; dn++; out.write(`   ${GRN}✔${R} ${d.id} ${d.title.padEnd(40)} ${B}${String(p.pts).padStart(2)}${R}${DIM}/${d.points} pts${R}\n`); } } if (!dn) out.write(`   ${DIM}Aucun défi réussi. Lancez : defi start 02${R}\n`); const w = 30, f = Math.floor(dn * w / index.length); out.write(`\n   [${'█'.repeat(f)}${'░'.repeat(w - f)}]  ${dn}/${index.length} défis\n   ${B}Score : ${tot}/${max} points${R}\n\n`); return 0; }
   if (!curDef) { out.write(`${RED}${B}Erreur :${R} aucun défi en cours. Essayez : defi start 02\n`); return 1; }
   if (sub === 'enonce' || sub === 'énoncé') { out.write(header(`Défi ${curDef.id} — ${curDef.title}`) + '\n' + indent(curDef.enonce) + '\n'); return 0; }
-  if (sub === 'indice' || sub === 'hint') { const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; const tot = curDef.indices.length; if (p.hints >= tot) { out.write(`\n  ${YEL}Tous les indices révélés :${R}\n\n` + curDef.indices.map((h, i) => `  ${String(i + 1).padStart(2)}. ${h}`).join('\n') + '\n\n'); return 0; } p.hints++; store.save(S); out.write(`\n  ${YEL}${B}Indice ${p.hints}/${tot}${R}\n\n  > ${curDef.indices[p.hints - 1]}\n\n`); return 0; }
+  if (sub === 'indice' || sub === 'hint') { if (S.work[curDef.id]?.mode === 'expert') { out.write(`\n  ${YEL}Mode Expert : les indices sont désactivés.${R}\n  ${DIM}Repassez en mode Guidé (bouton Mode) : le défi ne comptera plus comme réussi en Expert.${R}\n\n`); return 0; } const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; const tot = curDef.indices.length; if (p.hints >= tot) { out.write(`\n  ${YEL}Tous les indices révélés :${R}\n\n` + curDef.indices.map((h, i) => `  ${String(i + 1).padStart(2)}. ${h}`).join('\n') + '\n\n'); return 0; } p.hints++; store.save(S); out.write(`\n  ${YEL}${B}Indice ${p.hints}/${tot}${R}\n\n  > ${curDef.indices[p.hints - 1]}\n\n`); return 0; }
   if (sub === 'valider' || sub === 'check') {
     const work = S.work[curDef.id]; const files = fsv.snapshot(wd(curDef)); const res = runChecks(curDef, curDef.variants[work.variant], files);
     for (const l of res.lines) { if (l.k === 'phase') out.write(`\n  ${B}${l.t}${R}\n`); else out.write(l.k === 'ok' ? `    ✔ ${l.t}\n` : `    ✘ ${l.t}\n`); }
-    if (res.ok) { out.write(`\n  ✔ ${curDef.finish}\n`); const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; if (p.st === 'reussi') out.write(`\n  ${GRN}${B}✔ Toujours juste !${R}\n\n`); else { let earned = curDef.points - 2 * p.hints; const min = Math.floor(curDef.points / 2); if (earned < min) earned = min; p.st = 'reussi'; p.pts = earned; store.save(S); updateScore(); out.write(`\n  ${GRN}${B}╔═══════════════════════════════════╗\n  ║   ✔  DÉFI RÉUSSI ! Bravo !        ║\n  ╚═══════════════════════════════════╝${R}\n    Points : ${B}${earned}/${curDef.points}${R}  ${DIM}(indices: ${p.hints})${R}\n\n`); } return 0; }
+    if (res.ok) { out.write(`\n  ✔ ${curDef.finish}\n`); const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; if (p.st === 'reussi') out.write(`\n  ${GRN}${B}✔ Toujours juste !${R}\n\n`); else { let earned = curDef.points - 2 * p.hints; const min = Math.floor(curDef.points / 2); if (earned < min) earned = min; p.st = 'reussi'; p.pts = earned; const wk = S.work[curDef.id]; p.expert = wk.mode === 'expert' && p.hints === 0; p.time = wk.elapsed || 0; store.save(S); updateScore(); out.write(`\n  ${GRN}${B}╔═══════════════════════════════════╗\n  ║   ✔  DÉFI RÉUSSI ! Bravo !        ║\n  ╚═══════════════════════════════════╝${R}\n    Points : ${B}${earned}/${curDef.points}${R}  ${DIM}(indices: ${p.hints})${R}${p.expert ? `  ${YEL}${B}★ Expert${R} ${DIM}en ${fmtTime(p.time)}${R}` : ''}\n\n`); } return 0; }
     out.write(`\n  ${RED}${B}✘ Pas encore...${R} ${DIM}defi enonce · defi indice${R}\n\n`); return 1;
   }
   out.write(`${RED}${B}Erreur :${R} commande inconnue '${sub}'. Voir : defi aide\n`); return 1;
@@ -54,15 +54,41 @@ function renderDefHeader() {
   $('#enonce-body').textContent = curDef.enonce; $('#def-title').textContent = `Défi ${curDef.id} — ${curDef.title}`;
   $('#crumbs').innerHTML = `<a href="#/">Parcours</a><span aria-hidden="true">›</span><span>${pc ? esc(pc.group) : 'Défi'}</span><span aria-hidden="true">›</span><span aria-current="page">Défi ${curDef.id}</span>`;
   $('#def-meta').innerHTML = `<span class="chip">${stars(curDef.difficulty)}</span><span class="chip">${curDef.points} pts</span>` + (pc ? `<a class="chip link" href="#/cours/${pc.file}">Leçon ${pc.code}</a>` : '');
-  refreshFiles(); renderBanner();
+  refreshFiles(); renderBanner(); applyMode(); renderJournal();
 }
 function listFiles() { if (!curDef || !fsv) return []; const base = wd(curDef); return Object.keys(fsv.snapshot(base)).sort(); }
 function refreshFiles() { const box = $('#files'); if (!box || !curDef) return; const fl = listFiles(); box.innerHTML = fl.length ? fl.map(f => `<button class="file" data-f="${esc(f)}" title="Afficher ${esc(f)}"><span class="ico">${/\/$/.test(f) ? '' : '▤'}</span>${esc(f)}</button>`).join('') : '<p class="muted">Aucun fichier.</p>'; box.querySelectorAll('.file').forEach(b => b.onclick = () => runLine(`cat '${b.dataset.f}'`)); }
+function record(line, rc, out) {
+  const w = S.work[curDef.id]; (w.log ||= []).push({ t: w.elapsed || 0, line, rc }); if (w.log.length > 200) w.log.shift(); store.save(S);
+  renderJournal(); renderComprendre(explain(line, rc, out), line);
+}
+function renderComprendre(x, line) {
+  const el = document.querySelector('[data-ppane=comprendre]'); if (!el) return;
+  el.innerHTML = `<p class="pcmd"><code>${esc(line)}</code></p>` + (x.synth ? `<p>${esc(x.synth)}</p>` : '') + `<ul class="pl">${x.items.map(i => `<li><strong>${esc(i.cmd)}</strong> — ${esc(i.what)} <span class="muted">${esc(i.tip)}</span></li>`).join('')}</ul><p class="res ${x.rc === 0 ? 'ok' : 'ko'}">${esc(x.res)}</p><p class="muted small">Distinguez ce que vous avez observé de ce que vous supposez, puis recoupez avec une seconde observation.</p>`;
+}
+function renderJournal() {
+  const el = document.querySelector('[data-ppane=journal]'); const c = $('#jcount'); const lg = (S.work[curDef.id]?.log) || []; if (c) c.textContent = lg.length; if (!el) return;
+  el.innerHTML = lg.length ? `<ol class="jl">${lg.slice().reverse().map(e => `<li><span class="muted">${fmtTime(e.t)}</span> <code>${esc(e.line)}</code> <span class="rc ${e.rc === 0 ? 'ok' : 'ko'}">${e.rc === 0 ? 'ok' : 'code ' + e.rc}</span></li>`).join('')}</ol>` : '<p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p>';
+}
+let tick = null;
+function applyMode() {
+  const w = curDef && S.work[curDef.id]; if (!w) return; const ex = w.mode === 'expert'; const pr = S.prog[curDef.id];
+  const b = document.querySelector('[data-act=mode]'); if (b) { b.textContent = `Mode : ${ex ? 'Expert' : 'Guidé'}`; b.setAttribute('aria-pressed', ex); }
+  const ib = document.querySelector('[data-act=indice]'); if (ib) { ib.disabled = ex; ib.title = ex ? 'Indices désactivés en mode Expert' : 'Révèle un indice (-2 points)'; }
+  const t = $('#timer'); if (t) { t.hidden = !ex; t.textContent = fmtTime(w.elapsed || 0); }
+  clearInterval(tick); if (ex && pr?.st !== 'reussi') tick = setInterval(() => { if (document.hidden || !$('#timer')) { if (!$('#timer')) clearInterval(tick); return; } const cw = S.work[curDef?.id]; if (!cw) return; cw.elapsed = (cw.elapsed || 0) + 1; $('#timer').textContent = fmtTime(cw.elapsed); if (cw.elapsed % 10 === 0) store.save(S); }, 1000);
+}
+function toggleMode() {
+  const w = S.work[curDef.id]; const pr = S.prog[curDef.id];
+  if (w.mode === 'expert') { w.mode = 'guide'; S.mode = 'guide'; }
+  else { if ((pr?.hints || 0) > 0) { term.print(`\n  ${YEL}Des indices ont déjà été utilisés : recommencez le défi pour tenter l'Expert.${R}\n\n`); return; } w.mode = 'expert'; S.mode = 'expert'; }
+  store.save(S); applyMode();
+}
 function renderBanner() {
   const b = $('#banner'); if (!b || !curDef) return; const p = S.prog[curDef.id];
   if (p?.st !== 'reussi') { b.hidden = true; b.innerHTML = ''; return; }
   const ids = orderedIds(); const nx = ids.slice(ids.indexOf(curDef.id) + 1).find(i => S.prog[i]?.st !== 'reussi') || ids.find(i => S.prog[i]?.st !== 'reussi');
-  b.hidden = false; b.innerHTML = `<div><strong>Défi réussi</strong> <span class="muted">${p.pts}/${curDef.points} pts · ${p.hints} indice(s)</span></div><div class="acts">${nx ? `<a class="btn" href="#/defi/${nx}">Défi suivant : ${nx}</a>` : '<span class="muted">Tous les défis sont réussis.</span>'}<a class="btn ghost" href="#/">Retour au parcours</a></div>`;
+  b.hidden = false; b.innerHTML = `<div><strong>Défi réussi</strong> <span class="muted">${p.pts}/${curDef.points} pts · ${p.hints} indice(s)${p.expert ? ` · Expert en ${fmtTime(p.time)}` : ''}</span></div><div class="acts">${nx ? `<a class="btn" href="#/defi/${nx}">Défi suivant : ${nx}</a>` : '<span class="muted">Tous les défis sont réussis.</span>'}<a class="btn ghost" href="#/">Retour au parcours</a></div>`;
 }
 let runLine = () => { };
 const views = {
@@ -89,14 +115,15 @@ const views = {
     id = normId(id); if (!index.find(d => d.id === id)) { $('#main').innerHTML = '<p>Défi introuvable. <a href="#/">Retour</a></p>'; return; }
     $('#main').innerHTML = `<nav id="crumbs" class="crumbs" aria-label="Fil d'Ariane"></nav><div class="defi-head"><h1 id="def-title"></h1><div id="def-meta" class="meta"></div></div><div id="banner" class="banner" hidden></div>
     <div class="defi"><aside class="side" aria-label="Énoncé et fichiers"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="enonce">Énoncé</button><button role="tab" aria-selected="false" data-tab="files">Fichiers</button></div><div class="tabpane" data-pane="enonce"><pre id="enonce-body"></pre></div><div class="tabpane" data-pane="files" hidden><p class="muted small">Cliquez un fichier pour l'afficher dans le terminal.</p><div id="files" class="files"></div></div></aside>
-    <section class="work"><div class="toolbar" role="toolbar" aria-label="Actions du défi"><button class="btn small" data-act="valider" title="Vérifier votre travail">Valider</button><button class="btn ghost small" data-act="indice" title="Révèle un indice (-2 points)">Indice</button><button class="btn ghost small" data-act="edit" title="Ouvrir reponses.txt dans l'éditeur">Éditer reponses.txt</button><button class="btn ghost small" data-act="enonce">Énoncé</button><span class="grow"></span><button class="btn ghost small" data-act="font" title="Taille du texte" aria-label="Agrandir le texte">A+</button><button class="btn ghost small danger" data-act="reset" title="Recommencer ce défi avec de nouvelles données">Recommencer</button></div>
-    <div id="term" class="term" aria-label="Terminal"></div><p class="hint">Astuce : Tab complète les noms de fichiers, ↑ rappelle la commande précédente.</p></section></div>`;
+    <section class="work"><div class="toolbar" role="toolbar" aria-label="Actions du défi"><button class="btn small" data-act="valider" title="Vérifier votre travail">Valider</button><button class="btn ghost small" data-act="indice" title="Révèle un indice (-2 points)">Indice</button><button class="btn ghost small" data-act="mode" aria-pressed="false" title="Basculer entre Guidé (indices) et Expert (sans indices, chronomètre)">Mode : Guidé</button><span id="timer" class="chip" hidden aria-live="off">00:00</span><button class="btn ghost small" data-act="edit" title="Ouvrir reponses.txt dans l'éditeur">Éditer reponses.txt</button><button class="btn ghost small" data-act="enonce">Énoncé</button><span class="grow"></span><button class="btn ghost small" data-act="font" title="Taille du texte" aria-label="Agrandir le texte">A+</button><button class="btn ghost small danger" data-act="reset" title="Recommencer ce défi avec de nouvelles données">Recommencer</button></div>
+    <div id="term" class="term" aria-label="Terminal"></div><section class="panel" aria-label="Journal et interprétation"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-ptab="comprendre">Comprendre</button><button role="tab" aria-selected="false" data-ptab="journal">Journal <span id="jcount" class="count">0</span></button></div><div class="ppane" data-ppane="comprendre"><p class="muted small">Exécutez une commande pour en lire l'interprétation.</p></div><div class="ppane" data-ppane="journal" hidden><p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p></div></section><p class="hint">Astuce : Tab complète les noms de fichiers, ↑ rappelle la commande précédente.</p></section></div>`;
     document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.dataset.pane !== b.dataset.tab); });
-    const def = await startDef(id, null, !S.work[id]); renderDefHeader();
+    const def = await startDef(id, null, !S.work[id]); S.work[id].mode ||= 'guide'; S.work[id].elapsed ||= 0; S.work[id].log ||= []; renderDefHeader(); applyMode(); renderJournal();
+    document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-ptab]').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.ppane').forEach(p => p.hidden = p.dataset.ppane !== b.dataset.ptab); });
     term = new Term($('#term'), { prompt: () => `stagiaire@cyberlab:${shell.cwd.replace(HOME, '~')}$ `, complete: (w) => { const dir = w.includes('/') ? w.slice(0, w.lastIndexOf('/') + 1) : ''; const base = w.slice(dir.length); const p = shell.path(dir || '.'); return fsv.isDir(p) ? fsv.list(p).filter(n => n.startsWith(base)).map(n => dir + n + (fsv.isDir(p + '/' + n) ? '/' : '')) : []; },
-      onLine: async line => { if (!line.trim()) return; shell.history.push(line); const o = new Stream(); const io = { in: new Stream(''), out: o, err: o }; o.write = function (x) { this.s += x; term.print(x); }; try { await shell.run(line, io); } catch (e) { term.print(`bash: ${e.message}\n`); } snapshot(); refreshFiles(); renderBanner(); if (shell.exitNow) shell.exitNow = false; } });
+      onLine: async line => { if (!line.trim()) return; shell.history.push(line); const o = new Stream(); const io = { in: new Stream(''), out: o, err: o }; o.write = function (x) { this.s += x; term.print(x); }; let rc = 0; try { rc = await shell.run(line, io); } catch (e) { rc = 2; term.print(`bash: ${e.message}\n`); } if (!/^\s*defi\b/.test(line)) record(line, rc, o.s); snapshot(); refreshFiles(); renderBanner(); if (shell.exitNow) shell.exitNow = false; } });
     runLine = line => { if (term && !term.busy) { term.inp.value = line; term.form.requestSubmit(); } };
-    document.querySelectorAll('.toolbar [data-act]').forEach(b => b.onclick = () => { const a = b.dataset.act; if (a === 'valider') runLine('defi valider'); else if (a === 'indice') runLine('defi indice'); else if (a === 'enonce') runLine('defi enonce'); else if (a === 'edit') runLine('nano reponses.txt'); else if (a === 'font') { const t = $('#term'); const on = t.classList.toggle('big'); b.setAttribute('aria-pressed', on); } else if (a === 'reset') { if (confirm('Recommencer ce défi avec de nouvelles données ? Votre travail actuel sera perdu.')) runLine(`defi reset ${id}`); } });
+    document.querySelectorAll('.toolbar [data-act]').forEach(b => b.onclick = () => { const a = b.dataset.act; if (a === 'valider') runLine('defi valider'); else if (a === 'indice') runLine('defi indice'); else if (a === 'enonce') runLine('defi enonce'); else if (a === 'mode') toggleMode(); else if (a === 'edit') runLine('nano reponses.txt'); else if (a === 'font') { const t = $('#term'); const on = t.classList.toggle('big'); b.setAttribute('aria-pressed', on); } else if (a === 'reset') { if (confirm('Recommencer ce défi avec de nouvelles données ? Votre travail actuel sera perdu.')) runLine(`defi reset ${id}`); } });
     const w = s => term.print(s);
     w(`${CYA}${B}   CyberLab — simulateur web${R}\n   ${DIM}Terminal simulé · ${R}${B}help${R}${DIM} liste les commandes, ${R}${B}defi aide${R}${DIM} le défi.${R}\n`);
     if (!S.work[id]?.seen) { w(header(`Défi ${id} — ${def.title}   [${stars(def.difficulty)} · ${def.points} pts]`) + '\n' + indent(def.enonce) + `\n  ${B}Atelier :${R} ${CYA}${wd(def)}${R}\n  ${DIM}Commencez par : ls puis cat <fichier>${R}\n\n`); S.work[id].seen = true; store.save(S); } else w(`\n  ${DIM}Atelier restauré : ${wd(def)}${R}\n\n`);
