@@ -50,3 +50,16 @@ Le corrigé (`formateur/solutions/`) n'est pas copié dans l'image.
 ## Licence
 
 © 2026 Yahn LE PRETTRE - Formaxion Landes. Distribué sous licence **EUPL 1.2** (fichier `LICENSE`). Le nom et l'identité visuelle ne sont pas couverts par cette licence.
+
+
+## Simulateur web (GitHub Pages)
+
+CyberLab fonctionne aussi **entièrement dans le navigateur**, sans Docker ni serveur : un terminal simulé, les défis 02 à 17, le correcteur automatique, les indices, le score (conservé sur l'appareil) et les leçons.
+
+- **Activer la publication** : Settings > Pages > Source : *GitHub Actions*. Le workflow `pages` construit et publie le site à chaque fusion sur `main`.
+- **Essayer en local** : `node tools/build-site-data.mjs && cd site && python3 -m http.server`, puis ouvrir http://127.0.0.1:8000.
+- **Tests** : `bash tests/web/run-all.sh` (correcteur JavaScript comparé au correcteur bash sur toutes les variantes ; commandes de l'émulateur comparées à bash réel).
+
+Principe : les données de chaque défi sont produites par les vrais scripts `setup.sh` (30 variantes tirées au hasard par défi), et le navigateur en choisit une. Le terminal réimplémente en JavaScript les commandes usuelles (ls, cat, grep, awk, sed, sort, uniq, cut, tr, wc, head, tail, paste, date, base64, sha256sum, pipes, redirections, boucles, variables).
+
+Limites connues : le défi 01 (incident SSH, qui s'appuie sur `sshd` et `ssh-keygen` réels) reste réservé à l'image Docker ; les outils réseau (nmap, curl, tcpdump) sont absents du simulateur, les données à analyser étant déjà fournies ; en cas de coupure d'octet au milieu d'un caractère accentué, `cut -c` et `head -c` peuvent différer légèrement de bash.

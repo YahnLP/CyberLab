@@ -1,0 +1,4 @@
+# Générés par tools/build-site-data.mjs (le site est construit par la CI)
+site/data/
+site/cours/
+tests/web/solutions/
