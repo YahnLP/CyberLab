@@ -1,4 +1,9 @@
 # Changelog
+## v0.9.0 — simulateur web (GitHub Pages)
+- Site statique `site/` : terminal simulé (shell, awk, sed, sort, grep...), défis 02 à 17, correcteur, indices, score local, leçons.
+- `tools/build-site-data.mjs` : génère 30 variantes par défi à partir des vrais `setup.sh`.
+- Workflow `pages` (déploiement) et tests `tests/web/` (correcteur et émulateur comparés à bash).
+
 ## v0.8.0 — tests d'intégration
 - `tests/docker-integration.sh` : construit l'image, vérifie ttyd, rejoue chaque corrigé dans le conteneur.
 - Workflow GitHub Actions `tests` : contrôle des leçons, corrigés hors conteneur, intégration Docker.

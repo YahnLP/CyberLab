@@ -11,6 +11,15 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y gawk openssh-server && sudo mkdir -p /run/sshd
       - run: bash tests/check-cours.sh
       - run: bash tests/run-solution.sh
+  simulateur-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: sudo apt-get update && sudo apt-get install -y gawk
+      - run: bash tests/web/run-all.sh 6
   docker:
     runs-on: ubuntu-latest
     steps:
