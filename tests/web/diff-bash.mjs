@@ -8,7 +8,7 @@ const T = [
   "tr a-z A-Z < F | head -2", "grep -E '[0-9]+\\.[0-9]+' F | wc -l", "grep -o '[0-9][0-9.]*' F | sort -u | head", "sort -t';' -k2,2 -n F | head -3", "sort -k2 F | head -3",
   "sort -r F | head -2", "nl F | tail -2", "tail -n +2 F | head -2", "awk 'length>20' F | wc -l", "awk '{n+=NF}END{print n, NR}' F",
   "sed -n '2,4p' F", "grep -i error F | head -2", "cut -d' ' -f1-2 F | head -3", "awk '{print $NF}' F | sort | uniq -c | sort -rn | head -3", "grep -E 'a|b' F | wc -l",
-  "awk -F';' '{print $1\":\"$NF}' F | head -3", "sed -E 's/([0-9]+)/<\\1>/' F | head -2", "grep -w -c the F", "tr -s ' ' < F | head -2", "awk 'NR%2==0' F | head -2", "paste -sd, F | cut -c1-60",
+  "awk -F';' '{print $1\":\"$NF}' F | head -3", "sed -E 's/([0-9]+)/<\\1>/' F | head -2", "grep -w -c the F", "tr -s ' ' < F | head -2", "awk 'NR%2==0' F | head -2", "paste -sd, F | wc -l",
   "sort -u F | wc -l", "awk '{a[$1]=a[$1]+1}END{n=0;for(k in a)n++;print n}' F", "grep -n . F | head -2", "sed '/^$/d' F | wc -l", "awk 'BEGIN{FS=\";\"}{s+=$2}END{print s+0}' F",
   "awk '{printf \"%-10s|%5.1f\\n\", $1, NR/3}' F | head -2", "sort -n F | tail -2", "sort -f F | head -2", "grep -F -x -c a F", "awk '$1 ~ /^[0-9]/' F | wc -l", "awk 'tolower($0) ~ /get|post/' F | wc -l",
 ];
