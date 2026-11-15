@@ -57,3 +57,8 @@ Cohérence exigée : une même ligne de données apparaît dans le terminal, la 
 
 ## Ordre de grandeur
 24 modules à 3 ou 5 missions : 70 à 120 missions. À rythme actuel (une PR par lot), compter une PR pour le socle puis une PR par groupe de 2 ou 3 modules.
+
+## Documents de cadrage
+
+- [`CADRAGE-SIM07-09-16-18.md`](CADRAGE-SIM07-09-16-18.md) : propositions défensives pour les quatre modules en attente (à valider).
+- [`FORMATION-A-DISTANCE.md`](FORMATION-A-DISTANCE.md) : nom, plan, durée et coût de la formation à distance (à valider).
