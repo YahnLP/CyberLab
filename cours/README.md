@@ -9,6 +9,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Fondations** | débutants | 00 |
 | **Parcours métier** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Cycle HAC** (audit d'intrusion complet) | stagiaires avancés | HAC 1 à HAC 5 |
+| **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC peut se suivre en parallèle à partir de P4.
 
@@ -28,10 +29,13 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 | [P9](P9-disponibilite-resilience.md) | Disponibilité et résilience | 1 h | 08 · Disponibilité sous pression |
 | [P10](P10-correction-retest.md) | Correction et retest | 1 h | 01 · Incident SSH |
 | [P11](P11-risque-restitution.md) | Risque et restitution | 1 h 15 | 09 · Priorisation des risques |
+| [P12](P12-annuaire-active-directory.md) | Annuaire et Active Directory | 1 h 30 | 15 · Audit d'un annuaire |
+| [P13](P13-forensic-chronologie.md) | Forensic : chronologie et indicateurs | 1 h 30 | 16 · Reconstituer une chronologie |
+| [P14](P14-segmentation-pivot.md) | Segmentation et mouvement latéral | 1 h 15 | 17 · Segmentation et pivot |
 | [HAC1](HAC1-cadrage-methodologie.md) | Cadrage et méthodologie d'un audit | 1 h 15 | 10 · Analyse d'un mandat d'audit |
 | [HAC2](HAC2-interception-analyse-reseau.md) | Interception et analyse réseau | 1 h 30 | 11 · Lire une capture réseau |
 | [HAC3](HAC3-reconnaissance-services.md) | Reconnaissance avancée et énumération | 1 h 30 | 12 · Énumération de services |
 | [HAC4](HAC4-securite-web.md) | Sécurité des applications web | 2 h | 13 · Revue de code d'une application web |
 | [HAC5](HAC5-analyse-applicative-restitution.md) | Analyse applicative, Metasploit, restitution | 2 h | 14 · Protections mémoire et base Metasploit |
 
-Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 14 suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Chaque leçon a désormais son défi.
+Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 17 suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Chaque leçon a désormais son défi.

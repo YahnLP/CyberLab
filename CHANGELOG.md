@@ -1,4 +1,8 @@
 # Changelog
+## v0.7.0 — parcours avancés
+- Leçons P12 (annuaire), P13 (forensic), P14 (segmentation) et défis 15 à 17 : audit d'un export d'annuaire, chronologie et IOC, matrice de flux et pivot.
+- Analyse hors ligne et défense uniquement.
+
 ## v0.6.0 — défis du cycle HAC
 - Défis 10 à 14 : analyse d'un mandat (et Cyber Kill Chain), lecture d'une capture réseau (identifiants en clair, empoisonnement ARP), énumération DNS/SMB/SNMP, revue de code web, protections mémoire et base Metasploit.
 - Tous orientés analyse et défense, sans exploitation ni fabrication de charge.

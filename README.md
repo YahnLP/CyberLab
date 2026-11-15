@@ -21,6 +21,9 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | 12 · Énumération de services | Séquence 7 · Cycle HAC | 45 |
 | 13 · Revue de code d'une application web | Séquence 7 · Cycle HAC | 45 |
 | 14 · Protections mémoire et base Metasploit | Séquence 7 · Cycle HAC | 50 |
+| 15 · Audit d'un annuaire | Séquence 8 · Parcours avancés | 50 |
+| 16 · Reconstituer une chronologie | Séquence 8 · Parcours avancés | 50 |
+| 17 · Segmentation et pivot | Séquence 8 · Parcours avancés | 45 |
 
 ## Cours
 17 leçons originales réparties en trois parcours (Fondations, Parcours métier P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.

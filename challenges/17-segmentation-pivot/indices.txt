@@ -1,0 +1,5 @@
+Commencez par lister ce que la DMZ atteint directement : grep 'allow dmz' regles.txt.
+Recommencez pour chaque zone trouvée : c'est une fermeture transitive.
+Un saut = une règle suivie. Cherchez le chemin le plus court vers db.
+Une règle large contient le mot « any » (port ou zone).
+grep -c ' any' regles.txt donne un premier contrôle.

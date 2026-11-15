@@ -1,0 +1,19 @@
+RECONSTITUER UNE CHRONOLOGIE — copie de travail, analyse hors ligne
+
+Fichiers :
+  timeline.csv   epoch;chemin;type;utilisateur  (B création, M modification, A accès, C métadonnées),
+                 SANS ordre garanti
+  hashes.txt     sha256 des fichiers collectés, avec leur chemin
+  ioc.txt        empreintes d'indicateurs de compromission connus
+
+Un fichier PHP apparaît dans un dossier de téléversement : c'est le début présumé de l'intrusion.
+
+À produire :
+ 1 fichiers-ioc.txt   les chemins (hashes.txt) dont l'empreinte figure dans ioc.txt, un par ligne
+ 2 reponses.txt       heure_debut_utc : heure UTC (HH:MM:SS) de la création de ce fichier PHP ;
+                      fichier_persistance : le chemin créé sous /etc/cron.d ;
+                      nb_evenements_apres : nombre d'événements de timeline.csv STRICTEMENT
+                      postérieurs au début de l'intrusion
+
+Si fichiers-ioc.txt est vide, écrivez le mot « aucun ».
+Validation : defi valider

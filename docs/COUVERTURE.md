@@ -20,4 +20,4 @@ Sources : pages et API publiques observées avec un compte FREE (structure, offr
 | Trainer dashboard, classes, analytics, SSO | ACADEMY | À faire : portail BashLab existant à réutiliser |
 
 ## Leçons
-Les 17 leçons de `cours/` couvrent les modules annoncés (prise en main, P1 à P11, HAC 1 à 5). Défis pratiques : 01 (P7, P8, P10), 02 (P1), 03 (P2), 04 (P3), 05 (P4), 06 (P5), 07 (P6), 08 (P9), 09 (P11), 10 à 14 (HAC 1 à 5). Chaque leçon a son défi ; restent les modules non couverts par les leçons (AD, forensic avancé, pivot).
+Les 17 leçons de `cours/` couvrent les modules annoncés (prise en main, P1 à P11, HAC 1 à 5). Défis pratiques : 01 (P7, P8, P10), 02 (P1), 03 (P2), 04 (P3), 05 (P4), 06 (P5), 07 (P6), 08 (P9), 09 (P11), 10 à 14 (HAC 1 à 5). Chaque leçon a son défi ; les modules annuaire, forensic et pivot sont couverts par P12 à P14 (défis 15 à 17).
