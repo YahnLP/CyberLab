@@ -1,4 +1,9 @@
 # Changelog
+## Non publié
+
+- Cursus Ethical Hacking : leçons EH02 (reconnaissance et empreinte) et EH03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
+- `tests/check-cours.sh` contrôle désormais 22 leçons.
+
 ## v0.13.0 — jumeau numérique et cursus Ethical Hacking (EH02, EH03)
 - **Jumeau numérique** : une plage fictive générée par session (domaine en .example, réseau 192.168.x.0/24, plages 203.0.113.x), conservée avec la progression : 8 hôtes dont un équipement inconnu et un hôte disparu, DNS public et interne, serveur web avec en-têtes et fuite, un port non prévu, un service obsolète.
 - **Outils simulés** au format des vrais outils : `ping`, `host`, `dig`, `nslookup`, `nmap` (-sn, -sV, -p, -p-, -F, --open) et `curl` (-I, -i, -s, -L, -w). Chaque action laisse une trace côté défense.
