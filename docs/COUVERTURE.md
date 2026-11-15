@@ -19,9 +19,9 @@ Date : 15/11/2026. Sources : compte FREE de la plateforme de référence (portai
 | Terminal et TP auto-vérifiés | Oui (18 défis) | Oui (18 défis) | |
 | Variantes aléatoires | Oui | Oui (30 par défi) | |
 | Guidé / Semi-guidé | Énoncé + indices (-2 pt) | Idem | |
-| Expert sans indices | Non | Oui (v0.10.0, chronomètre et badge) | Docker : à faire |
+| Expert sans indices | Non | Oui (v0.10.0, chronomètre et badge) | Docker : fait (defi preuve, conclusion, rapport) |
 | Preuve, rapport, retest | Défis 01, 06, 09 | Idem | À généraliser |
-| Casebook (dossier d'enquête) | Non | Oui (v0.11.0, preuves, conclusion, export) | Docker : à faire |
+| Casebook (dossier d'enquête) | Non | Oui (v0.11.0, preuves, conclusion, export) | Docker : fait (defi preuve, conclusion, rapport) |
 | Blue Team / SOC | Défis 01, 10, 11, 16 | Idem | |
 | Forensic | Partiel (16) | Partiel | |
 | Web / API | Lecture et audit (05, 07, 13) | Idem | Pas d'attaque interactive |
@@ -37,7 +37,7 @@ Date : 15/11/2026. Sources : compte FREE de la plateforme de référence (portai
 Aucune fonction payante dans le simulateur. Pas de comptes ni de serveur : tout tourne dans le navigateur.
 
 ## Priorités
-1. ~~Rapport et preuves sur tous les défis~~ (Casebook fait côté simulateur web ; côté Docker, à porter).
+1. ~~Rapport et preuves sur tous les défis~~ (Casebook fait côté simulateur web ; côté Docker : defi preuve, defi conclusion, defi rapport).
 2. ~~Mode Expert sans indices avec chronomètre~~ (fait côté simulateur web).
 3. ~~Porter le défi 01 sur le web~~ (fait).
 4. Export du bilan élève.

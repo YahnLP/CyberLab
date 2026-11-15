@@ -11,6 +11,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y gawk openssh-server && sudo mkdir -p /run/sshd
       - run: bash tests/check-cours.sh
       - run: bash tests/run-solution.sh
+      - run: bash tests/casebook-docker.sh
   simulateur-web:
     runs-on: ubuntu-latest
     steps:

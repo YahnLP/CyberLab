@@ -2,7 +2,7 @@
 set -u
 LAB_DIR="${BASHLAB_HOME:-/opt/bashlab}"; CH_DIR="$LAB_DIR/challenges"; LAB_LIB="$LAB_DIR/engine/lib.sh"
 STATE_DIR="$HOME/.bashlab"; ANSWERS_DIR="$STATE_DIR/reponses"; PROGRESS="$STATE_DIR/progression"
-CURRENT_FILE="$STATE_DIR/courant"; WORK_ROOT="$HOME/atelier"
+CURRENT_FILE="$STATE_DIR/courant"; WORK_ROOT="$HOME/atelier"; CASE_ROOT="$STATE_DIR/casebook"; MAX_EV=20
 if [ -t 1 ]; then R=$'\033[0m';B=$'\033[1m';DIM=$'\033[2m';GREEN=$'\033[32m';RED=$'\033[31m';YELLOW=$'\033[33m';CYAN=$'\033[36m'
 else R="";B="";DIM="";GREEN="";RED="";YELLOW="";CYAN=""; fi
 init(){ mkdir -p "$ANSWERS_DIR" "$WORK_ROOT"; touch "$PROGRESS"; }
@@ -27,7 +27,7 @@ printf "   %s  ${B}%s${R}  %-28s %s  ${DIM}%2d pts${R}\n" "$mark" "$id" "$TITLE"
 done; echo; echo "  ${DIM}Pour commencer : ${R}${B}defi start <numéro>${R}"; echo; }
 cmd_start(){ init; [ $# -ge 1 ] || die "indiquez un numéro."; local dir id work
 dir=$(find_challenge "$1") || die "défi '$1' inexistant."; id=$(challenge_id "$dir"); load_meta "$dir"
-work="$WORK_ROOT/$(basename "$dir")"; rm -rf "$work"; mkdir -p "$work"
+work="$WORK_ROOT/$(basename "$dir")"; rm -rf "$work" "$CASE_ROOT/$id"; mkdir -p "$work"
 ( cd "$work" && WORK="$work" CH="$dir" LAB_LIB="$LAB_LIB" ANSWER_FILE="$ANSWERS_DIR/$id" bash "$dir/setup.sh" ) || die "échec de la préparation."
 echo "$id" > "$CURRENT_FILE"; set_status "$id" "en_cours" 0 0
 header "Défi $id — $TITLE   [$(difficulty_stars "$DIFFICULTY") · $POINTS pts]"; echo; sed 's/^/  /' "$dir/enonce.txt"
@@ -69,12 +69,42 @@ cmd_aide(){ cat <<EOF
   ${B}defi score${R}              Progression et points
   ${B}defi reset <n>${R}          Recommencer un défi
 
+  ${B}Casebook${R} (dossier de preuves, local)
+  ${B}defi preuve <commande>${R}  Exécuter et enregistrer la sortie (empreinte SHA-256)
+  ${B}defi preuves${R}            Lister les preuves
+  ${B}defi preuve-suppr <n>${R}   Retirer une preuve
+  ${B}defi conclusion "texte"${R} Rédiger la conclusion
+  ${B}defi rapport${R}            Écrire le rapport Markdown (~/rapport-<défi>.md)
+
 EOF
 }
+# --- Casebook : preuves, conclusion et rapport (tout reste local, rien n'est envoyé) ---
+case_dir(){ require_current; CASED="$CASE_ROOT/$CUR"; mkdir -p "$CASED"; }
+case_count(){ ls "$CASED"/*.cmd 2>/dev/null | wc -l; }
+cmd_preuve(){ init; case_dir; [ $# -ge 1 ] || die "indiquez la commande : defi preuve <commande>"
+local n out; n=$(case_count); [ "$n" -lt "$MAX_EV" ] || die "$MAX_EV preuves au maximum ; supprimez-en avec : defi preuve-suppr <n>"
+out=$(bash -c "$*" 2>&1); printf '%s\n' "$out"; n=$((n+1)); local num; num=$(printf '%02d' "$n")
+printf '%s\n' "$*" > "$CASED/$num.cmd"; printf '%s' "$out" > "$CASED/$num.out"; date '+%Y-%m-%d %H:%M:%S' > "$CASED/$num.date"
+echo; echo "  ${GREEN}Preuve $n enregistrée${R} ${DIM}(SHA-256 de la sortie : $(printf '%s' "$out" | sha256sum | cut -c1-16)…)${R}"; echo; }
+cmd_preuves(){ init; case_dir; local f num; echo; echo "  ${B}PREUVES du défi $CUR${R}"; echo
+[ "$(case_count)" -gt 0 ] || { echo "  ${DIM}Aucune. Utilisez : defi preuve <commande>${R}"; echo; return; }
+for f in "$CASED"/*.cmd; do num=$(basename "$f" .cmd); printf '   %s  %s  %s  %s\n' "$num" "$(cat "$CASED/$num.date")" "$(sha256sum < "$CASED/$num.out" | cut -c1-12)" "$(cat "$f")"; done; echo; }
+cmd_preuve_suppr(){ init; case_dir; [ $# -ge 1 ] || die "indiquez le numéro : defi preuve-suppr <n>"; local num f i=0; num=$(printf '%02d' "$((10#$1))")
+[ -f "$CASED/$num.cmd" ] || die "preuve $1 introuvable."; rm -f "$CASED/$num".{cmd,out,date}
+for f in "$CASED"/*.cmd; do [ -f "$f" ] || continue; i=$((i+1)); local old nw; old=$(basename "$f" .cmd); nw=$(printf '%02d' "$i"); [ "$old" = "$nw" ] || for e in cmd out date; do mv "$CASED/$old.$e" "$CASED/$nw.$e"; done; done
+echo "  ${GREEN}Preuve $1 supprimée.${R}"; }
+cmd_conclusion(){ init; case_dir; [ $# -ge 1 ] || die "indiquez le texte : defi conclusion \"votre analyse\""; printf '%s\n' "$*" > "$CASED/conclusion.txt"; echo "  ${GREEN}Conclusion enregistrée.${R}"; }
+cmd_rapport(){ init; case_dir; load_meta "$DIR"; local rep="$HOME/rapport-$CUR.md" st f num; st=$(status_of "$CUR"); [ "$st" = "reussi" ] && st="réussi ($(points_of "$CUR")/$POINTS pts)" || st="non réussi"
+{ printf '# Rapport — Défi %s — %s\n\n- Date : %s\n- État : %s\n- Indices utilisés : %s\n- Preuves : %s\n\n## Preuves\n\n' "$CUR" "$TITLE" "$(date '+%Y-%m-%d %H:%M')" "$st" "$(hints_used "$CUR")" "$(case_count)"
+if [ "$(case_count)" -gt 0 ]; then for f in "$CASED"/*.cmd; do num=$(basename "$f" .cmd); printf '### Preuve %s (%s)\n\nCommande : `%s`\n\nSHA-256 de la sortie : `%s`\n\n```\n%s\n```\n\n' "$((10#$num))" "$(cat "$CASED/$num.date")" "$(cat "$f")" "$(sha256sum < "$CASED/$num.out" | cut -d' ' -f1)" "$(head -c 800 "$CASED/$num.out")"; done; else printf '_Aucune preuve enregistrée._\n\n'; fi
+printf '## Conclusion\n\n%s\n\n_Données fictives, CyberLab (Formaxion Landes)._\n' "$( [ -s "$CASED/conclusion.txt" ] && cat "$CASED/conclusion.txt" || echo '_À rédiger._')"; } > "$rep"
+echo; echo "  ${GREEN}${B}Rapport écrit :${R} ${CYAN}$rep${R}"; echo "  ${DIM}Lisez-le avec : cat $rep${R}"; echo; }
 [ -d "$CH_DIR" ] || die "répertoire des défis introuvable."
 case "${1:-aide}" in
     liste|list|ls) cmd_liste;; start|go) shift; cmd_start "$@";; enonce|énoncé) cmd_enonce;;
     indice|hint) cmd_indice;; valider|check) shift||true; cmd_valider "${1:-}";; suivant|next) cmd_suivant;;
+    preuve|evidence) shift; cmd_preuve "$@";; preuves) cmd_preuves;; preuve-suppr) shift; cmd_preuve_suppr "$@";;
+    conclusion) shift; cmd_conclusion "$@";; rapport|report) cmd_rapport;;
     score|points) cmd_score;; reset) shift; cmd_start "$@";; aide|help|--help|-h) cmd_aide;;
     *) die "commande inconnue '$1'. Voir : defi aide";;
 esac
