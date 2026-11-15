@@ -1,4 +1,9 @@
 # Changelog
+## v0.10.0 — mode Expert et panneau Comprendre / Journal (simulateur web)
+- Mode Expert : bouton « Mode » sur chaque défi. Indices désactivés, chronomètre (en pause quand l'onglet est masqué), badge Expert et temps affichés à la réussite. Passer d'Expert à Guidé est possible, l'inverse n'est permis que si aucun indice n'a été utilisé.
+- Panneau sous le terminal : « Comprendre » explique la dernière commande (chaîne de commandes, rôle de chaque étape, code de retour) et « Journal » garde les commandes du défi, conservées avec la progression.
+- Test navigateur `tests/web/ui-expert.mjs` (13 vérifications), exécuté en CI.
+- Audit de couverture face à la référence : `docs/COUVERTURE.md`.
 ## v0.9.3
 - Correctif défi 06 : les identifiants CVE tirés au hasard pouvaient se répéter (environ 1 session sur 300), ce qui rendait le corrigé refusé ; tirage sans doublon.
 

@@ -63,4 +63,6 @@ CyberLab fonctionne aussi **entièrement dans le navigateur**, sans Docker ni se
 
 Principe : les données de chaque défi sont produites par les vrais scripts `setup.sh` (30 variantes tirées au hasard par défi), et le navigateur en choisit une. Le terminal réimplémente en JavaScript les commandes usuelles (ls, cat, grep, awk, sed, sort, uniq, cut, tr, wc, head, tail, paste, date, base64, sha256sum, pipes, redirections, boucles, variables).
 
+Modes : **Guidé** (indices à -2 point) et **Expert** (sans indices, chronomètre, badge). Sous le terminal, le panneau **Comprendre** interprète la dernière commande et le **Journal** garde l'historique du défi.
+
 Limites connues : le défi 01 (incident SSH, qui s'appuie sur `sshd` et `ssh-keygen` réels) reste réservé à l'image Docker ; les outils réseau (nmap, curl, tcpdump) sont absents du simulateur, les données à analyser étant déjà fournies ; en cas de coupure d'octet au milieu d'un caractère accentué, `cut -c` et `head -c` peuvent différer légèrement de bash.

@@ -19,7 +19,7 @@ Date : 15/11/2026. Sources : compte FREE de la plateforme de référence (portai
 | Terminal et TP auto-vérifiés | Oui (18 défis) | Oui (17 défis, 01 absent) | Défi 01 non porté |
 | Variantes aléatoires | Oui | Oui (30 par défi) | |
 | Guidé / Semi-guidé | Énoncé + indices (-2 pt) | Idem | |
-| Expert sans indices | Non | Non | À faire (examen) |
+| Expert sans indices | Non | Oui (v0.10.0, chronomètre et badge) | Docker : à faire |
 | Preuve, rapport, retest | Défis 01, 06, 09 | Idem | À généraliser |
 | Casebook (dossier d'enquête) | Non | Non | À faire |
 | Blue Team / SOC | Défis 01, 10, 11, 16 | Idem | |
@@ -38,7 +38,7 @@ Aucune fonction payante dans le simulateur. Pas de comptes ni de serveur : tout 
 
 ## Priorités
 1. Rapport et preuves sur tous les défis (mini-Casebook local).
-2. Mode Expert sans indices avec chronomètre.
+2. ~~Mode Expert sans indices avec chronomètre~~ (fait côté simulateur web).
 3. Porter le défi 01 sur le web.
 4. Export du bilan élève.
 5. Vue du lab et journal, pour la formation Formaxion Landes.

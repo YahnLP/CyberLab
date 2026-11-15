@@ -1,0 +1,31 @@
+// Test navigateur : mode Expert, chronomètre, journal, Comprendre. Usage : node tests/web/ui-expert.mjs [URL]
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import fs from 'node:fs'; import path from 'node:path';
+const BASE = process.argv[2] || 'http://127.0.0.1:8765/'; const ROOT = path.resolve(path.dirname(new globalThis.URL(import.meta.url).pathname), '../..');
+const br = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--proxy-server=direct://', '--proxy-bypass-list=*'] });
+const pg = await br.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); pg.on('console', m => m.type() === 'error' && !/ERR_NAME_NOT_RESOLVED|ERR_INTERNET|ERR_CONNECTION|formaxionlandes/.test(m.text()) && errs.push(m.text()));
+let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
+const run = async l => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(250); };
+await pg.goto(BASE + '#/defi/02'); await pg.waitForSelector('#term input');
+ok(await pg.textContent('[data-act=mode]') === 'Mode : Guidé', 'mode Guidé par défaut');
+await pg.click('[data-act=mode]'); ok(await pg.textContent('[data-act=mode]') === 'Mode : Expert', 'bascule Expert');
+ok(await pg.isDisabled('[data-act=indice]'), 'bouton indice désactivé');
+ok(await pg.isVisible('#timer'), 'chronomètre visible');
+await run('defi indice'); ok((await pg.textContent('#term')).includes('indices sont désactivés'), 'defi indice refusé');
+await pg.waitForTimeout(2200); ok(await pg.textContent('#timer') !== '00:00', 'chronomètre avance');
+await run('ls | wc -l'); ok((await pg.textContent('[data-ppane=comprendre]')).includes('Chaîne de 2 étapes'), 'Comprendre : chaîne expliquée');
+ok(await pg.textContent('#jcount') === '1', 'journal : 1 commande (defi exclu)');
+await pg.click('[data-ptab=journal]'); ok((await pg.textContent('[data-ppane=journal]')).includes('ls | wc -l'), 'journal affiche la commande');
+// résolution avec le corrigé
+const st = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1'))); const w = st.work['02'];
+const sols = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests/web/solutions/02.json')));
+const def = await (await fetch(BASE + 'data/02.json')).json();
+const vi = w.variant; const delta = sols[Math.min(vi, sols.length - 1)]?.delta;
+ok(!!delta && def.variants.length === sols.length, 'corrigé disponible pour la variante ' + vi);
+for (const [f, c] of Object.entries(delta || {})) await run(`echo ${Buffer.from(c).toString('base64')} | base64 -d > ${f}`);
+await run('defi valider'); const t = await pg.textContent('#term');
+ok(/DÉFI RÉUSSI/.test(t) && t.includes('Expert'), 'réussite avec badge Expert');
+const p = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).prog['02']);
+ok(p.expert === true && p.time >= 2, `progression : expert=${p.expert}, temps=${p.time}s`);
+ok((await pg.textContent('#banner')).includes('Expert en'), 'bandeau affiche Expert');
+ok(errs.length === 0, 'aucune erreur console' + (errs.length ? ' : ' + errs[0] : ''));
+await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI Expert : OK'); process.exit(bad ? 1 : 0);

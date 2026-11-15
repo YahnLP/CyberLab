@@ -20,6 +20,12 @@ jobs:
           node-version: 22
       - run: sudo apt-get update && sudo apt-get install -y gawk
       - run: bash tests/web/run-all.sh 6
+      - name: Test navigateur (mode Expert, journal)
+        run: |
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i --no-save --prefix /tmp/pw playwright
+          (cd site && python3 -m http.server 8765 >/dev/null 2>&1 &)
+          sleep 2
+          NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-expert.mjs
   docker:
     runs-on: ubuntu-latest
     steps:
