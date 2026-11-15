@@ -25,13 +25,13 @@ Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le cycle HAC p
 | [P6](P6-applications-api.md) | Applications et API | 1 h 30 | 07 · Contrôle d'accès d'une API |
 | [P7](P7-identites-reseau.md) | Identités et réseau | 1 h 30 | 01 (volet mots de passe) |
 | [P8](P8-investigation-incident.md) | Investigation d'incident | 1 h 30 | 01 · Incident SSH |
-| [P9](P9-disponibilite-resilience.md) | Disponibilité et résilience | 1 h | à créer |
+| [P9](P9-disponibilite-resilience.md) | Disponibilité et résilience | 1 h | 08 · Disponibilité sous pression |
 | [P10](P10-correction-retest.md) | Correction et retest | 1 h | 01 · Incident SSH |
-| [P11](P11-risque-restitution.md) | Risque et restitution | 1 h 15 | à créer |
+| [P11](P11-risque-restitution.md) | Risque et restitution | 1 h 15 | 09 · Priorisation des risques |
 | [HAC1](HAC1-cadrage-methodologie.md) | Cadrage et méthodologie d'un audit | 1 h 15 | à créer |
 | [HAC2](HAC2-interception-analyse-reseau.md) | Interception et analyse réseau | 1 h 30 | à créer |
 | [HAC3](HAC3-reconnaissance-services.md) | Reconnaissance avancée et énumération | 1 h 30 | à créer |
 | [HAC4](HAC4-securite-web.md) | Sécurité des applications web | 2 h | à créer |
 | [HAC5](HAC5-analyse-applicative-restitution.md) | Analyse applicative, Metasploit, restitution | 2 h | à créer |
 
-Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 07 (P1 à P6) suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Les défis des parcours restants restent à créer.
+Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les défis 02 à 09 (P1 à P11, hors cycle HAC) suivent le même principe que le défi 01 : données générées au hasard, constats à rédiger, correcteur automatique. Les défis du cycle HAC restent à créer.

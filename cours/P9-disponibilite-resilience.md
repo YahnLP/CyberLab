@@ -1,6 +1,6 @@
 # P9 · Disponibilité et résilience
 
-Durée : 1 h · Prérequis : P3 · Défi associé : à créer
+Durée : 1 h · Prérequis : P3 · Défi associé : 08 · Disponibilité sous pression
 
 ## Objectifs
 - Expliquer les principales attaques contre la disponibilité.

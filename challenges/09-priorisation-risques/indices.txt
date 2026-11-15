@@ -1,0 +1,6 @@
+Découpez le vecteur : echo "$v" | tr '/' '\n' donne AV:N, AC:L, PR:N...
+Écrivez le calcul une fois en awk (poids dans des fonctions), puis appliquez-le à chaque ligne.
+Contrôle : vos résultats doivent donner 9.8 et 6.5 pour les deux vecteurs de référence.
+Jointure : awk -F';' avec NR==FNR charge actifs.csv, puis lit constats.csv.
+La règle P1 combine trois conditions pour le second cas : testez-les ensemble.
+La synthèse doit citer les ID (ex : F01) des constats P1 et annoncer un retest.

@@ -1,0 +1,6 @@
+grep -c SYN-RECV ss.txt ; la colonne « Peer Address:Port » est la 5e (awk '{print $5}').
+Séparez l'IP du port : cut -d: -f1 ; puis sort | uniq -c | sort -rn | head
+Une IP domine si elle représente plus de 50 % des SYN-RECV ; sinon l'attaque est distribuée.
+Facteur = réponse / requête : awk -F';' 'NR>1{print $3/$2, $1}' amplification.csv
+date -d "AAAA-MM-JJ HH:MM" +%s convertit en secondes ; différence / 3600 = heures.
+Une ligne « sauvegarde ECHEC » ne compte pas : comparez uniquement les sauvegardes OK.
