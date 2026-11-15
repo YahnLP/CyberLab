@@ -27,7 +27,7 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | 17 · Segmentation et pivot | Séquence 8 · Parcours avancés | 45 |
 
 ## Parcours pentest (simulateur web)
-Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`) : EH02-1 à EH02-3 (reconnaissance), EH03-1 à EH03-3 (scan). Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
+Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`) : SIM02-1 à SIM02-3 (reconnaissance), SIM03-1 à SIM03-3 (scan). Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
 
 ## Cours
 17 leçons originales réparties en trois parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours sécurité offensive SO1 à SO5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.

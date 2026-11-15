@@ -1,4 +1,4 @@
-// Missions du parcours pentest (EH) : chacune génère son jumeau numérique à partir d'une graine, puis se corrige
+// Missions du parcours pentest (SIM) : chacune génère son jumeau numérique à partir d'une graine, puis se corrige
 // sur les FAITS du jumeau (pas sur une commande précise) avec une face Red (observer) et une face Blue (défendre).
 import { makeTwin, rng, hostByIp } from './twin.js';
 import { makeTools, TOOL_NAMES } from './tools.js';
@@ -31,10 +31,10 @@ const head = (tw) => `${tw.orgName.toUpperCase()} — domaine ${tw.domain}, plag
 const faceBlue = (d) => `\nFACE DÉFENSE (Blue) — defense=a, b ou c : quelle est la mesure la plus efficace et la moins risquée ?\n${d.text}\n`;
 
 const M = [];
-// ---------------------------------------------------------------- EH02
+// ---------------------------------------------------------------- SIM02
 {
   const d1 = tw => defense(tw, 1, `Supprimer l'enregistrement DNS ${tw.hidden} et arrêter le service qu'il désigne s'il est inutile`, ['Laisser en place : un nom peu connu n\'est pas exposé', 'Changer le nom du sous-domaine pour le rendre plus discret']);
-  M.push({ id: 'EH02-1', title: 'Reconnaissance : noms publics du domaine', module: 'EH02 · Reconnaissance et empreinte', points: 30, difficulty: 1, lesson: 'EH02-reconnaissance-footprinting', code: 'EH02·1', duree: '35 min',
+  M.push({ id: 'SIM02-1', title: 'Reconnaissance : noms publics du domaine', module: 'SIM02 · Reconnaissance et empreinte', points: 30, difficulty: 1, lesson: 'SIM02-reconnaissance-empreinte', code: 'SIM02·1', duree: '35 min',
     setup: tw => ({ 'reponses.txt': tmpl(['sous_domaines_actifs', 'ip_www', 'sous_domaine_oublie', 'defense']), 'sous-domaines.txt': tw.subdomainWords.join('\n') + '\n' }),
     enonce: tw => `${head(tw)}
 MISSION : recensez ce que ${tw.orgName} expose sur Internet.
@@ -48,9 +48,9 @@ Le DSI indique trois services officiels : www, mail, vpn.
 ${faceBlue(d1(tw))}
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['host NOM.' + 'DOMAINE interroge le DNS : « has address » = le nom existe, « not found » = il n\'existe pas.', 'Une boucle for sur sous-domaines.txt teste tous les candidats d\'un coup.', 'dig +short NOM.DOMAINE n\'affiche que l\'adresse.', 'Un nom actif absent de la liste officielle est un actif oublié : le candidat le plus risqué.', 'Le DNS est une carte de l\'exposition : on supprime ce qui ne sert plus.'],
-    check: checker('EH02-1', tw => [ask('sous_domaines_actifs', 'set', tw.subdomainWords.filter(w => tw.dns.some(r => r.type === 'A' && r.name === `${w}.${tw.domain}`)).join(',')), ask('ip_www', 'txt', tw.H.www.pub), ask('sous_domaine_oublie', 'txt', tw.hidden)], d1), finish: 'Reconnaissance passive terminée : vous avez retrouvé l\'actif oublié.' });
+    check: checker('SIM02-1', tw => [ask('sous_domaines_actifs', 'set', tw.subdomainWords.filter(w => tw.dns.some(r => r.type === 'A' && r.name === `${w}.${tw.domain}`)).join(',')), ask('ip_www', 'txt', tw.H.www.pub), ask('sous_domaine_oublie', 'txt', tw.hidden)], d1), finish: 'Reconnaissance passive terminée : vous avez retrouvé l\'actif oublié.' });
   const d2 = tw => defense(tw, 2, 'Masquer la version, ajouter les en-têtes de sécurité manquants et retirer l\'accès public à l\'index exposé', ['Interdire les robots dans robots.txt et ne rien changer d\'autre', 'Remplacer le certificat TLS par un certificat plus long']);
-  M.push({ id: 'EH02-2', title: 'Reconnaissance : en-têtes et fuites d\'un serveur web', module: 'EH02 · Reconnaissance et empreinte', points: 35, difficulty: 2, lesson: 'EH02-reconnaissance-footprinting', code: 'EH02·2', duree: '40 min',
+  M.push({ id: 'SIM02-2', title: 'Reconnaissance : en-têtes et fuites d\'un serveur web', module: 'SIM02 · Reconnaissance et empreinte', points: 35, difficulty: 2, lesson: 'SIM02-reconnaissance-empreinte', code: 'SIM02·2', duree: '40 min',
     setup: tw => ({ 'reponses.txt': tmpl(['version_serveur', 'en_tetes_manquants', 'technologie_exposee', 'chemin_fuite', 'fichier_expose', 'defense']) }),
     enonce: tw => `${head(tw)}
 MISSION : que révèle le site web http://www.${tw.domain}/ sans l'attaquer ?
@@ -67,9 +67,9 @@ MISSION : que révèle le site web http://www.${tw.domain}/ sans l'attaquer ?
 ${faceBlue(d2(tw))}
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['curl -I affiche seulement les en-têtes de la réponse.', 'curl http://www.DOMAINE/robots.txt : robots.txt liste ce qu\'on voudrait cacher, donc ce qui mérite un regard.', 'Testez chaque chemin avec curl -i : le code 200 avec une liste de fichiers est une fuite, 401 est protégé.', 'En-tête manquant = absent de la réponse. Comparez avec la liste de l\'énoncé.', 'Une version précise dans Server aide l\'attaquant à choisir ses outils.'],
-    check: checker('EH02-2', tw => [ask('version_serveur', 'txt', tw.web.server), ask('en_tetes_manquants', 'set', tw.web.missing.join(',')), ask('technologie_exposee', 'txt', tw.web.poweredBy || 'aucune'), ask('chemin_fuite', 'txt', tw.web.leakPath), ask('fichier_expose', 'txt', tw.web.leakFile)], d2), finish: 'Surface web lue sans rien casser : vous avez trouvé la fuite.' });
+    check: checker('SIM02-2', tw => [ask('version_serveur', 'txt', tw.web.server), ask('en_tetes_manquants', 'set', tw.web.missing.join(',')), ask('technologie_exposee', 'txt', tw.web.poweredBy || 'aucune'), ask('chemin_fuite', 'txt', tw.web.leakPath), ask('fichier_expose', 'txt', tw.web.leakFile)], d2), finish: 'Surface web lue sans rien casser : vous avez trouvé la fuite.' });
   const d3 = tw => defense(tw, 3, 'Passer la politique SPF en échec strict (-all), puis ajouter DKIM et DMARC', ['Ajouter une deuxième adresse IP autorisée dans le SPF', 'Supprimer l\'enregistrement MX pour masquer le serveur de messagerie']);
-  M.push({ id: 'EH02-3', title: 'Reconnaissance : messagerie et enregistrements SPF', module: 'EH02 · Reconnaissance et empreinte', points: 25, difficulty: 2, lesson: 'EH02-reconnaissance-footprinting', code: 'EH02·3', duree: '30 min',
+  M.push({ id: 'SIM02-3', title: 'Reconnaissance : messagerie et enregistrements SPF', module: 'SIM02 · Reconnaissance et empreinte', points: 25, difficulty: 2, lesson: 'SIM02-reconnaissance-empreinte', code: 'SIM02·3', duree: '30 min',
     setup: tw => ({ 'reponses.txt': tmpl(['serveur_mail', 'priorite_mx', 'filtrage_spf', 'ip_autorisee_spf', 'defense']) }),
     enonce: tw => `${head(tw)}
 MISSION : qui reçoit et qui peut envoyer le courrier de ${tw.domain} ?
@@ -82,13 +82,13 @@ MISSION : qui reçoit et qui peut envoyer le courrier de ${tw.domain} ?
 ${faceBlue(d3(tw))}
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['host -t MX DOMAINE ou dig MX DOMAINE donnent le serveur de messagerie.', 'Le SPF est un enregistrement TXT : dig TXT DOMAINE.', 'Le mécanisme final -all refuse, ~all accepte mais marque, +all autorise tout le monde.', 'Un SPF en +all permet à n\'importe qui d\'usurper le domaine.'],
-    check: checker('EH02-3', tw => [ask('serveur_mail', 'txt', NODOT(tw.dns.find(r => r.type === 'MX').value.split(' ')[1])), ask('priorite_mx', 'num', 10), ask('filtrage_spf', 'txt', { '-all': 'strict', '~all': 'souple', '+all': 'aucun' }[tw.spfKind]), ask('ip_autorisee_spf', 'txt', tw.dns.find(r => r.name === 'mail.' + tw.domain).value)], d3), finish: 'Messagerie cartographiée : vous savez qui peut usurper le domaine.' });
+    check: checker('SIM02-3', tw => [ask('serveur_mail', 'txt', NODOT(tw.dns.find(r => r.type === 'MX').value.split(' ')[1])), ask('priorite_mx', 'num', 10), ask('filtrage_spf', 'txt', { '-all': 'strict', '~all': 'souple', '+all': 'aucun' }[tw.spfKind]), ask('ip_autorisee_spf', 'txt', tw.dns.find(r => r.name === 'mail.' + tw.domain).value)], d3), finish: 'Messagerie cartographiée : vous savez qui peut usurper le domaine.' });
 }
-// ---------------------------------------------------------------- EH03
+// ---------------------------------------------------------------- SIM03
 {
   const inv = tw => 'hote;ip;role;ports_attendus\n' + tw.inventory.map(h => `${h.name};${h.ip};${h.role};${h.ports.join(',') || '-'}`).join('\n') + '\n';
   const d4 = tw => defense(tw, 4, 'Identifier le propriétaire de l\'équipement inconnu, l\'isoler dans un réseau dédié et mettre l\'inventaire à jour', ['Ignorer : une imprimante ne présente aucun risque', 'Éteindre toute la plage réseau jusqu\'à nouvel ordre']);
-  M.push({ id: 'EH03-1', title: 'Scan : découvrir les hôtes actifs', module: 'EH03 · Scan réseau', points: 30, difficulty: 1, lesson: 'EH03-scan-reseau', code: 'EH03·1', duree: '35 min',
+  M.push({ id: 'SIM03-1', title: 'Scan : découvrir les hôtes actifs', module: 'SIM03 · Scan réseau', points: 30, difficulty: 1, lesson: 'SIM03-scan-reseau', code: 'SIM03·1', duree: '35 min',
     setup: tw => ({ 'reponses.txt': tmpl(['hotes_actifs', 'hote_inconnu', 'hote_absent', 'defense']), 'inventaire.csv': inv(tw) }),
     enonce: tw => `${head(tw)}
 MISSION : l'inventaire (inventaire.csv) est-il fidèle à la réalité du réseau ?
@@ -100,9 +100,9 @@ MISSION : l'inventaire (inventaire.csv) est-il fidèle à la réalité du résea
 ${faceBlue(d4(tw))}
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['nmap -sn 192.168.X.0/24 teste toute la plage sans scanner les ports.', 'Comparez la liste des adresses actives avec la colonne ip de l\'inventaire.', 'Votre poste (poste-audit, .250) apparaît dans la liste : ne le comptez pas.', 'Un hôte actif non inventorié est un équipement que personne ne surveille.'],
-    check: checker('EH03-1', tw => [ask('hotes_actifs', 'num', tw.hosts.filter(h => h.up && !h.self).length), ask('hote_inconnu', 'txt', tw.hosts.find(h => h.shadow).ip), ask('hote_absent', 'txt', tw.hosts.find(h => !h.up).name)], d4), finish: 'Écarts d\'inventaire trouvés : un équipement inconnu et un hôte disparu.' });
+    check: checker('SIM03-1', tw => [ask('hotes_actifs', 'num', tw.hosts.filter(h => h.up && !h.self).length), ask('hote_inconnu', 'txt', tw.hosts.find(h => h.shadow).ip), ask('hote_absent', 'txt', tw.hosts.find(h => !h.up).name)], d4), finish: 'Écarts d\'inventaire trouvés : un équipement inconnu et un hôte disparu.' });
   const d5 = tw => defense(tw, 5, 'Limiter l\'exposition : n\'ouvrir que les ports utiles et filtrer le reste au pare-feu', ['Fermer uniquement le port 22 sur tous les serveurs', 'Désactiver la journalisation pour réduire le bruit']);
-  M.push({ id: 'EH03-2', title: 'Scan : cartographier les ports du serveur web', module: 'EH03 · Scan réseau', points: 35, difficulty: 2, lesson: 'EH03-scan-reseau', code: 'EH03·2', duree: '40 min',
+  M.push({ id: 'SIM03-2', title: 'Scan : cartographier les ports du serveur web', module: 'SIM03 · Scan réseau', points: 35, difficulty: 2, lesson: 'SIM03-scan-reseau', code: 'SIM03·2', duree: '40 min',
     setup: tw => ({ 'reponses.txt': tmpl(['ports_ouverts_www', 'version_web', 'version_ssh_www', 'defense']) }),
     enonce: tw => `${head(tw)}
 MISSION : établissez la carte complète des ports ouverts du serveur web interne
@@ -116,9 +116,9 @@ ${faceBlue(d5(tw))}
 Attention : un scan par défaut ne teste que les 1000 ports les plus courants.
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['nmap ADRESSE teste les ports courants ; -p- teste les 65 535 ports.', '-sV demande la version du service derrière chaque port.', 'Un port ouvert inattendu peut être hors des ports courants : relancez avec -p-.', 'Notez la version exacte : sans elle, on ne peut pas dire si le service est à jour.'],
-    check: checker('EH03-2', tw => [ask('ports_ouverts_www', 'set', tw.H.www.ports.map(p => p.port).join(',')), ask('version_web', 'txt', `${tw.H.www.ports.find(p => p.port === 80).product} ${tw.H.www.ports.find(p => p.port === 80).version}`), ask('version_ssh_www', 'txt', tw.H.www.ports.find(p => p.port === 22).version.split(' ')[0])], d5), finish: 'Carte des ports complète, y compris hors des ports courants.' });
+    check: checker('SIM03-2', tw => [ask('ports_ouverts_www', 'set', tw.H.www.ports.map(p => p.port).join(',')), ask('version_web', 'txt', `${tw.H.www.ports.find(p => p.port === 80).product} ${tw.H.www.ports.find(p => p.port === 80).version}`), ask('version_ssh_www', 'txt', tw.H.www.ports.find(p => p.port === 22).version.split(' ')[0])], d5), finish: 'Carte des ports complète, y compris hors des ports courants.' });
   const d6 = tw => defense(tw, 6, 'Fermer ou filtrer le port non prévu, puis mettre à jour le service obsolète en planifiant un retest', ['Passer toutes les versions en « dernière version » le jour même sans test', 'Masquer les bannières et conserver les versions actuelles']);
-  M.push({ id: 'EH03-3', title: 'Scan : écart avec l\'inventaire et la politique de versions', module: 'EH03 · Scan réseau', points: 40, difficulty: 3, lesson: 'EH03-scan-reseau', code: 'EH03·3', duree: '50 min',
+  M.push({ id: 'SIM03-3', title: 'Scan : écart avec l\'inventaire et la politique de versions', module: 'SIM03 · Scan réseau', points: 40, difficulty: 3, lesson: 'SIM03-scan-reseau', code: 'SIM03·3', duree: '50 min',
     setup: tw => ({ 'reponses.txt': tmpl(['hote_port_inattendu', 'port_inattendu', 'hote_obsolete', 'service_obsolete', 'defense']), 'inventaire.csv': inv(tw), 'politique-versions.txt': '# version minimale exigée par produit\n' + tw.policy.map(p => `${p[0]} >= ${p[1]}`).join('\n') + '\n' }),
     enonce: tw => `${head(tw)}
 MISSION : comparez la réalité (scan) à l'inventaire (ports attendus) et à la
@@ -133,7 +133,7 @@ ${faceBlue(d6(tw))}
 Fichiers : inventaire.csv, politique-versions.txt
 Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['nmap -sV -p- ADRESSE donne tous les ports et leurs versions (un serveur à la fois).', 'Comparez les ports trouvés à la colonne ports_attendus de l\'inventaire.', 'Comparez chaque version à politique-versions.txt : une version inférieure au minimum est obsolète.', 'Un seul serveur a un port en trop, un seul service est sous le minimum.', 'Le scan est bruyant : côté défense, il laisse des traces (onglet Vue du lab).'],
-    check: checker('EH03-3', tw => [ask('hote_port_inattendu', 'txt', tw.exHost), ask('port_inattendu', 'num', tw.exPort.port), ask('hote_obsolete', 'txt', tw.outdated.host), ask('service_obsolete', 'txt', tw.outdated.product)], d6), finish: 'Écarts relevés : un port en trop et un service sous le minimum.' });
+    check: checker('SIM03-3', tw => [ask('hote_port_inattendu', 'txt', tw.exHost), ask('port_inattendu', 'num', tw.exPort.port), ask('hote_obsolete', 'txt', tw.outdated.host), ask('service_obsolete', 'txt', tw.outdated.product)], d6), finish: 'Écarts relevés : un port en trop et un service sous le minimum.' });
 }
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

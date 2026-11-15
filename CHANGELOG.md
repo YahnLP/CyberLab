@@ -1,16 +1,16 @@
 # Changelog
 ## Non publié
 
-- Parcours pentest : leçons EH02 (reconnaissance et empreinte) et EH03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
+- Parcours pentest : leçons SIM02 (reconnaissance et empreinte) et SIM03 (scan réseau), rattachées aux missions du jumeau numérique ; la vue Cours propose un bouton par mission.
 - `tests/check-cours.sh` contrôle désormais 22 leçons.
 
-## v0.13.0 — jumeau numérique et parcours pentest (EH02, EH03)
+## v0.13.0 — jumeau numérique et parcours pentest (SIM02, SIM03)
 - **Jumeau numérique** : une plage fictive générée par session (domaine en .example, réseau 192.168.x.0/24, plages 203.0.113.x), conservée avec la progression : 8 hôtes dont un équipement inconnu et un hôte disparu, DNS public et interne, serveur web avec en-têtes et fuite, un port non prévu, un service obsolète.
 - **Outils simulés** au format des vrais outils : `ping`, `host`, `dig`, `nslookup`, `nmap` (-sn, -sV, -p, -p-, -F, --open) et `curl` (-I, -i, -s, -L, -w). Chaque action laisse une trace côté défense.
-- **6 missions** : EH02 (noms publics, en-têtes et fuites web, messagerie SPF) et EH03 (hôtes actifs, ports du serveur web, écart inventaire et politique de versions). Chaque mission a une face Red (constats corrigés sur les faits du jumeau) et une face Blue (mesure à choisir, ordre tiré de la graine). Nouveau groupe « Parcours pentest » sur l'accueil.
+- **6 missions** : SIM02 (noms publics, en-têtes et fuites web, messagerie SPF) et SIM03 (hôtes actifs, ports du serveur web, écart inventaire et politique de versions). Chaque mission a une face Red (constats corrigés sur les faits du jumeau) et une face Blue (mesure à choisir, ordre tiré de la graine). Nouveau groupe « Parcours pentest » sur l'accueil.
 - Panneaux **Vue du lab** (ce que voit la défense, alertes) et **Web** (même réponse que curl -i) sous le terminal des missions.
 - Tests : invariants de la plage sur 200 graines, les 6 missions sont résolues UNIQUEMENT à partir des sorties des outils (40 plages), mauvaises réponses refusées, test navigateur `ui-twin.mjs`.
-- La couche SQL (panneau Base SQL) arrive avec le module EH15.
+- La couche SQL (panneau Base SQL) arrive avec le module SIM15.
 
 ## v0.12.0 — défi 01 sur le simulateur web
 - Défi 01 (incident SSH, 60 points, 8 phases) jouable dans le navigateur : commandes `ssh-keygen -lf` et `sshd -T` simulées, retest 6 contrôles, détection rejouée sur un second journal, rapport contrôlé. La clé d'hôte privée n'est pas publiée.

@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | EH02, EH03 (puis EH01, EH04 et suivants) |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM02, SIM03 (puis SIM01, SIM04 et suivants) |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -45,5 +45,5 @@ Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les dé
 
 | Leçon | Titre | Durée | Missions |
 |---|---|---|---|
-| [EH02](EH02-reconnaissance-footprinting.md) | Reconnaissance et empreinte d'une organisation | 1 h 30 | EH02-1, EH02-2, EH02-3 |
-| [EH03](EH03-scan-reseau.md) | Scan réseau : hôtes, ports et services | 1 h 30 | EH03-1, EH03-2, EH03-3 |
+| [SIM02](SIM02-reconnaissance-empreinte.md) | Reconnaissance et empreinte d'une organisation | 1 h 30 | SIM02-1, SIM02-2, SIM02-3 |
+| [SIM03](SIM03-scan-reseau.md) | Scan réseau : hôtes, ports et services | 1 h 30 | SIM03-1, SIM03-2, SIM03-3 |

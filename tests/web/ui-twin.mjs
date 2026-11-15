@@ -1,4 +1,4 @@
-// Test navigateur : mission EH03-1 (outils simulés, Vue du lab, Web, correction). Usage : node tests/web/ui-twin.mjs [URL]
+// Test navigateur : mission SIM03-1 (outils simulés, Vue du lab, Web, correction). Usage : node tests/web/ui-twin.mjs [URL]
 import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
 import { build, TW } from '../../site/js/missions.js';
 const BASE = process.argv[2] || 'http://127.0.0.1:8765/';
@@ -8,9 +8,9 @@ let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c
 const run = async (l, w = 350) => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(w); };
 await pg.goto(BASE); await pg.waitForSelector('.group');
 ok((await pg.textContent('#parcours')).includes('Parcours pentest'), 'groupe « Parcours pentest » sur l\'accueil');
-await pg.goto(BASE + '#/defi/EH03-1'); await pg.waitForSelector('#term input');
-ok((await pg.textContent('#def-title')).includes('hôtes actifs'), 'mission EH03-1 ouverte');
-const seed = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['EH03-1'].seed); const b = build(TW['EH03-1'], seed); const tw = b.tw;
+await pg.goto(BASE + '#/defi/SIM03-1'); await pg.waitForSelector('#term input');
+ok((await pg.textContent('#def-title')).includes('hôtes actifs'), 'mission SIM03-1 ouverte');
+const seed = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['SIM03-1'].seed); const b = build(TW['SIM03-1'], seed); const tw = b.tw;
 await run('cat inventaire.csv | head -3'); ok((await pg.textContent('#term')).includes('hote;ip;role'), 'inventaire.csv fourni');
 await run(`nmap -sn ${tw.net}.0/24`, 700); const t = await pg.textContent('#term'); ok(t.includes('Nmap done: 256 IP addresses'), 'nmap -sn répond au format de nmap');
 await pg.click('[data-ptab=lab]'); ok((await pg.textContent('[data-ppane=lab]')).includes('Balayage de découverte'), 'Vue du lab : le balayage est vu côté défense');
@@ -23,6 +23,6 @@ const enonce = await pg.textContent('#enonce-body'); const letter = enonce.split
 const rep = Object.entries({ ...facts, defense: letter }).map(([k, v]) => `${k}=${v}`).join('\\n');
 await run(`printf '${rep}\\n' > reponses.txt`); await run('defi valider', 800);
 const t2 = await pg.textContent('#term'); ok(/DÉFI RÉUSSI/.test(t2), 'mission validée sur les faits du jumeau');
-await pg.reload(); await pg.waitForSelector('#term input'); const seed2 = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['EH03-1'].seed); ok(seed2 === seed, 'la plage est la même après rechargement');
+await pg.reload(); await pg.waitForSelector('#term input'); const seed2 = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['SIM03-1'].seed); ok(seed2 === seed, 'la plage est la même après rechargement');
 ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
 await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI jumeau numérique : OK'); process.exit(bad ? 1 : 0);
