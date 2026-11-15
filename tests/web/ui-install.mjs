@@ -12,6 +12,6 @@ ok((await pg.textContent('.install')).includes('docker compose up --build'), 'co
 ok((await pg.textContent('.install')).includes('127.0.0.1:7681:7681'), 'avertissement sécurité du port');
 ok(await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'pas de débordement horizontal sur mobile');
 await pg.click('.copy >> nth=0'); await pg.waitForFunction(() => document.querySelector('.copy').textContent !== 'Copier', null, { timeout: 3000 }).catch(() => {}); ok(['Copié', 'Sélectionné'].includes(await pg.textContent('.copy >> nth=0')), 'bouton Copier réagit');
-await pg.goto(BASE + '#/'); await pg.click('.top nav a[href="#/installer"]'); ok(await pg.isVisible('.install'), 'lien du menu');
+await pg.goto(BASE + '#/'); await pg.waitForSelector('.hero'); await pg.click('.top nav a[href="#/installer"]'); ok(await pg.waitForSelector('.install', { timeout: 5000 }).then(() => true, () => false), 'lien du menu');
 ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
 await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI Lab complet : OK'); process.exit(bad ? 1 : 0);
