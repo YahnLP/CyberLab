@@ -27,10 +27,10 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | 17 · Segmentation et pivot | Séquence 8 · Parcours avancés | 45 |
 
 ## Parcours pentest (simulateur web)
-Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`, `smbclient`, `snmpget`, `snmpwalk`) : SIM01 (cadrage et preuves), SIM02 (reconnaissance), SIM03 (scan), SIM04 (énumération SMB et SNMP), SIM05 (analyse de vulnérabilités), soit 12 missions. Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
+Missions sur une plage fictive générée à chaque session (jumeau numérique), avec outils simulés (`ping`, `host`, `dig`, `nslookup`, `nmap`, `curl`, `smbclient`, `snmpget`, `snmpwalk`) : SIM01 (cadrage et preuves), SIM02 (reconnaissance), SIM03 (scan), SIM04 (énumération SMB et SNMP), SIM05 (analyse de vulnérabilités), SIM06 (comptes et privilèges), SIM08 (capture de trafic), soit 16 missions. Chaque mission demande des constats (Red) puis une mesure de défense (Blue). Feuille de route : [`docs/FEUILLE-DE-ROUTE.md`](docs/FEUILLE-DE-ROUTE.md).
 
 ## Cours
-25 leçons originales réparties en cinq parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours avancés P12 à P14, Parcours sécurité offensive SO1 à SO5, Parcours pentest SIM01 à SIM05) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
+27 leçons originales réparties en cinq parcours (Fondations, Parcours professionnalisant P1 à P11, Parcours avancés P12 à P14, Parcours sécurité offensive SO1 à SO5, Parcours pentest SIM01 à SIM06 et SIM08) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
 
 ## Pourquoi c'est réaliste
 - `auth.log` au format syslog Debian, avec du bruit crédible (cron, scanners, fautes de frappe d'un admin, sudo), généré par gawk.

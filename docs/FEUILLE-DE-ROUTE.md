@@ -17,9 +17,9 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM03 | Scan réseau | Défis 03, 04, 12 (sorties fournies), pas de nmap simulé |
 | SIM04 | Énumération | Livré : smbclient, snmpget, snmpwalk simulés ; missions SIM04-1 (SMB) et SIM04-2 (SNMP) |
 | SIM05 | Analyse de vulnérabilités | Livré : missions SIM05-1 (avis et versions) et SIM05-2 (priorisation par exposition) |
-| SIM06 | Accès contrôlé, privilèges | Défi 14 (protections), partiel |
+| SIM06 | Accès contrôlé, privilèges | Livré : missions SIM06-1 (comptes) et SIM06-2 (sudo et SUID) |
 | SIM07 | Analyse de malwares (inerte) | Absent |
-| SIM08 | Capture et trafic | Défi 11 (lecture d'une capture) |
+| SIM08 | Capture et trafic | Livré : missions SIM08-1 (balayage, mot de passe en clair) et SIM08-2 (exfiltration DNS) |
 | SIM09 | Ingénierie sociale (sensibilisation) | Absent |
 | SIM10 | Disponibilité, DoS | Défi 08 |
 | SIM11 | Sessions, cookies | Défi 07 partiel |
