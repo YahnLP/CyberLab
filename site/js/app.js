@@ -159,8 +159,8 @@ const views = {
     if (innerWidth > 820) term.inp.focus();
   },
   async cours(name) {
-    const t = await get(`cours/${name}.md`); const all = stepsAll(); const i = all.findIndex(x => x.file === name); const st = all[i]; const nx = all[i + 1]; const pv = all[i - 1]; const d = st && st.defi && st.onWeb ? byId(st.defi) : null;
-    $('#main').innerHTML = `<nav class="crumbs" aria-label="Fil d'Ariane"><a href="#/">Parcours</a><span aria-hidden="true">›</span><span>${st ? esc(st.group) : 'Leçon'}</span><span aria-hidden="true">›</span><span aria-current="page">${st ? esc(st.code) : ''}</span></nav><article class="lesson">${md(t)}<div class="nav2">${d ? `<a class="btn" href="#/defi/${d.id}">Passer au défi ${d.id}</a>` : ''}${nx ? `<a class="btn ghost" href="#/cours/${nx.file}">Leçon suivante : ${esc(nx.code)}</a>` : ''}${pv ? `<a class="btn ghost" href="#/cours/${pv.file}">Précédente : ${esc(pv.code)}</a>` : ''}</div></article>`;
+    const t = await get(`cours/${name}.md`); const all = stepsAll(); const i = all.findIndex(x => x.file === name); const st = all[i]; const same = all.filter(x => x.file === name); const nx = all.slice(i + 1).find(x => x.file !== name); const pv = all.slice(0, i).reverse().find(x => x.file !== name); const ds = same.filter(x => x.defi && x.onWeb && byId(x.defi)).map(x => byId(x.defi));
+    $('#main').innerHTML = `<nav class="crumbs" aria-label="Fil d'Ariane"><a href="#/">Parcours</a><span aria-hidden="true">›</span><span>${st ? esc(st.group) : 'Leçon'}</span><span aria-hidden="true">›</span><span aria-current="page">${st ? esc(st.code) : ''}</span></nav><article class="lesson">${md(t)}<div class="nav2">${ds.map((d, k) => `<a class="btn${k ? ' ghost' : ''}" href="#/defi/${d.id}">${ds.length > 1 ? 'Mission' : 'Passer au défi'} ${d.id}</a>`).join('')}${nx ? `<a class="btn ghost" href="#/cours/${nx.file}">Leçon suivante : ${esc(nx.code)}</a>` : ''}${pv ? `<a class="btn ghost" href="#/cours/${pv.file}">Précédente : ${esc(pv.code)}</a>` : ''}</div></article>`;
   },
 };
 async function route() {
