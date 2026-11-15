@@ -12,6 +12,8 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | 03 · Écarts d'inventaire | Séquence 6 · Parcours métier | 30 |
 | 04 · Services exposés | Séquence 6 · Parcours métier | 35 |
 | 05 · Audit HTTP | Séquence 6 · Parcours métier | 35 |
+| 06 · Trier les résultats d'un scanner | Séquence 6 · Parcours métier | 40 |
+| 07 · Contrôle d'accès d'une API | Séquence 6 · Parcours métier | 40 |
 
 ## Cours
 17 leçons originales réparties en trois parcours (Fondations, Parcours métier P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.

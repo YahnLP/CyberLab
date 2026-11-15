@@ -1,6 +1,6 @@
 # P6 · Applications et API
 
-Durée : 1 h 30 · Prérequis : P4, P5 · Défi associé : à créer
+Durée : 1 h 30 · Prérequis : P4, P5 · Défi associé : 07 · Contrôle d'accès d'une API
 
 ## Objectifs
 - Lire un échange d'API REST et son authentification.

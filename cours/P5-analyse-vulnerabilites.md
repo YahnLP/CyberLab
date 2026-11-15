@@ -1,6 +1,6 @@
 # P5 · Analyse des vulnérabilités
 
-Durée : 1 h 30 · Prérequis : P3, P4 · Défi associé : à créer
+Durée : 1 h 30 · Prérequis : P3, P4 · Défi associé : 06 · Trier les résultats d'un scanner
 
 ## Objectifs
 - Distinguer détection, vérification et exploitation.
