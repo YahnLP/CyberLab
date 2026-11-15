@@ -24,6 +24,12 @@ const DOC = {
   date: ['Affiche la date et l\'heure.', 'Horodatez vos observations.'],
   nano: ['Ouvre l\'éditeur de texte.', 'Enregistrez vos réponses puis validez le défi.'],
   base64: ['Encode ou décode en base64.', 'Ce n\'est pas du chiffrement : tout le monde peut le décoder.'],
+  ping: ['Teste si un hôte répond (ICMP).', 'Un hôte qui ne répond pas n\'est pas forcément éteint : il peut filtrer le ping.'],
+  host: ['Interroge le DNS pour un nom (adresse, messagerie…).', 'Un nom qui existe mais que personne ne gère est un actif oublié.'],
+  dig: ['Interroge le DNS en détail (type d\'enregistrement, serveur, durée).', 'Avec +short, seule la valeur est affichée : pratique dans une boucle.'],
+  nslookup: ['Interroge le DNS (outil historique).', 'Même information que host et dig, présentation différente.'],
+  nmap: ['Sonde des hôtes et des ports du réseau fictif.', 'Un scan est bruyant : le pare-feu et le SOC le voient. -sn découvre les hôtes, -sV les versions, -p- tous les ports.'],
+  curl: ['Envoie une requête HTTP et affiche la réponse.', '-I ne montre que les en-têtes ; une version précise ou un en-tête absent sont des constats.'],
   id: ['Affiche l\'identité et les groupes de l\'utilisateur.', 'Base de la lecture des droits.'],
 };
 const RC = { 0: 'La commande s\'est terminée sans erreur.', 1: 'Code 1 : en général « rien trouvé » (grep) ou échec simple. Ce n\'est pas toujours une erreur.', 2: 'Code 2 : erreur d\'usage (option inconnue, fichier introuvable, syntaxe).', 127: 'Code 127 : commande inconnue dans ce simulateur.' };

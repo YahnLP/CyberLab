@@ -1,4 +1,4 @@
-import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js'; import * as inst from './install.js'; import * as cb from './casebook.js'; import { detectOutputs } from './ssh01.js';
+import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js'; import * as inst from './install.js'; import * as cb from './casebook.js'; import { detectOutputs } from './ssh01.js'; import { TW, MISSIONS, GROUP, build } from './missions.js';
 const $ = s => document.querySelector(s); const KEY = 'cyberlab.v1';
 const store = { load() { try { return JSON.parse(localStorage.getItem(KEY)) || { prog: {}, cur: null, work: {} }; } catch { return { prog: {}, cur: null, work: {} }; } }, save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { } } };
 let S = store.load(); const cache = {}; let index = [], lessons = [], parcours = [];
@@ -6,17 +6,23 @@ const get = async u => { if (cache[u]) return cache[u]; const r = await fetch(u)
 const B = '\x1b[1m', R = '\x1b[0m', DIM = '\x1b[2m', GRN = '\x1b[32m', RED = '\x1b[31m', YEL = '\x1b[33m', CYA = '\x1b[36m';
 const stars = n => '★'.repeat(Math.min(n, 3)) + '☆'.repeat(Math.max(0, 3 - n)) + (n > 3 ? '+' : '');
 const HOME = '/home/stagiaire'; const wd = def => `${HOME}/atelier/${def.name}`;
-let term = null, shell = null, fsv = null, curDef = null;
+let term = null, shell = null, fsv = null, curDef = null, curTwin = null, curTools = null;
 
 function snapshot() { if (!curDef || !fsv) return; S.work[curDef.id] = { ...S.work[curDef.id], files: fsv.snapshot(wd(curDef)), x: [...fsv.f].filter(([k, v]) => v.x && k.startsWith(wd(curDef) + '/')).map(([k]) => k.slice(wd(curDef).length + 1)) }; store.save(S); }
-function mount(def, variant, files) { fsv = new VFS(); fsv.mkdirp(wd(def)); fsv.mkdirp(HOME + '/.bashlab'); for (const [k, c] of Object.entries(files)) { const p = wd(def) + '/' + k; fsv.mkdirp(p.slice(0, p.lastIndexOf('/'))); fsv.write(p, c); } for (const k of new Set([...(variant.exec || []), ...(S.work[def.id]?.x || [])])) { const f = fsv.f.get(wd(def) + '/' + k); if (f) f.x = true; } shell = new Shell(fsv, { home: HOME, cwd: wd(def), edit: editor, defi: defiCmd }); }
+function mount(def, variant, files, tools = null) { fsv = new VFS(); fsv.mkdirp(wd(def)); fsv.mkdirp(HOME + '/.bashlab'); for (const [k, c] of Object.entries(files)) { const p = wd(def) + '/' + k; fsv.mkdirp(p.slice(0, p.lastIndexOf('/'))); fsv.write(p, c); } for (const k of new Set([...(variant.exec || []), ...(S.work[def.id]?.x || [])])) { const f = fsv.f.get(wd(def) + '/' + k); if (f) f.x = true; } shell = new Shell(fsv, { home: HOME, cwd: wd(def), tools, edit: editor, defi: defiCmd }); }
 const header = t => `\n${CYA}${B}╔══════════════════════════════════════════════════════════╗${R}\n${CYA}${B}║${R}  ${B}${t}${R}\n${CYA}${B}╚══════════════════════════════════════════════════════════╝${R}\n`;
 const indent = s => s.split('\n').map(l => '  ' + l).join('\n');
 
 async function startDef(id, io, fresh = true) {
-  const def = await get(`data/${id}.json`); const had = S.work[id];
-  let vi, files; if (!fresh && had) { vi = had.variant; files = had.files; } else { vi = Math.floor(Math.random() * def.variants.length); files = def.variants[vi].files; S.work[id] = { variant: vi, files, mode: S.mode || 'guide', elapsed: 0, log: [] }; S.prog[id] = { st: 'en_cours', pts: 0, hints: 0 }; }
-  S.cur = id; curDef = def; mount(def, def.variants[vi], files); store.save(S); updateScore();
+  const mdef = TW[id]; const had = S.work[id]; let def, vi = 0, files; curTools = null; curTwin = null;
+  if (mdef) {
+    const seed = (!fresh && had?.seed) || (1 + Math.floor(Math.random() * 2147483000)); const b = build(mdef, seed); def = b.def; curTools = b.tools; curTwin = b.tw;
+    if (!fresh && had) files = had.files; else { files = b.files; S.work[id] = { variant: 0, seed, files, mode: S.mode || 'guide', elapsed: 0, log: [] }; S.prog[id] = { st: 'en_cours', pts: 0, hints: 0 }; }
+  } else {
+    def = await get(`data/${id}.json`);
+    if (!fresh && had) { vi = had.variant; files = had.files; } else { vi = Math.floor(Math.random() * def.variants.length); files = def.variants[vi].files; S.work[id] = { variant: vi, files, mode: S.mode || 'guide', elapsed: 0, log: [] }; S.prog[id] = { st: 'en_cours', pts: 0, hints: 0 }; }
+  }
+  S.cur = id; curDef = def; mount(def, mdef ? { exec: [] } : def.variants[vi], files, curTools); store.save(S); updateScore();
   if (io) { io.out.write(header(`Défi ${id} — ${def.title}   [${stars(def.difficulty)} · ${def.points} pts]`) + '\n' + indent(def.enonce) + `\n  ${B}Atelier :${R} ${CYA}${wd(def)}${R}\n  ${DIM}defi enonce · defi indice · defi valider${R}\n\n`); }
   return def;
 }
@@ -37,7 +43,7 @@ async function defiCmd(args, io) {
   if (sub === 'indice' || sub === 'hint') { if (S.work[curDef.id]?.mode === 'expert') { out.write(`\n  ${YEL}Mode Expert : les indices sont désactivés.${R}\n  ${DIM}Repassez en mode Guidé (bouton Mode) : le défi ne comptera plus comme réussi en Expert.${R}\n\n`); return 0; } const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; const tot = curDef.indices.length; if (p.hints >= tot) { out.write(`\n  ${YEL}Tous les indices révélés :${R}\n\n` + curDef.indices.map((h, i) => `  ${String(i + 1).padStart(2)}. ${h}`).join('\n') + '\n\n'); return 0; } p.hints++; store.save(S); out.write(`\n  ${YEL}${B}Indice ${p.hints}/${tot}${R}\n\n  > ${curDef.indices[p.hints - 1]}\n\n`); return 0; }
   if (sub === 'valider' || sub === 'check') {
     const work = S.work[curDef.id]; const files = fsv.snapshot(wd(curDef)); let extra; if (curDef.special === 'ssh') { const v = curDef.variants[work.variant]; const base = wd(curDef); const Rm = fsv.f.get(base + '/preuves/retest.txt')?.m; const watched = Object.keys(files).filter(k => /^srv01\/(etc\/ssh\/sshd_config|etc\/nftables\.conf|home\/[^/]+\/\.ssh\/authorized_keys|var\/spool\/cron\/crontabs\/[^/]+)$/.test(k)); extra = { detect: await detectOutputs(v, files, { Shell, VFS, Stream }), fresh: Rm !== undefined && watched.every(k => !(fsv.f.get(base + "/" + k).m > Rm)) }; }
-    const res = runChecks(curDef, curDef.variants[work.variant], files, extra);
+    const res = curDef.twin ? curDef.check(files) : runChecks(curDef, curDef.variants[work.variant], files, extra);
     for (const l of res.lines) { if (l.k === 'phase') out.write(`\n  ${B}${l.t}${R}\n`); else if (l.k === 'raw') out.write(`${l.t}\n`); else out.write(l.k === 'ok' ? `    ✔ ${l.t}\n` : `    ✘ ${l.t}\n`); }
     if (res.ok) { out.write(`\n  ✔ ${curDef.finish}\n`); const p = S.prog[curDef.id] ||= { st: 'en_cours', pts: 0, hints: 0 }; if (p.st === 'reussi') out.write(`\n  ${GRN}${B}✔ Toujours juste !${R}\n\n`); else { let earned = curDef.points - 2 * p.hints; const min = Math.floor(curDef.points / 2); if (earned < min) earned = min; p.st = 'reussi'; p.pts = earned; const wk = S.work[curDef.id]; p.expert = wk.mode === 'expert' && p.hints === 0; p.time = wk.elapsed || 0; store.save(S); updateScore(); out.write(`\n  ${GRN}${B}╔═══════════════════════════════════╗\n  ║   ✔  DÉFI RÉUSSI ! Bravo !        ║\n  ╚═══════════════════════════════════╝${R}\n    Points : ${B}${earned}/${curDef.points}${R}  ${DIM}(indices: ${p.hints})${R}${p.expert ? `  ${YEL}${B}★ Expert${R} ${DIM}en ${fmtTime(p.time)}${R}` : ''}\n\n`); } return 0; }
     out.write(`\n  ${RED}${B}✘ Pas encore...${R} ${DIM}defi enonce · defi indice${R}\n\n`); return 1;
@@ -70,6 +76,18 @@ function renderComprendre(x, line) {
 function renderJournal() {
   const el = document.querySelector('[data-ppane=journal]'); const c = $('#jcount'); const lg = (S.work[curDef.id]?.log) || []; if (c) c.textContent = lg.length; if (!el) return;
   el.innerHTML = lg.length ? `<ol class="jl">${lg.slice().reverse().map(e => `<li><span class="muted">${fmtTime(e.t)}</span> <code>${esc(e.line)}</code> <span class="rc ${e.rc === 0 ? 'ok' : 'ko'}">${e.rc === 0 ? 'ok' : 'code ' + e.rc}</span></li>`).join('')}</ol>` : '<p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p>';
+}
+function bindPTabs() { document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-ptab]').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.ppane').forEach(p => p.hidden = p.dataset.ppane !== b.dataset.ptab); if (b.dataset.ptab === 'lab') renderLab(); }); }
+function installLab() {
+  if (!curDef?.twin) return; const panel = document.querySelector('.panel'); if (!panel || panel.querySelector('[data-ptab=lab]')) return;
+  panel.querySelector('.tabs').insertAdjacentHTML('beforeend', '<button role="tab" aria-selected="false" data-ptab="lab">Vue du lab <span id="lcount" class="count">0</span></button><button role="tab" aria-selected="false" data-ptab="web">Web</button>');
+  panel.insertAdjacentHTML('beforeend', `<div class="ppane" data-ppane="lab" hidden></div><div class="ppane" data-ppane="web" hidden><form class="webbar" id="webform"><input id="weburl" aria-label="Adresse" value="http://www.${esc(curTwin.domain)}/" spellcheck="false"><button class="btn small" type="submit">Ouvrir</button></form><pre class="exc" id="webout">Saisissez une adresse du domaine puis Ouvrir. Même réponse que curl -i.</pre></div>`);
+  $('#webform').onsubmit = async e => { e.preventDefault(); const o = new Stream(); await curTools.curl.call(shell, ['-i', $('#weburl').value.trim()], { in: new Stream(''), out: o, err: o }); $('#webout').textContent = o.s || '(aucune réponse)'; renderLab(); };
+  bindPTabs(); renderLab();
+}
+function renderLab() {
+  const el = document.querySelector('[data-ppane=lab]'); if (!el || !curTwin) return; const ev = curTwin.events; const al = ev.filter(e => e.sev === 'alerte').length; const c = $('#lcount'); if (c) c.textContent = al;
+  el.innerHTML = `<p class="small"><strong>Périmètre</strong> : domaine ${esc(curTwin.domain)}, plage ${esc(curTwin.net)}.0/24. Cible : ${esc(curTwin.orgName)}.</p><p class="small"><strong>Ce que voit la défense</strong> (pare-feu, DNS, serveur web) :</p>` + (ev.length ? `<ol class="jl">${ev.slice().reverse().slice(0, 40).map(e => `<li><span class="rc ${e.sev === 'alerte' ? 'ko' : ''}">${e.sev === 'alerte' ? 'ALERTE' : 'info'}</span> ${esc(e.msg)}</li>`).join('')}</ol>` : '<p class="muted small">Rien à signaler pour le moment : vous n\'avez encore rien sondé.</p>');
 }
 let lastRun = null;
 function renderCase() {
@@ -130,9 +148,9 @@ const views = {
     <div id="term" class="term" aria-label="Terminal"></div><section class="panel" aria-label="Journal et interprétation"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-ptab="comprendre">Comprendre</button><button role="tab" aria-selected="false" data-ptab="journal">Journal <span id="jcount" class="count">0</span></button><button role="tab" aria-selected="false" data-ptab="casebook">Casebook <span id="ccount" class="count">0</span></button></div><div class="ppane" data-ppane="comprendre"><p class="muted small">Exécutez une commande pour en lire l'interprétation.</p></div><div class="ppane" data-ppane="casebook" hidden></div><div class="ppane" data-ppane="journal" hidden><p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p></div></section><p class="hint">Astuce : Tab complète les noms de fichiers, ↑ rappelle la commande précédente.</p></section></div>`;
     document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.dataset.pane !== b.dataset.tab); });
     const def = await startDef(id, null, !S.work[id]); S.work[id].mode ||= 'guide'; S.work[id].elapsed ||= 0; S.work[id].log ||= []; renderDefHeader(); applyMode(); renderJournal();
-    document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-ptab]').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.ppane').forEach(p => p.hidden = p.dataset.ppane !== b.dataset.ptab); });
+    bindPTabs(); installLab();
     term = new Term($('#term'), { prompt: () => `stagiaire@cyberlab:${shell.cwd.replace(HOME, '~')}$ `, complete: (w) => { const dir = w.includes('/') ? w.slice(0, w.lastIndexOf('/') + 1) : ''; const base = w.slice(dir.length); const p = shell.path(dir || '.'); return fsv.isDir(p) ? fsv.list(p).filter(n => n.startsWith(base)).map(n => dir + n + (fsv.isDir(p + '/' + n) ? '/' : '')) : []; },
-      onLine: async line => { if (!line.trim()) return; shell.history.push(line); const o = new Stream(); const io = { in: new Stream(''), out: o, err: o }; o.write = function (x) { this.s += x; term.print(x); }; let rc = 0; try { rc = await shell.run(line, io); } catch (e) { rc = 2; term.print(`bash: ${e.message}\n`); } if (!/^\s*defi\b/.test(line)) record(line, rc, o.s); snapshot(); refreshFiles(); renderBanner(); if (shell.exitNow) shell.exitNow = false; } });
+      onLine: async line => { if (!line.trim()) return; shell.history.push(line); const o = new Stream(); const io = { in: new Stream(''), out: o, err: o }; o.write = function (x) { this.s += x; term.print(x); }; let rc = 0; try { rc = await shell.run(line, io); } catch (e) { rc = 2; term.print(`bash: ${e.message}\n`); } if (!/^\s*defi\b/.test(line)) record(line, rc, o.s); renderLab(); snapshot(); refreshFiles(); renderBanner(); if (shell.exitNow) shell.exitNow = false; } });
     runLine = line => { if (term && !term.busy) { term.inp.value = line; term.form.requestSubmit(); } };
     document.querySelectorAll('.toolbar [data-act]').forEach(b => b.onclick = () => { const a = b.dataset.act; if (a === 'valider') runLine('defi valider'); else if (a === 'indice') runLine('defi indice'); else if (a === 'enonce') runLine('defi enonce'); else if (a === 'mode') toggleMode(); else if (a === 'edit') runLine('nano reponses.txt'); else if (a === 'font') { const t = $('#term'); const on = t.classList.toggle('big'); b.setAttribute('aria-pressed', on); } else if (a === 'reset') { if (confirm('Recommencer ce défi avec de nouvelles données ? Votre travail actuel sera perdu.')) runLine(`defi reset ${id}`); } });
     const w = s => term.print(s);
@@ -151,4 +169,4 @@ async function route() {
   try { if (k === 'defi') await views.defi(a); else if (k === 'cours' && a) await views.cours(a); else if (k === 'installer') { $('#main').innerHTML = inst.render(); inst.wire($('#main')); } else await views.home(); } catch (e) { $('#main').innerHTML = `<p class="err">Erreur de chargement : ${esc(e.message)}</p>`; }
   window.scrollTo(0, 0); $('#main').focus({ preventScroll: true });
 }
-(async function init() { try { index = await get('data/index.json'); lessons = await get('data/cours.json'); parcours = await get('data/parcours.json'); } catch (e) { $('#main').innerHTML = '<p class="err">Données introuvables : lancez <code>node tools/build-site-data.mjs</code> (voir README).</p>'; return; } updateScore(); window.addEventListener('hashchange', route); route(); })();
+(async function init() { try { index = await get('data/index.json'); lessons = await get('data/cours.json'); parcours = await get('data/parcours.json'); if (!index.some(d => d.id === 'EH02-1')) { index.push(...MISSIONS.map(m => ({ id: m.id, name: m.id.toLowerCase(), title: m.title, module: m.module, points: m.points, difficulty: m.difficulty }))); parcours.push(GROUP); } } catch (e) { $('#main').innerHTML = '<p class="err">Données introuvables : lancez <code>node tools/build-site-data.mjs</code> (voir README).</p>'; return; } updateScore(); window.addEventListener('hashchange', route); route(); })();

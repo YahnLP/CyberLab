@@ -29,6 +29,7 @@ jobs:
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-install.mjs
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-casebook.mjs
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-defi01.mjs
+          NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-twin.mjs
   docker:
     runs-on: ubuntu-latest
     steps:

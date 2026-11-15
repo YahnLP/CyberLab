@@ -104,7 +104,8 @@ function parse(tokens) {
 
 // ---------- environnement d'exécution ----------
 export class Shell {
-  constructor(vfs, { home = '/home/stagiaire', cwd, edit, defi, onOut } = {}) {
+  constructor(vfs, { home = '/home/stagiaire', cwd, edit, defi, onOut, tools } = {}) {
+    this.tools = tools || null;
     this.fs = vfs; this.home = home; this.cwd = cwd || home; this.env = { HOME: home, USER: 'stagiaire', PATH: '/usr/bin:/bin', PWD: this.cwd, SHELL: '/bin/bash', LANG: 'fr_FR.UTF-8' };
     this.last = 0; this.hooks = { edit, defi }; this.args = []; this.history = []; this.depth = 0; this.steps = 0;
   }
@@ -246,6 +247,7 @@ export class Shell {
   async command(name, args, io) {
     const out = io.out, err = io.err || io.out;
     if (name.includes('/') || name.startsWith('.')) { const p = this.path(name); if (!this.fs.isFile(p)) { err.write(`bash: ${name} : Aucun fichier ou dossier de ce type\n`); return 127; } if (!this.fs.f.get(p).x) { err.write(`bash: ${name} : Permission non accordée\n`); return 126; } return this.runScript(this.fs.read(p), args, io); }
+    const tf = this.tools && Object.prototype.hasOwnProperty.call(this.tools, name) ? this.tools[name] : null; if (tf) return tf.call(this, args, io);
     const fn = CMDS[name]; if (fn) return fn.call(this, args, io);
     err.write(`bash: ${name} : commande introuvable\n`); return 127;
   }

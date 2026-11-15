@@ -7,3 +7,4 @@ node tests/web/run.mjs
 node tests/web/diff-bash.mjs
 node tests/web/diff-ssh.mjs
 node tests/web/e2e-01.mjs
+node tests/web/twin.mjs 40

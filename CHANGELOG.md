@@ -1,4 +1,12 @@
 # Changelog
+## v0.13.0 — jumeau numérique et cursus Ethical Hacking (EH02, EH03)
+- **Jumeau numérique** : une plage fictive générée par session (domaine en .example, réseau 192.168.x.0/24, plages 203.0.113.x), conservée avec la progression : 8 hôtes dont un équipement inconnu et un hôte disparu, DNS public et interne, serveur web avec en-têtes et fuite, un port non prévu, un service obsolète.
+- **Outils simulés** au format des vrais outils : `ping`, `host`, `dig`, `nslookup`, `nmap` (-sn, -sV, -p, -p-, -F, --open) et `curl` (-I, -i, -s, -L, -w). Chaque action laisse une trace côté défense.
+- **6 missions** : EH02 (noms publics, en-têtes et fuites web, messagerie SPF) et EH03 (hôtes actifs, ports du serveur web, écart inventaire et politique de versions). Chaque mission a une face Red (constats corrigés sur les faits du jumeau) et une face Blue (mesure à choisir, ordre tiré de la graine). Nouveau groupe « Cursus Ethical Hacking » sur l'accueil.
+- Panneaux **Vue du lab** (ce que voit la défense, alertes) et **Web** (même réponse que curl -i) sous le terminal des missions.
+- Tests : invariants de la plage sur 200 graines, les 6 missions sont résolues UNIQUEMENT à partir des sorties des outils (40 plages), mauvaises réponses refusées, test navigateur `ui-twin.mjs`.
+- La couche SQL (panneau Base SQL) arrive avec le module EH15.
+
 ## v0.12.0 — défi 01 sur le simulateur web
 - Défi 01 (incident SSH, 60 points, 8 phases) jouable dans le navigateur : commandes `ssh-keygen -lf` et `sshd -T` simulées, retest 6 contrôles, détection rejouée sur un second journal, rapport contrôlé. La clé d'hôte privée n'est pas publiée.
 - Terminal simulé : documents en ligne (`<<EOF`, `<<'EOF'`, `<<-EOF`), adresses `sed '\#re#d'`, `$$`, `set`, dossier `/tmp`, droits d'exécution conservés avec la progression.
