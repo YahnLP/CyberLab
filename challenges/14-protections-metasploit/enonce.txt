@@ -1,0 +1,24 @@
+PROTECTIONS MÉMOIRE ET BASE METASPLOIT — durcir, prioriser, outiller sans exploiter
+
+Données (laboratoire, fictives) :
+  binaires.txt         sortie de checksec pour six programmes
+  aslr.txt             valeur de kernel.randomize_va_space sur cinq hôtes
+  msf-services.csv     export des services de la base Metasploit (« services » après db_nmap)
+  avis.txt             versions concernées par un avis de sécurité à traiter
+  modules.txt          modules affichés par « search »
+
+À produire :
+ 1 binaires-a-recompiler.txt   les programmes qui cumulent AU MOINS trois lacunes parmi :
+                               RELRO partiel ou absent · pas de canari · NX désactivé ·
+                               pas de PIE. (Une protection présente : Full RELRO,
+                               Canary found, NX enabled, PIE enabled.) Un par ligne.
+ 2 hotes-aslr-faible.txt       les hôtes où l'ASLR n'est pas complet (valeur autre que 2)
+ 3 hotes-a-traiter.txt         les adresses IP qui exposent un service dont l'info
+                               correspond EXACTEMENT à une ligne de avis.txt (une IP une fois)
+ 4 reponses.txt                module_sans_exploitation : parmi modules.txt, le module qui
+                               ne fait qu'énumérer (famille auxiliary), sans exploiter ni
+                               fournir de charge : donnez son chemin complet
+
+Objectif : transformer l'information en actions de défense (recompiler, activer l'ASLR,
+corriger les versions), pas en attaque.
+Validation : defi valider

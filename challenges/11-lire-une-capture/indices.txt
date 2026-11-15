@@ -1,0 +1,5 @@
+grep -n 'FTP:' capture.txt montre les commandes FTP : USER puis PASS.
+grep 'Authorization: Basic' capture.txt ; la valeur après « Basic » se décode avec base64 -d.
+echo 'dXNlcjpwYXNz' | base64 -d affiche user:pass.
+grep 'Reply' capture.txt | grep ' is-at ' liste les réponses ARP ; comparez avec passerelle.txt.
+Comptez seulement les réponses qui annoncent l'IP de la passerelle ET une MAC différente de la légitime.

@@ -1,0 +1,5 @@
+Comptez les clauses numérotées dans mandat.txt : celles dont le numéro manque, manquent.
+Les exclusions sont deux adresses précises ; le périmètre est un réseau /24.
+Pour l'heure : 20:00 à 23:59 compte le jour J, 00:00 à 06:00 compte pour la nuit commencée la veille.
+Une action échoue dès qu'UNE condition est fausse : cible, exclusion, date, heure ou technique.
+Kill Chain : reconnaissance, armement, livraison, exploitation, installation, commande et contrôle, actions sur objectifs.

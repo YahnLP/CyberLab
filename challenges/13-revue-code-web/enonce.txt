@@ -1,0 +1,24 @@
+REVUE DE CODE D'UNE APPLICATION WEB — lire avant de tester
+
+Quatre pages d'une application PHP (dossier app/) : recherche.php, login.php,
+upload.php, profil.php. Chacune est soit saine, soit affectée d'UNE des failles
+classiques suivantes :
+  xss      une donnée de l'utilisateur est renvoyée dans la page sans échappement
+  sqli     une donnée de l'utilisateur est collée dans une requête SQL
+  upload   un fichier téléversé est enregistré sous le nom et l'extension choisis par l'utilisateur
+  csrf     une action de modification est acceptée sans jeton anti-CSRF
+
+Attention : des commentaires mentionnent parfois un ancien code défectueux déjà corrigé.
+Lisez le code réellement exécuté, pas les commentaires.
+
+À produire :
+ 1 failles.txt     une ligne « fichier;type » par faille réelle (ex : login.php;sqli)
+ 2 reponses.txt    nb_failles : leur nombre ;
+                   correction_sqli : la correction durable parmi
+                     requete-parametree · liste-noire · echappement-maison ;
+                   correction_xss : la correction durable parmi
+                     filtrage-entree · echappement-sortie · desactiver-js
+
+Le code n'est pas exécuté : on l'étudie. La preuve d'une faille se fait ensuite en
+laboratoire, avec une requête minimale, puis on rejoue la même requête après correctif.
+Validation : defi valider

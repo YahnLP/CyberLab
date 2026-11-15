@@ -1,6 +1,6 @@
 # HAC 1 · Cadrage et méthodologie d'un audit
 
-Durée : 1 h 15 · Prérequis : 00 · Défi associé : à créer
+Durée : 1 h 15 · Prérequis : 00 · Défi associé : 10 · Analyse d'un mandat d'audit
 
 ## Objectifs
 - Structurer un audit avec un modèle de référence.
