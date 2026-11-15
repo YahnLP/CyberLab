@@ -1,7 +1,7 @@
 # Changelog
 ## Non publié
 
-- Documents de cadrage (propositions, rien n'est réalisé) : modules SIM07, SIM09, SIM16, SIM18 en version défensive, et formation à distance (nom, plan sur 14 semaines, durée, coût).
+- Documents de cadrage : modules SIM07, SIM09, SIM16, SIM18 en version défensive (validés, à réaliser) et formation à distance Cyber Déclic (offre unique au fil de l'eau, 14 modules, 990 € / 690 €, effort moyen 6 h 30 par semaine).
 - Casebook côté Docker : commandes `defi preuve`, `defi preuves`, `defi preuve-suppr`, `defi conclusion` et `defi rapport` (rapport Markdown avec empreintes SHA-256, 20 preuves maximum, tout reste local). Test `tests/casebook-docker.sh`.
 - Bilan de l'élève : page `#/bilan` (progression par parcours, points, indices), saisie du nom, impression ou PDF, export .txt et .json. Calcul local, rien n'est envoyé. Test navigateur `ui-bilan.mjs`.
 - Panneau graphique « Base SQL » (missions SIM15) : requête construite par l'application fictive, résultat en tableau, erreurs SQL ; passe par la même route que curl, donc visible côté défense. Test `ui-sql.mjs`.

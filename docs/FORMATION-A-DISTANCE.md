@@ -1,43 +1,45 @@
-# Formation à distance : plan, durée et coût (proposition)
+# Cyber Déclic : formation à distance (plan, effort, coût)
 
-Statut : **cadrage validé sur l'offre, le prix, le créneau et le financement** (échange du 15/11/2026). Reste à valider : le nom définitif. Les chiffres de coût sont des estimations posées sur des hypothèses explicites, à ajuster.
+Statut : **cadrage validé** (nom, offre, prix, financement, quatre modules complémentaires). Les chiffres de coût sont des estimations sur hypothèses explicites, à ajuster.
 
-**Décisions prises** : une seule offre (14 semaines) à **990 €**, tarif réduit **690 €** (étudiants et demandeurs d'emploi) ; pas de CPF ni de Qualiopi pour le moment ; webinaires en soirée, **à 20 h** (créneau à gérer en temps voulu). L'option courte « Découverte » à 290 € n'est **pas retenue**.
+## 1. Décisions prises
 
-## 1. Nom (pour le site formaxionlandes.fr)
+| Sujet | Décision |
+|---|---|
+| Nom | **Cyber Déclic** (vérification INPI à faire avant usage) |
+| Offre | Une seule offre, entrée **au fil de l'eau** (pas de date de session) |
+| Prix | **990 €**, tarif réduit **690 €** (étudiants et demandeurs d'emploi) |
+| Effort moyen | **6 h 30 par semaine**, soit environ **14 semaines** (≈ 90 h au total) |
+| Financement | Ni CPF ni Qualiopi pour le moment |
+| Communication avec le formateur | **E-mail en priorité** |
+| Plateforme | Campus (formateur : modules et leçons ; responsable pédagogique : formation et affectation des apprenants) |
+| Modules complémentaires | SIM07, SIM09, SIM16, SIM18 validés (voir `CADRAGE-SIM07-09-16-18.md`) |
 
-Constat du marché : les formations à distance en cybersécurité portent surtout des noms génériques (« Bootcamp cybersécurité », « Fondamentaux de la cybersécurité », « Cyber Academy », « Cyber University »), ce qui les rend peu mémorables. Le nom **« Cyber Academy »** est déjà utilisé par plusieurs acteurs (Deloitte, SysDream, Mailinblack) : à éviter. Un nom vendeur pour des reconversions et des curieux doit promettre un **changement** et une **pratique**, pas décrire un programme.
+## 2. Nom et texte pour le site formaxionlandes.fr
 
-| Rang | Nom | Pourquoi | Sous-titre type |
-|---|---|---|---|
-| 1 (recommandé) | **Cyber Déclic** | Parle du moment où l'on décide de se lancer (reconversion, curiosité) ; court, mémorable, aucun résultat identique trouvé parmi les formations en cybersécurité | *14 semaines pour se lancer en cybersécurité, par la pratique, avec un formateur* |
-| 2 | **Objectif Cyber** | Clair, orienté but ; plus banal | *De zéro à votre premier audit, à distance* |
-| 3 | **Cyber Immersion** | Insiste sur la pratique en laboratoire ; évoque un bootcamp | *Un laboratoire fictif, un formateur, 14 semaines* |
-| 4 | **Cap Cyber** | Proposition initiale, sobre | *S'initier et pratiquer la cybersécurité* |
+Nom retenu : **Cyber Déclic**. Il parle du moment où l'on décide de se lancer (reconversion, curiosité). Les alternatives étudiées (Objectif Cyber, Cyber Immersion, Cap Cyber) sont écartées. « Cyber Academy » est à éviter : déjà utilisé par plusieurs acteurs.
 
-Avant adoption : vérifier la disponibilité auprès de l'INPI (marque) et du nom de domaine ou de la page dédiée. La recherche web effectuée n'est pas une garantie juridique.
-
-### Texte d'accroche proposé pour le site (version « Cyber Déclic »)
+### Texte d'accroche proposé
 
 > **Cyber Déclic : passez de curieux à praticien en 14 semaines**
-> Une formation 100 % à distance pour se lancer en cybersécurité, sans prérequis technique. Chaque semaine : des leçons, des missions sur un laboratoire fictif réaliste et un webinaire en direct avec votre formateur. Vous terminez avec un rapport d'audit complet à montrer à un employeur ou à un jury.
+> Une formation 100 % à distance pour se lancer en cybersécurité, sans prérequis technique. À votre rythme et dès aujourd'hui : des leçons, des missions sur un laboratoire fictif réaliste et un formateur qui répond à vos questions. Vous terminez avec un rapport d'audit complet à montrer à un employeur ou à un jury.
 >
-> - 14 semaines, environ 105 heures, à votre rythme (≈ 7 h 30 par semaine)
-> - 14 webinaires en direct à 20 h, enregistrés
+> - Environ **6 h 30 par semaine** pendant 14 semaines (≈ 90 h), à votre rythme
 > - Laboratoire en ligne : rien à installer
-> - Suivi personnalisé et attestation de réussite
-> - **990 €** (690 € étudiants et demandeurs d'emploi)
+> - Suivi personnalisé par e-mail et attestation de réussite
+> - Inscription à tout moment
+> - **990 €** (690 € pour les étudiants et demandeurs d'emploi)
 
-Points à garder prudents sur le site : ne pas promettre un emploi ni une certification reconnue ; préciser « attestation de formation, non certifiante » et « laboratoire fictif ».
+À garder prudent sur le site : ne promettre ni emploi ni certification reconnue ; écrire « attestation de formation, non certifiante » et « laboratoire fictif ».
 
-## 2. Public et prérequis
+## 3. Public et prérequis
 
 - **Public** : personnes en reconversion, curieux, étudiants. Aucun diplôme requis.
-- **Prérequis** : à l'aise avec un ordinateur ; aucune connaissance de Linux ni de réseau exigée (le niveau 1 les apporte).
+- **Prérequis** : à l'aise avec un ordinateur. Aucune connaissance de Linux ou de réseau n'est exigée.
 - **Matériel** : un navigateur récent. Le simulateur tourne dans le navigateur, rien à installer. Option : le lab Docker pour les plus à l'aise.
-- **Cadre éthique** : charte d'usage signée (laboratoire fictif uniquement, aucun test sur un système réel sans autorisation écrite).
+- **Cadre éthique** : charte d'usage acceptée à l'inscription (laboratoire fictif uniquement, aucun test sur un système réel sans autorisation écrite).
 
-## 3. Objectifs
+## 4. Objectifs
 
 À l'issue de la formation, l'apprenant sait :
 - lire des journaux, des captures et des configurations, et en tirer des constats prouvés ;
@@ -46,179 +48,160 @@ Points à garder prudents sur le site : ne pas promettre un emploi ni une certif
 - investiguer un incident simple à partir de plusieurs sources ;
 - produire un rapport clair avec preuves horodatées et empreintes.
 
-## 4. Format
+## 5. Format et effort
 
-- **Durée** : 14 semaines, environ **105 heures** par apprenant (≈ 7 h 30 par semaine).
-- **Autonomie** : ≈ 84 h (leçons, défis, missions du simulateur, projet final).
-- **Webinaires** : 14 séances de 1 h 30 (≈ 21 h), une par semaine, en soirée **à 20 h** (20 h à 21 h 30), **enregistrées**. Contenu : démonstration, correction commentée d'une mission, questions, point de motivation.
-- **Suivi** : permanence en ligne (forum ou messagerie de Campus) 1 h 30 par semaine, bilan individuel de mi-parcours (15 min), bilan final (30 min).
-- **Preuve de progression** : chaque semaine l'apprenant exporte son **bilan** (page `#/bilan`, .txt ou .json) et le dépose sur Campus. Le formateur suit l'avancement sans envoi automatique de données.
-- **Évaluation** : quiz de fin de niveau (Campus) et projet final noté sur grille (voir § 6).
-- **Cohorte** : 8 à 20 apprenants (base de calcul : 15).
+- **Rythme libre** : l'apprenant entre quand il veut et avance à son rythme. Accès conseillé : **6 mois** à partir de l'inscription.
+- **Effort moyen** : **6 h 30 par semaine**. Selon le temps disponible :
 
-## 5. Plan de formation
+| Temps par semaine | Durée totale |
+|---|---|
+| 4 h | environ 23 semaines |
+| **6 h 30 (référence)** | **environ 14 semaines** |
+| 10 h | environ 9 semaines |
 
-Les références renvoient aux leçons (`cours/`) et missions déjà livrées.
+- **Volume** : ≈ 90 h = 87 h de travail personnel (leçons, défis, missions, projet) + ≈ 3 h d'échanges avec le formateur.
+- **Suivi** : par e-mail en priorité (questions, retours sur le projet), avec le bilan exporté par l'apprenant (page `#/bilan`, .txt ou .json) à envoyer à l'adresse dédiée, et le suivi d'avancement de Campus.
+- **Réponse du formateur** : engagement indicatif sous 2 jours ouvrés.
 
-### Niveau 1 · Premiers pas (semaines 1 à 4, ≈ 30 h)
+## 6. Plan de formation : 14 modules
 
-| Sem. | Thème | Contenu | Webinaire |
+Les références renvoient aux leçons (`cours/`) et missions déjà livrées. **Un module Campus par étape**, avec ses leçons et un QCM.
+
+| N° | Module | Contenu | Effort |
 |---|---|---|---|
-| 1 | Terminal et méthode | Leçon 00, défi 00, règles d'engagement et preuves (SIM01) | Accueil, charte, démonstration du lab |
-| 2 | Reconnaître | P1, P2, défis 02 et 03, SIM02 | Corriger une fiche de reconnaissance |
-| 3 | Services et scans | P3, SIM03, défi 04 | Lire un scan, bruit et détection |
-| 4 | Web de base | P4, SIM13, défi 05 ; quiz niveau 1 | Audit HTTP en direct |
+| 1 | Terminal et méthode | Leçon 00, défi 00, règles d'engagement et preuves (SIM01) | 5 h |
+| 2 | Reconnaître | P1, P2, défis 02 et 03, SIM02 | 6 h 30 |
+| 3 | Services et scans | P3, SIM03, défi 04 | 5 h 30 |
+| 4 | Le web de base | P4, SIM13, défi 05 | 5 h |
+| 5 | Vulnérabilités | P5, SIM05, défi 06 | 5 h |
+| 6 | Applications et API | P6, SIM14, défi 07 | 5 h 30 |
+| 7 | Sessions et SQL | SIM11, SIM15 (panneau Base SQL) | 6 h |
+| 8 | Identités et énumération | P7, SIM04, SIM06 | 7 h 30 |
+| 9 | Disponibilité et périmètre | P9, SIM10, SIM12, défi 08 | 7 h |
+| 10 | Mobile, cloud, certificats | SIM17, SIM19, SIM20 | 7 h 30 |
+| 11 | Annuaire | P12, SIM21, défi 15 | 5 h |
+| 12 | Incident | P8, P13, SIM22, SIM23, défi 01 | 9 h |
+| 13 | Corriger, prioriser, restituer | P10, P11, défi 09 | 4 h 30 |
+| 14 | Projet final | SIM24 + rapport Casebook | 8 h |
+| | **Total** | | **87 h** |
 
-### Niveau 2 · Auditer (semaines 5 à 10, ≈ 45 h)
+Compléments **optionnels** (hors volume) : Parcours sécurité offensive SO1 à SO5, SIM08 (capture de trafic), et les quatre modules à venir SIM09, SIM07, SIM16, SIM18 (≈ 1 h 30 chacun avec leurs missions), à ajouter comme modules facultatifs entre les modules 10 et 13.
 
-| Sem. | Thème | Contenu | Webinaire |
-|---|---|---|---|
-| 5 | Vulnérabilités | P5, SIM05, défi 06 | Trier des résultats, faux positifs |
-| 6 | Applications et API | P6, SIM14, défi 07 | Contrôle d'accès, revue de code |
-| 7 | Sessions et SQL | SIM11, SIM15 (panneau Base SQL) | Une erreur qui en dit trop |
-| 8 | Identités et énumération | P7, SIM04, SIM06 | Comptes, partages, privilèges |
-| 9 | Disponibilité et périmètre | P9, SIM10, SIM12, défi 08 | Pare-feu et détection |
-| 10 | Mobile, cloud, certificats | SIM17, SIM19, SIM20 | Auditer sans outil offensif |
+## 7. Évaluation et attestation
 
-### Niveau 3 · Défendre et investiguer (semaines 11 à 14, ≈ 30 h)
-
-| Sem. | Thème | Contenu | Webinaire |
-|---|---|---|---|
-| 11 | Annuaire | P12, SIM21, défi 15 | Revue de comptes |
-| 12 | Incident | P8, P13, SIM22, SIM23, défi 01 | Chronologie et purple team |
-| 13 | Corriger, prioriser, restituer | P10, P11, défi 09 | Risque et rapport |
-| 14 | Projet final | SIM24 + rapport Casebook | Restitutions orales |
-
-Parcours **optionnels** pour les plus avancés (hors volume ci-dessus) : Parcours sécurité offensive SO1 à SO5, SIM08 (capture de trafic), SIM07/09/16/18 une fois validés.
-
-## 6. Évaluation
-
-- Quiz de fin de niveau : 10 questions, seuil indicatif 70 %.
-- Projet final (SIM24 + rapport) noté sur 20 :
+- **QCM de chaque module** (hors projet) : 6 à 8 questions, seuil indicatif **70 %**.
+- **Projet final** (SIM24 + rapport), noté sur 20 :
   - exactitude des constats : 8 points ;
   - qualité des preuves (commandes, empreintes, horodatage) : 4 points ;
   - mesures de défense proposées et priorisées : 5 points ;
   - clarté du rapport : 3 points.
-- Attestation de suivi nominative (non certifiante) si présence aux webinaires ≥ 70 % (ou visionnage des enregistrements) et projet ≥ 10/20.
+- **Attestation de suivi** (certificat Campus, non certifiant) : tous les modules validés et projet **≥ 10/20**.
 
-## 7. Plateforme Campus (http://localhost:8000)
+## 8. Plateforme Campus et rôles
 
-Consultée avec votre session ouverte, en lecture seule (aucune modification, aucun identifiant saisi). Fonctions constatées :
+Campus a été consulté en lecture seule. Fonctions constatées : modules de leçons et de QCM, formations regroupant des modules, suivi des apprenants avec avancement individuel, certificats, pages légales et RGPD. Les 20 modules déjà présents (TSSR, démonstration) servent de modèle.
 
-- **Modules** composés de leçons et de QCM, regroupés en **formations** ; 20 modules existent déjà (TSSR, démonstration, CSE), ce qui donne le modèle à suivre.
-- **Suivi des apprenants** par formation, avec avancement individuel et nombre de **certificats valides** : la page de suivi sert de tableau de bord du formateur.
-- **Certificats** : à utiliser pour l'attestation de réussite non certifiante.
-- Pages légales, politique de confidentialité et « Mes données personnelles » (RGPD) présentes.
-
-Non constaté (à vérifier) : dépôt de fichiers par l'apprenant, planification des webinaires, forum ou messagerie.
-
-| Besoin | Rôle proposé |
+| Rôle | Actions dans Campus |
 |---|---|
-| Parcours, leçons, QCM | Campus : une formation « Cyber Déclic » avec 3 modules (un par niveau) et 14 sous-parties hebdomadaires ; les QCM de fin de niveau y sont saisis |
-| Exercices pratiques | Simulateur CyberLab (page publique), lié depuis chaque semaine |
-| Suivi | Page « Suivi des apprenants » de Campus + bilan exporté (`#/bilan`) |
-| Webinaires | Lien de visio dans l'annonce de la semaine ; enregistrements en lien |
-| Dépôt des bilans et rapports | Campus si disponible, sinon e-mail dédié |
-| Attestation | Certificat Campus |
+| **Formateur** | Crée les **14 modules** et leurs **leçons** (une leçon par leçon CyberLab, avec lien vers le simulateur et consigne de mission) ; saisit les **QCM** ; relit les projets |
+| **Responsable pédagogique** | Crée la formation **Cyber Déclic** (assemblage des 14 modules dans l'ordre) ; **affecte les apprenants** à leur inscription ; suit les avancements et délivre les certificats |
 
-À vérifier avant la mise en ligne publique : accessibilité depuis Internet, sauvegarde, RGPD pour les apprenants extérieurs, droit d'auteur des enregistrements.
+Bonnes pratiques à convenir entre les deux rôles :
+- Le formateur laisse les modules en **brouillon** jusqu'à relecture, puis les publie.
+- Le responsable pédagogique n'ouvre la formation aux inscriptions qu'une fois les 14 modules publiés.
+- Chaque nouvelle entrée déclenche : affectation dans Campus, e-mail d'accueil (charte, lien du simulateur, adresse de suivi).
 
-## 8. Estimation du temps de préparation (une fois)
+Non constaté, à vérifier : dépôt de fichiers par l'apprenant (sinon, e-mail), échanges internes. Avant l'ouverture publique : accessibilité depuis Internet, sauvegardes, RGPD pour les apprenants extérieurs.
 
-| Tâche | Heures |
-|---|---|
-| Structuration des 14 semaines et fiches séance | 20 |
-| Intégration des contenus sur Campus (liens, consignes, calendrier) | 30 |
-| Quiz de fin de niveau (3 × 10 questions) et grille du projet | 15 |
-| Supports de webinaires (14 séances) | 35 |
-| Charte, règlement, livret d'accueil | 8 |
-| Tests complets (parcours élève) | 12 |
-| **Total** | **120 h** |
+## 9. Temps de préparation (une fois)
 
-Les contenus pédagogiques eux-mêmes (40 leçons, 41 missions, 17 défis) sont déjà produits.
+| Tâche | Heures | Qui |
+|---|---|---|
+| Structuration des 14 modules et fiches de module | 20 | Formateur |
+| Création des modules et des leçons dans Campus (≈ 40 leçons) | 45 | Formateur |
+| QCM (13 modules × 6 à 8 questions) et grille du projet | 15 | Formateur |
+| Charte, conditions, livret d'accueil, e-mails types | 10 | Formateur |
+| Tests complets du parcours (compte apprenant de test) | 12 | Formateur |
+| Création de la formation et réglages d'inscription | 4 | Responsable pédagogique |
+| **Total** | **106 h** | |
 
-## 9. Coût
+Les contenus eux-mêmes (40 leçons, 41 missions, 17 défis) sont déjà produits.
+
+## 10. Coût
 
 ### Hypothèses
 
-- Valorisation du temps du formateur : **80 € / heure** (repère de marché : un TJM de 700 à 850 € HT pour 7 h correspond à 100 à 120 € / h pour un profil expérimenté, avec des TJM plus bas en sous-traitance).
-- Cohorte de **15** apprenants, 14 semaines.
-- Hébergement Campus, visio et outils : **1 000 € par an** (hypothèse, à remplacer par vos coûts réels).
-- Amortissement de la préparation sur **4 cohortes**.
-- Qualiopi (nécessaire pour les financements publics) : **non chiffré ici**, coût d'audit à demander à un organisme certificateur.
+- Temps valorisé à **80 € / heure** (repère de marché : un TJM de 700 à 850 € HT pour 7 h correspond à 100 à 120 € / h pour un profil expérimenté).
+- Suivi par apprenant : **5 h** (réponses aux e-mails 2 h, suivi hebdomadaire dans Campus 1 h, bilan de mi-parcours 0,5 h, correction du projet et retour 1,5 h) + **0,5 h** d'administration (affectation, accueil, attestation) = **5,5 h**, soit 440 €.
+- Outils et hébergement : **1 000 € par an** (hypothèse à remplacer par vos coûts).
+- Mix de tarifs : 70 % au plein tarif (990 €), 30 % au tarif réduit (690 €), soit un prix moyen de **900 €**.
+- Préparation : 106 h × 80 € = **8 480 €**, à rentabiliser.
 
-### Coût par cohorte
+### Par apprenant
 
-| Poste | Heures | Coût |
-|---|---|---|
-| Webinaires (14 × 1 h 30) | 21 | 1 680 € |
-| Préparation hebdomadaire (14 × 1 h) | 14 | 1 120 € |
-| Permanence en ligne (14 × 1 h 30) | 21 | 1 680 € |
-| Bilans individuels et corrections (15 × 1 h 30) | 22,5 | 1 800 € |
-| **Animation** | **78,5** | **≈ 6 300 €** |
-| Préparation amortie (120 h × 80 € ÷ 4) | 30 | 2 400 € |
-| Outils et hébergement (1 000 € ÷ 4) | | 250 € |
-| **Coût complet par cohorte** | | **≈ 8 950 €** |
+| | Montant |
+|---|---|
+| Prix moyen encaissé | 900 € |
+| Coût variable (5,5 h) | 440 € |
+| **Contribution par apprenant** | **460 €** (550 € au plein tarif, 250 € au tarif réduit) |
 
-Soit environ **600 € par apprenant** à 15 inscrits.
+### Selon le nombre d'inscrits par an
 
-### Prix proposés (hors financement public)
+| Inscrits par an | Recettes | Coût de suivi | Outils | Reste pour amortir la préparation (8 480 €) |
+|---|---|---|---|---|
+| 10 | 9 000 € | 4 400 € | 1 000 € | 3 600 € |
+| 20 | 18 000 € | 8 800 € | 1 000 € | 8 200 € |
+| 30 | 27 000 € | 13 200 € | 1 000 € | 12 800 € |
 
-| Offre | Durée | Prix retenu |
-|---|---|---|
-| **Cyber Déclic** (nom à confirmer ; ≈ 105 h) | 14 sem. | **990 €** (tarif réduit étudiants et demandeurs d'emploi : **690 €**) |
-
-Repères du marché relevés en 2026 : formation débutant 75 h à 1 500 € (Jedha), 105 h à 1 800 € (via MaFormation), 130 h à 1 990 € (Studi), formations de 1 190 à 1 980 € non éligibles CPF (Esecad, Dawan). Ces offres sont souvent éligibles CPF, ce que la formation ne sera pas au lancement ; un prix inférieur se justifie.
-
-### Équilibre par cohorte (offre complète à 990 €)
-
-| Inscrits | Recettes | Résultat par cohorte |
-|---|---|---|
-| 8 | 7 920 € | − 1 030 € |
-| 10 | 9 900 € | + 950 € |
-| 12 | 11 880 € | + 2 930 € |
-| 15 | 14 850 € | + 5 900 € |
-| 20 (coût d'animation en hausse non compté) | 19 800 € | + 10 850 € environ |
-
-Seuil de rentabilité : **9 apprenants** au tarif plein (≈ 8 950 ÷ 990) ; avec un tarif réduit à 690 € pour une partie des inscrits, viser **10 à 11 apprenants**.
+La préparation est rentabilisée à **environ 21 inscrits** (8 480 ÷ 460 ≈ 18, plus ≈ 2 pour les outils), soit un peu plus d'**un an** à 20 inscrits par an ou **deux ans et demi** à 10. Le **temps de suivi par apprenant** est le levier principal : chaque heure de suivi en plus coûte 80 € par inscrit.
 
 Le résultat est une **valorisation de votre temps**, avant cotisations, impôts et TVA. Le régime de TVA de la formation et les cotisations sont à valider avec votre comptable.
 
-## 10. Financement et conformité
+### Repères du marché (2026)
 
-- **Décision** : ni CPF ni Qualiopi pour le moment. Le CPF exige une certification inscrite au RNCP ou au Répertoire spécifique ; France Travail et les OPCO demandent en général un organisme certifié Qualiopi. Ces pistes restent possibles plus tard.
-- **Paiement par les particuliers** : possible sans Qualiopi, avec programme et conditions remis avant inscription, contrat de formation, délai de rétractation de 14 jours et règlement intérieur. À faire valider par votre comptable ou conseil (régime de TVA, mentions obligatoires).
-- **Communication** : ne pas laisser croire que la formation est finançable CPF ; parler d'« attestation de formation ».
+Formation débutant 75 h à 1 500 € (Jedha), 105 h à 1 800 € (via MaFormation), 130 h à 1 990 € (Studi), 1 190 à 1 980 € non éligibles CPF (Esecad, Dawan). Un prix de 990 € se justifie par l'absence d'éligibilité CPF au lancement.
 
-## 11. Calendrier proposé
+## 11. Financement et conformité
 
-| Étape | Durée |
-|---|---|
-| Validation du cadrage (nom, offre, prix) | 1 semaine |
-| Préparation (120 h) | 4 à 5 semaines |
-| Cohorte pilote gratuite ou à tarif symbolique (8 apprenants), retours | 14 semaines |
-| Ajustements, ouverture commerciale | 2 semaines |
+- Ni CPF ni Qualiopi pour le moment. Le CPF exige une certification inscrite au RNCP ou au Répertoire spécifique ; France Travail et les OPCO demandent en général un organisme certifié Qualiopi. Pistes possibles plus tard.
+- Paiement par les particuliers : possible avec programme et conditions remis avant inscription, contrat de formation, délai de rétractation de 14 jours et règlement intérieur. À faire valider par votre comptable.
+- Communication : ne pas laisser croire que la formation est finançable CPF.
 
-## 12. Risques et parades
+## 12. Mise en place (sans date)
+
+La formation étant en ligne et ouverte au fil de l'eau, l'ordre est :
+
+| Étape | Qui | Condition de passage |
+|---|---|---|
+| 1. Créer les 14 modules, leçons et QCM (brouillon) | Formateur | Modules relus |
+| 2. Publier les modules | Formateur | Parcours testé avec un compte de test |
+| 3. Créer la formation et ouvrir les inscriptions | Responsable pédagogique | 14 modules publiés |
+| 4. Mettre en ligne la page sur formaxionlandes.fr | Vous | Texte et prix validés |
+| 5. Premiers apprenants (tarif libre pour un premier retour) | Responsable pédagogique | Charte et conditions prêtes |
+| 6. Ajuster selon les retours (effort réel par module) | Formateur | 3 à 5 apprenants ayant terminé |
+
+L'**effort réel par module** sera mesuré avec les premiers apprenants (temps déclaré à l'envoi du bilan) pour affiner les 6 h 30 hebdomadaires annoncées.
+
+## 13. Risques et parades
 
 | Risque | Parade |
 |---|---|
-| Décrochage des apprenants (fréquent à distance) | Webinaire hebdomadaire, relance si bilan non déposé, binômes |
-| Niveau d'entrée hétérogène | Niveau 1 complet ; module de remise à niveau Linux en option |
-| Campus indisponible | Contenus accessibles depuis le simulateur public ; repli sur messagerie |
-| Usage abusif des techniques | Charte signée, lab fictif, aucun outil offensif réel |
-| Charge de suivi sous-estimée | Plafond de 20 apprenants, permanence cadrée |
+| Décrochage (fréquent à distance) | Relance par e-mail si aucun bilan depuis 2 semaines ; objectifs hebdomadaires clairs |
+| Niveau d'entrée hétérogène | Module 1 complet ; remise à niveau Linux en option |
+| Temps de suivi sous-estimé | Suivre le temps réel, limiter les inscrits actifs, FAQ et réponses types |
+| Campus indisponible | Contenus accessibles depuis le simulateur public ; repli sur e-mail |
+| Usage abusif des techniques | Charte acceptée à l'inscription, laboratoire fictif, aucun outil offensif réel |
+| Effort annoncé différent du réel | Mesurer et corriger dans l'annonce |
 
-## 13. Questions ouvertes
+## 14. Questions ouvertes
 
-1. Nom définitif : Cyber Déclic (recommandé) ou une des alternatives ?
-2. Campus : dépôt de fichiers, visio, forum disponibles ou à prévoir ?
-3. Date de la cohorte pilote et nombre de places ?
-4. Pilote gratuit ou à tarif symbolique ?
+1. Adresse e-mail dédiée au suivi (à créer).
+2. Délai de réponse affiché : 2 jours ouvrés convient-il ?
+3. Durée d'accès : 6 mois à partir de l'inscription convient-il ?
+4. Les premiers apprenants : tarif libre, symbolique ou plein ?
 
 ## Sources des repères de marché
 
-- Panorama des noms de formations : Studi, Liora, Guardia, OpenClassrooms, Deloitte Cyber Academy, SysDream (consultés en 2026)
 - Jedha, formation cybersécurité à distance : https://www.jedha.co/formation-cybersecurite/formation-cybersecurite-100-en-ligne
 - MaFormation, fondamentaux de la cybersécurité (105 h) : https://www.maformation.fr/formation/les-fondamentaux-de-la-cybersecurite-formation-pour-les-debutants-204310
 - Studi, participer à la gestion de la cybersécurité : https://www.studi.com/fr/formation/infrastructures-et-systemes/gestion-cybersecurite
