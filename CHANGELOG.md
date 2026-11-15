@@ -1,4 +1,8 @@
 # Changelog
+## v0.10.1 — guide « Lab complet »
+- Page `#/installer` du simulateur (bouton sur l'accueil et dans le menu) : installer le laboratoire complet sur une vraie machine avec Docker : poste seul, mode terminal, salle de formation (un conteneur par stagiaire), vérification, mise à jour, avertissement sur le port ouvert sans mot de passe. Blocs de commandes avec bouton Copier.
+- Test navigateur `tests/web/ui-install.mjs` (mobile, copie, menu), exécuté en CI.
+
 ## v0.10.0 — mode Expert et panneau Comprendre / Journal (simulateur web)
 - Mode Expert : bouton « Mode » sur chaque défi. Indices désactivés, chronomètre (en pause quand l'onglet est masqué), badge Expert et temps affichés à la réussite. Passer d'Expert à Guidé est possible, l'inverse n'est permis que si aucun indice n'a été utilisé.
 - Panneau sous le terminal : « Comprendre » explique la dernière commande (chaîne de commandes, rôle de chaque étape, code de retour) et « Journal » garde les commandes du défi, conservées avec la progression.
