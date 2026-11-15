@@ -7,7 +7,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | Parcours | Public | Leçons |
 |---|---|---|
 | **Fondations** | débutants | 00 |
-| **Parcours métier** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
+| **Filière audit** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Cycle HAC** (audit d'intrusion complet) | stagiaires avancés | HAC 1 à HAC 5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
 | **Cursus Ethical Hacking** (simulateur web, jumeau numérique) | stagiaires avancés | EH02, EH03 (puis EH01, EH04 et suivants) |

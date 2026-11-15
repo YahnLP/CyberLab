@@ -93,7 +93,7 @@ fs.writeFileSync(path.join(ROOT, 'site/data/cours.json'), JSON.stringify(lessons
 
 // Parcours : ordre pédagogique tiré de cours/README.md (leçon -> défi associé)
 const rows = fs.readFileSync(path.join(ROOT, 'cours/README.md'), 'utf8').split('\n').filter(l => /^\| \[/.test(l)).map(l => { const c = l.split('|').map(x => x.trim()); const m = /\[(.*?)\]\((.*?)\)/.exec(c[1]); const d = /^(\d\d)/.exec(c[4]); return { code: m[1], file: m[2].replace(/\.md$/, ''), title: c[2], duree: c[3], defi: d ? d[1] : null }; });
-const GROUPS = [['Fondations', c => c === '00'], ['Parcours métier', c => /^P([1-9]|1[01])$/.test(c)], ['Parcours avancés', c => /^P1[2-9]$/.test(c)], ['Cycle HAC', c => /^HAC/.test(c)]];
+const GROUPS = [['Fondations', c => c === '00'], ['Filière audit', c => /^P([1-9]|1[01])$/.test(c)], ['Parcours avancés', c => /^P1[2-9]$/.test(c)], ['Cycle HAC', c => /^HAC/.test(c)]];
 const web = new Set(index.map(d => d.id));
 const parcours = GROUPS.map(([name, f]) => ({ name, steps: rows.filter(r => f(r.code)).map(r => ({ ...r, onWeb: r.defi ? web.has(r.defi) : false })) }));
 fs.writeFileSync(path.join(ROOT, 'site/data/parcours.json'), JSON.stringify(parcours));
