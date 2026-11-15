@@ -1,0 +1,22 @@
+PRIORISATION DES RISQUES — de la note technique à la décision
+
+Sept constats d'audit (constats.csv) portent chacun un vecteur CVSS v3.1 et un actif.
+actifs.csv donne l'exposition (internet/interne) et la criticité métier de chaque actif.
+cvss31-reference.txt rappelle les poids et les formules (aucune calculette CVSS en ligne
+de commande : écrivez le calcul en awk ou en bc).
+
+1 priorites.csv    une ligne par constat : ID;score;priorité  (score avec UNE décimale,
+                   ex : F03;7.5;P2). Règle de priorité (la première vraie l'emporte) :
+                     P1  score >= 9,0   OU   (score >= 7,0 ET actif exposé sur internet
+                                              ET criticité haute)
+                     P2  score >= 7,0   OU   (score >= 4,0 ET actif exposé sur internet)
+                     P3  tous les autres cas
+2 reponses.txt     premiere_action : l'ID du constat P1 au score le plus élevé ;
+                   nombre_p1 : combien de constats sont en P1
+3 synthese.md      synthèse pour la direction : remplacez « A COMPLETER » par au moins
+                   40 mots qui citent CHAQUE constat P1 par son ID, disent ce qu'il faut
+                   décider et prévoient un retest
+
+Un score élevé sur un actif isolé et peu critique n'est pas toujours la première urgence :
+c'est le contexte qui décide.
+Validation : defi valider

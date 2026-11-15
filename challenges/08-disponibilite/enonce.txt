@@ -1,0 +1,22 @@
+DISPONIBILITÉ SOUS PRESSION — trois dossiers, un seul poste d'astreinte
+
+Dossier 1 · saturation du serveur web (ss.txt, sysctl.txt)
+  ss.txt est un instantané « ss -ant » pris pendant l'incident.
+  syn_recv           nombre de connexions à l'état SYN-RECV
+  origine_flood      l'adresse IP source dominante (plus de la moitié des SYN-RECV)
+                     ou le mot distribuee si aucune source ne domine
+  syncookies_actifs  oui ou non, d'après sysctl.txt (tcp_syncookies = 1 : actif)
+
+Dossier 2 · amplification (amplification.csv, emission.txt)
+  plus_amplifiant    protocole au facteur le plus élevé (facteur = réponse / requête)
+  bande_recue_mbps   débit reçu par la victime = débit émis × facteur de ce protocole
+
+Dossier 3 · sauvegardes (sauvegardes.log, objectif.txt)
+  rpo_reel_heures    plus longue durée (en heures entières) entre deux sauvegardes
+                     RÉUSSIES consécutives : c'est la perte de données maximale réelle
+  rpo_conforme       oui ou non : ce RPO réel respecte-t-il l'objectif ?
+  derniere_restauration  date (AAAA-MM-JJ) du dernier test de restauration réussi,
+                     ou le mot jamais (une sauvegarde jamais restaurée n'est pas prouvée)
+
+Tout se joue sur fichiers : awk, sort, uniq, date -d.
+Validation : defi valider

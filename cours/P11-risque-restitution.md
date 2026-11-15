@@ -1,6 +1,6 @@
 # P11 · Risque et restitution
 
-Durée : 1 h 15 · Prérequis : P5, P10 · Défi associé : à créer
+Durée : 1 h 15 · Prérequis : P5, P10 · Défi associé : 09 · Priorisation des risques
 
 ## Objectifs
 - Évaluer un risque avec CVSS et le contexte métier.

@@ -1,0 +1,14 @@
+CVSS v3.1 — score de base (référence abrégée)
+Poids : AV N=0.85 A=0.62 L=0.55 P=0.2 · AC L=0.77 H=0.44 · UI N=0.85 R=0.62
+        PR N=0.85 ; L=0.62 (0.68 si S:C) ; H=0.27 (0.5 si S:C) · C/I/A H=0.56 L=0.22 N=0
+ISS     = 1 - (1-C)(1-I)(1-A)
+Impact  = 6.42 x ISS                              si S:U
+        = 7.52 x (ISS-0.029) - 3.25 x (ISS-0.02)^15   si S:C
+Exploit = 8.22 x AV x AC x PR x UI
+Score   = 0 si Impact <= 0
+        = Arrondi_sup( min(Impact+Exploit, 10) )         si S:U
+        = Arrondi_sup( min(1.08 x (Impact+Exploit), 10) ) si S:C
+Arrondi_sup(x) : plus petite valeur à 1 décimale supérieure ou égale à x
+(attention aux erreurs de virgule flottante : arrondissez x*100000 à l'entier d'abord,
+ si ce nombre est multiple de 10000 le score est x, sinon (partie entière de n/10000 + 1)/10).
+Vérifications : AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H = 9.8 ; AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N = 6.5
