@@ -1,6 +1,6 @@
 # Cadrage des modules SIM07, SIM09, SIM16 et SIM18
 
-Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Aucun n'est encore réalisé ; ordre prévu : SIM09, SIM07, SIM16, SIM18.
+Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Réalisés : SIM09 (PR #35) et SIM07 ; restent SIM16 puis SIM18. SIM07 n'a demandé aucun nouvel outil : `sha256sum`, `grep -F -f` et `awk` suffisent (`strings`, `file` et `md5sum` ne sont pas nécessaires, l'échantillon étant un fichier texte).
 
 ## Principe commun
 

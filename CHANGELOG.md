@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçon SIM07 (fichiers suspects, volet inerte et défensif) et missions SIM07-1 (échantillon texte inerte : empreinte SHA-256, indicateurs de compromission, machines touchées) et SIM07-2 (règle de détection : faux positifs, faux négatifs, choix du seuil). Aucun code ni charge utile.
 - Formation Cyber Déclic : le simulateur reste indépendant, tout est géré sur Campus avec de nouveaux contenus illustrés ; capacités de Campus constatées (Markdown, Mermaid, QCM, livrables, forum) ; temps de préparation révisé (156 h).
 - Parcours pentest : leçon SIM09 (ingénierie sociale, côté défense) et missions SIM09-1 (tri de messages fictifs selon SPF, DKIM, DMARC, réponse et liens) et SIM09-2 (mesure d'une campagne de sensibilisation autorisée). Aucun message d'attaque n'est écrit.
 - Documents de cadrage : modules SIM07, SIM09, SIM16, SIM18 en version défensive (validés, à réaliser) et formation à distance Cyber Déclic (offre unique au fil de l'eau, 14 modules, 990 € / 690 €, effort moyen 6 h 30 par semaine).
@@ -12,7 +13,7 @@
 - Correction : la commande `comm` du simulateur accepte maintenant les options -1, -2, -3 et leurs combinaisons (-12, -13, -23).
 - Parcours pentest : leçon SIM24 (synthèse) et mission SIM24-1 (investigation croisant journal web et journal SSH).
 - SIM16 (sans fil) et SIM18 (IoT/OT) sont reportés, à cadrer avec le formateur.
-- Tests : 43 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 41 leçons.
+- Tests : 45 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 42 leçons.
 
 ## Non publié
 

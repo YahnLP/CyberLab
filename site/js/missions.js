@@ -929,6 +929,61 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['awk -F";" \'NR>1 {printf "%s %.3f\\n", $1, $4/$2}\' campagne-sensibilisation.csv | sort -k2 -n affiche les taux de clic.', 'Même calcul avec $5/$2 pour les signalements.', 'Taux global = somme des cliqués ÷ somme des envoyés (pas la moyenne des taux).', 'Ignorez la ligne d\'en-tête avec NR>1.'],
     check: checker('SIM09-2', tw => { const c = campagne(tw); return [ask('service_le_plus_expose', 'txt', c.top), ask('meilleur_service_signalement', 'txt', c.best), ask('taux_de_clic_global', 'num', c.global)]; }, d2), finish: 'Campagne mesurée : vous savez où former en priorité et qui signale le mieux.' });
 }
+// ---------------------------------------------------------------- SIM07 : analyse de fichiers suspects (échantillon fictif et inerte : du texte, jamais de code)
+const hex64 = R => Array.from({ length: 64 }, () => '0123456789abcdef'[R.int(0, 15)]).join('');
+const echantillon = tw => { const R = rng(tw.seed * 173 + 1);
+  const doms = []; while (doms.length < 3) { const d = `maj-${R.int(100, 999)}.example`; if (!doms.includes(d)) doms.push(d); }
+  const ips = [`198.51.100.${R.int(10, 90)}`, `198.51.100.${R.int(100, 200)}`];
+  const iocs = [...doms, ...ips]; const nPres = R.int(2, 3); const pres = R.shuffle([0, 1, 2, 3, 4]).slice(0, nPres).map(i => iocs[i]);
+  const benign = ['kernel32.dll', 'user32.dll', 'Mozilla/5.0 (compatible)', 'Content-Type: application/octet-stream', 'GetTickCount', 'Sleep', 'cdn.exemple-cdn.example', 'Software/Run', 'version=1.4.2'];
+  const body = R.shuffle([...R.shuffle(benign).slice(0, 7), ...pres]);
+  const text = '# Échantillon fictif et inerte : simple liste de chaînes de texte, aucun code exécutable.\n' + body.map(s => `chaine: ${s}`).join('\n') + '\n';
+  const h = sha256(text);
+  const hosts = R.shuffle(['PC-COMPTA-01', 'PC-RH-02', 'PC-DIRECTION-01', 'PC-ACCUEIL-01', 'SRV-FICHIERS-01', 'PC-LOGISTIQUE-03', 'PC-PRODUCTION-02']).slice(0, 6);
+  const nHit = R.int(1, 3); const hit = hosts.slice(0, nHit); const near = hosts[nHit];
+  const rows = hosts.map(m => { const hh = hit.includes(m) ? h : m === near ? h.slice(0, 63) + (h[63] === 'a' ? 'b' : 'a') : hex64(R); const p = hit.includes(m) ? 'C:/Utilisateurs/public/maj-service.tmp' : R.pick(['C:/Windows/Temp/rapport.tmp', 'C:/Utilisateurs/public/notes.tmp', 'C:/Programmes/outil/lib.dat']); return { m, line: `${m};${p};${hh}` }; });
+  return { text, h, iocText: 'type;valeur\n' + [...doms.map(d => `domaine;${d}`), ...ips.map(i => `ip;${i}`), `sha256;${h}`].join('\n') + '\n', nPres, parc: 'machine;chemin;sha256\n' + R.shuffle(rows).map(r => r.line).join('\n') + '\n', hit }; };
+const corpus = tw => { const R = rng(tw.seed * 173 + 2);
+  for (let t = 0; ; t++) { const rows = []; for (let i = 1; i <= 20; i++) { const mal = R.int(0, 99) < 40; const marq = mal ? R.int(1, 4) : R.int(0, 3); rows.push({ f: `fichier-${String(i).padStart(2, '0')}`, marq, mal }); }
+    const err = th => ({ fp: rows.filter(r => !r.mal && r.marq >= th).length, fn: rows.filter(r => r.mal && r.marq < th).length });
+    const tot = [1, 2, 3, 4].map(th => { const e = err(th); return e.fp + e.fn; }); const best = Math.min(...tot); if (tot.filter(x => x === best).length !== 1) continue;
+    const seuil = R.pick([2, 3]); const e = err(seuil); if (e.fp === 0 || e.fn === 0) continue;
+    return { text: 'fichier;marqueurs;verdict\n' + rows.map(r => `${r.f};${r.marq};${r.mal ? 'malveillant' : 'sain'}`).join('\n') + '\n', seuil, fp: e.fp, fn: e.fn, best: tot.indexOf(best) + 1 }; } };
+{
+  const d1 = tw => defense(tw, 301, 'Isoler les machines touchées, bloquer les indicateurs au pare-feu et au proxy, chercher la même empreinte sur tout le parc et restaurer depuis des sauvegardes saines', ['Supprimer l\'échantillon sans en garder de copie ni d\'empreinte', 'Attendre un nouvel incident avant d\'agir']);
+  M.push({ id: 'SIM07-1', title: 'Fichier suspect : trier un échantillon inerte', module: 'SIM07 · Fichiers suspects (inerte)', points: 35, difficulty: 2, lesson: 'SIM07-analyse-fichiers-suspects', code: 'SIM07·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['empreinte_echantillon', 'nombre_ioc_presents', 'machines_touchees', 'defense']), 'echantillon.txt': echantillon(tw).text, 'ioc.csv': echantillon(tw).iocText, 'parc-empreintes.csv': echantillon(tw).parc }),
+    enonce: tw => `${head(tw)}
+MISSION : le service informatique de ${tw.orgName} a isolé un fichier suspect. Pour l'exercice, il est représenté par echantillon.txt :
+un FICHIER TEXTE INERTE qui liste les chaînes de caractères relevées dans le fichier (aucun code, rien ne s'exécute).
+ioc.csv donne les indicateurs de compromission connus (domaines, adresses IP, empreinte SHA-256) ; parc-empreintes.csv donne, pour
+six machines, l'empreinte du fichier retrouvé au même endroit (données fictives).
+
+À FAIRE
+  1 empreinte_echantillon  l'empreinte SHA-256 de echantillon.txt (sha256sum)
+  2 nombre_ioc_presents    combien d'indicateurs de type domaine ou ip de ioc.csv figurent dans echantillon.txt
+  3 machines_touchees      les machines dont l'empreinte est identique à celle de l'échantillon (noms séparés par des virgules)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['sha256sum echantillon.txt affiche l\'empreinte (64 caractères) : recopiez-la telle quelle.', 'awk -F";" \'$1!="sha256" && NR>1 {print $2}\' ioc.csv > valeurs.txt, puis grep -c -F -f valeurs.txt echantillon.txt.', 'grep ";EMPREINTE$" parc-empreintes.csv | cut -d";" -f1 liste les machines : une empreinte presque identique n\'est pas la même.', 'Une seule lettre de différence change tout : comparez l\'empreinte entière.'],
+    check: checker('SIM07-1', tw => { const e = echantillon(tw); return [ask('empreinte_echantillon', 'txt', e.h), ask('nombre_ioc_presents', 'num', e.nPres), ask('machines_touchees', 'set', e.hit.join(','))]; }, d1), finish: 'Tri fait : l\'échantillon est identifié par son empreinte, ses indicateurs et les machines touchées, sans rien exécuter.' });
+  const d2 = tw => defense(tw, 302, 'Ajuster le seuil en mesurant faux positifs et faux négatifs, puis rejouer la règle sur un jeu de fichiers de test', ['Abaisser le seuil à 1 pour ne rien rater, sans mesurer le bruit', 'Désactiver la règle dès qu\'elle déclenche une fausse alerte']);
+  M.push({ id: 'SIM07-2', title: 'Détection : écrire et mesurer une règle', module: 'SIM07 · Fichiers suspects (inerte)', points: 35, difficulty: 2, lesson: 'SIM07-analyse-fichiers-suspects', code: 'SIM07·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['faux_positifs', 'faux_negatifs', 'meilleur_seuil', 'defense']), 'corpus.csv': corpus(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : ${tw.orgName} teste une règle de détection simple. Pour chaque fichier fictif de corpus.csv, on a compté combien de
+marqueurs suspects il contient (0 à 4) et on connaît le verdict réel (malveillant ou sain).
+La règle SIGNALE un fichier si son nombre de marqueurs est supérieur ou égal au seuil. Seuil à tester : ${corpus(tw).seuil}.
+
+À FAIRE
+  1 faux_positifs   fichiers sains signalés à tort avec ce seuil
+  2 faux_negatifs   fichiers malveillants non signalés avec ce seuil
+  3 meilleur_seuil  parmi 1, 2, 3 et 4, le seuil qui minimise le total (faux positifs + faux négatifs)
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'NR>1 && $3=="sain" && $2>=SEUIL\' corpus.csv | wc -l compte les faux positifs (remplacez SEUIL par le nombre).', 'awk -F";" \'NR>1 && $3=="malveillant" && $2<SEUIL\' corpus.csv | wc -l compte les faux négatifs.', 'Refaites le calcul pour les seuils 1, 2, 3 et 4 puis comparez les totaux.', 'Un seuil bas rate peu de menaces mais crée du bruit ; un seuil haut fait l\'inverse.'],
+    check: checker('SIM07-2', tw => { const c = corpus(tw); return [ask('faux_positifs', 'num', c.fp), ask('faux_negatifs', 'num', c.fn), ask('meilleur_seuil', 'num', c.best)]; }, d2), finish: 'Règle mesurée : vous savez chiffrer ses faux positifs et ses faux négatifs et choisir le bon seuil.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
