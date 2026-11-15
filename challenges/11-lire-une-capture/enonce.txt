@@ -1,0 +1,21 @@
+LIRE UNE CAPTURE RÉSEAU — ce que voit quelqu'un qui écoute le segment
+
+Un technicien a capturé pendant quelques secondes le trafic d'un réseau de laboratoire
+(tcpdump -nn). Données fictives.
+  capture.txt      la capture, au format texte de tcpdump (heure, protocole, hôtes, détail)
+  passerelle.txt   l'adresse IP de la passerelle et son adresse MAC légitime
+
+Constats à rédiger dans reponses.txt :
+ Protocoles en clair
+   serveur_ftp          adresse IP du serveur FTP (port 21)
+   ftp_utilisateur      identifiant FTP transmis en clair
+   ftp_mot_de_passe     mot de passe FTP transmis en clair
+   http_utilisateur     identifiant de l'authentification HTTP Basic vers /admin
+   http_mot_de_passe    son mot de passe (l'en-tête est encodé en base64, pas chiffré)
+ Anomalie ARP
+   mac_usurpateur       l'adresse MAC qui prétend être la passerelle sans l'être
+   nb_reponses_usurpees nombre de réponses ARP « Reply » annonçant l'IP de la
+                        passerelle avec cette fausse MAC
+
+Les échanges vers le port 443 sont chiffrés : vous n'en lirez rien. C'est le but.
+Validation : defi valider

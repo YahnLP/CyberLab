@@ -1,0 +1,6 @@
+Colonnes de binaires.txt : RELRO (2 mots), canari (2 ou 3 mots), NX (2 mots), PIE (2 mots), puis le chemin.
+Comptez une lacune pour chaque colonne qui n'est PAS : Full RELRO, Canary found, NX enabled, PIE enabled.
+Une lacune de plus que deux = trois lacunes ou plus.
+aslr.txt : awk -F' : ' '$2!=2{print $1}' (en ignorant la ligne de commentaire).
+grep -F -f avis.txt msf-services.csv sélectionne les lignes correspondant à un avis ; cut -d, -f1 | sort -u.
+Familles de modules : exploit (profite d'une faille), auxiliary (scan, énumération), payload (code livré), post (après accès).

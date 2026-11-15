@@ -1,0 +1,21 @@
+ÉNUMÉRATION DE SERVICES — ce qu'un attaquant apprend sans rien casser
+
+Trois relevés pris sur un réseau de laboratoire (lecture seule, données fictives) :
+  axfr.txt         réponse à un transfert de zone DNS demandé à un poste quelconque
+  dns-public.txt   la liste des noms censés être publiés (zone externe)
+  smb.txt          partages SMB d'un serveur de fichiers et test d'accès anonyme
+  snmp.txt         « snmpwalk » sur un NAS
+
+À produire :
+ 1 hotes-internes.txt   les noms (ex : paie.lab.test) présents dans la zone obtenue par
+                        transfert mais ABSENTS de dns-public.txt : le transfert de zone
+                        a révélé des machines internes. Un nom par ligne.
+ 2 partages-anonymes.txt les partages lisibles SANS authentification (NT_STATUS_OK),
+                        un par ligne
+ 3 reponses.txt         communaute_snmp : la communauté SNMP qui a fonctionné ;
+                        noyau_nas : version du noyau lue dans sysDescr (ex : 6.1.0-18) ;
+                        emplacement_nas : sysLocation, espaces remplacés par des tirets
+
+Chaque constat est une information obtenue SANS identifiant : c'est précisément ce que le
+durcissement doit supprimer (allow-transfer, accès invité désactivé, SNMPv3).
+Validation : defi valider

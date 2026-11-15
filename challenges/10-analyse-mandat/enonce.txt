@@ -1,0 +1,22 @@
+ANALYSE D'UN MANDAT D'AUDIT — avant d'agir, vérifier qu'on a le droit
+
+Dossier : mandat.txt (le mandat signé), actions.csv (les 10 actions que l'équipe voudrait
+mener : id;date;heure;cible;technique), activites.csv (cinq activités observées lors
+d'un incident à classer).
+
+1 clauses_manquantes (reponses.txt)
+   Un mandat complet contient sept clauses : perimetre, exclusions, dates, techniques,
+   contacts, confidentialite, signature. Indiquez celles qui MANQUENT, séparées par des
+   virgules (ex : contacts,confidentialite), ou le mot aucune.
+2 autorisees.txt
+   Les identifiants des actions autorisées, une par ligne. Une action est autorisée si
+   TOUTES ces conditions sont vraies : cible dans le périmètre ET hors exclusions ;
+   date et heure dans la fenêtre ; technique autorisée. (Une clause
+   administrative manquante, comme les contacts, doit être complétée avant de commencer
+   mais ne change pas le périmètre technique autorisé par le mandat.)
+3 Cyber Kill Chain (reponses.txt) : etape_k1 à etape_k5, une valeur parmi
+   reconnaissance, armement, livraison, exploitation, installation, commande, actions
+
+La fenêtre court de 20h00 à 06h00 : une action à 02h15 le premier jour est dans la nuit
+du premier jour au lendemain.
+Validation : defi valider

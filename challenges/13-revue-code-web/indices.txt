@@ -1,0 +1,6 @@
+cat app/*.php puis relisez chaque fichier : qui reçoit une donnée utilisateur, et que devient-elle ?
+Un « echo » ou une requête qui concatène directement $_GET / $_POST est le signal à examiner.
+Un correctif d'injection SQL sépare la requête (avec ?) et les valeurs (bind_param).
+Un téléversement sûr contrôle l'extension (liste blanche) ET renomme le fichier.
+Une action POST sans comparaison hash_equals avec un jeton de session est vulnérable au CSRF.
+Les corrections durables traitent la construction ou la sortie, pas une liste de caractères interdits.

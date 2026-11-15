@@ -1,6 +1,6 @@
 # HAC 3 · Reconnaissance avancée et énumération de services
 
-Durée : 1 h 30 · Prérequis : P1 à P3 · Défi associé : à créer
+Durée : 1 h 30 · Prérequis : P1 à P3 · Défi associé : 12 · Énumération de services
 
 ## Objectifs
 - Énumérer DNS, ports et services d'une cible de laboratoire.

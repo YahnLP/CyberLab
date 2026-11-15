@@ -1,0 +1,5 @@
+Dans axfr.txt, seuls les enregistrements « IN A » comptent ; les lignes SOA et les commentaires non.
+comm -13 <(sort dns-public.txt) <(sort noms-axfr.txt) donne les noms de la zone absents de la liste publique.
+grep 'NT_STATUS_OK' smb.txt ; le nom du partage est le premier mot de la ligne.
+snmp.txt : la première ligne rappelle la commande, la communauté suit l'option -c.
+sysDescr contient « Linux nas-01 VERSION-amd64 » : extrayez la version avec sed ou awk.

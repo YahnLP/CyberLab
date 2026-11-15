@@ -1,4 +1,8 @@
 # Changelog
+## v0.6.0 — défis du cycle HAC
+- Défis 10 à 14 : analyse d'un mandat (et Cyber Kill Chain), lecture d'une capture réseau (identifiants en clair, empoisonnement ARP), énumération DNS/SMB/SNMP, revue de code web, protections mémoire et base Metasploit.
+- Tous orientés analyse et défense, sans exploitation ni fabrication de charge.
+
 ## v0.5.0 — défis P9 et P11
 - Défi 08 : saturation SYN (ss -ant), amplification (facteurs et débit reçu), RPO réel des sauvegardes.
 - Défi 09 : calcul CVSS v3.1 réel (validé sur des scores NVD connus), priorisation selon exposition et criticité, synthèse pour la direction.
