@@ -1,0 +1,23 @@
+// Test navigateur : Casebook (preuves, empreinte, conclusion, export). Usage : node tests/web/ui-casebook.mjs [URL]
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright'); import fs from 'node:fs';
+const BASE = process.argv[2] || 'http://127.0.0.1:8765/';
+const br = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--proxy-server=direct://', '--proxy-bypass-list=*'] });
+const ctx = await br.newContext({ acceptDownloads: true }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
+const run = async l => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(250); };
+await pg.goto(BASE + '#/defi/03'); await pg.waitForSelector('#term input');
+await pg.click('[data-ptab=casebook]'); ok(await pg.isDisabled('[data-cb=add]'), 'ajout désactivé sans commande');
+await run('ls'); await pg.click('[data-ptab=casebook]'); ok(!(await pg.isDisabled('[data-cb=add]')), 'ajout possible après une commande');
+await pg.click('[data-cb=add]'); ok(await pg.textContent('#ccount') === '1', 'preuve ajoutée (compteur 1)');
+const ev = await pg.evaluate(async () => { const e = JSON.parse(localStorage.getItem('cyberlab.v1')).work['03'].case.ev[0]; const h = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(e.exc)))].map(b => b.toString(16).padStart(2, '0')).join(''); return { sha: e.sha, calc: h, line: e.line }; });
+ok(ev.sha === ev.calc && ev.line === 'ls', 'empreinte SHA-256 conforme à celle du navigateur');
+await pg.fill('#cb-concl', 'Cinq fichiers présents <ok> & cohérents.');
+let [d] = await Promise.all([pg.waitForEvent('download'), pg.click('[data-cb=md]')]); const md = fs.readFileSync(await d.path(), 'utf8');
+ok(d.suggestedFilename() === 'rapport-defi-03.md' && md.includes('Cinq fichiers') && md.includes(ev.sha), 'export Markdown (conclusion et empreinte)');
+[d] = await Promise.all([pg.waitForEvent('download'), pg.click('[data-cb=html]')]); const ht = fs.readFileSync(await d.path(), 'utf8');
+ok(ht.includes('&lt;ok&gt; &amp;') && !ht.includes('<ok>'), 'export HTML : texte échappé');
+await pg.reload(); await pg.waitForSelector('#term input'); await pg.click('[data-ptab=casebook]');
+ok(await pg.inputValue('#cb-concl') === 'Cinq fichiers présents <ok> & cohérents.' && await pg.textContent('#ccount') === '1', 'conclusion et preuve conservées après rechargement');
+await pg.click('[data-cb=del]'); ok(await pg.textContent('#ccount') === '0', 'preuve retirée');
+ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
+await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI Casebook : OK'); process.exit(bad ? 1 : 0);

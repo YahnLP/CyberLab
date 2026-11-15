@@ -27,6 +27,7 @@ jobs:
           sleep 2
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-expert.mjs
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-install.mjs
+          NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-casebook.mjs
   docker:
     runs-on: ubuntu-latest
     steps:

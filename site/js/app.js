@@ -1,4 +1,4 @@
-import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js'; import * as inst from './install.js';
+import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js'; import * as inst from './install.js'; import * as cb from './casebook.js';
 const $ = s => document.querySelector(s); const KEY = 'cyberlab.v1';
 const store = { load() { try { return JSON.parse(localStorage.getItem(KEY)) || { prog: {}, cur: null, work: {} }; } catch { return { prog: {}, cur: null, work: {} }; } }, save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { } } };
 let S = store.load(); const cache = {}; let index = [], lessons = [], parcours = [];
@@ -54,13 +54,13 @@ function renderDefHeader() {
   $('#enonce-body').textContent = curDef.enonce; $('#def-title').textContent = `Défi ${curDef.id} — ${curDef.title}`;
   $('#crumbs').innerHTML = `<a href="#/">Parcours</a><span aria-hidden="true">›</span><span>${pc ? esc(pc.group) : 'Défi'}</span><span aria-hidden="true">›</span><span aria-current="page">Défi ${curDef.id}</span>`;
   $('#def-meta').innerHTML = `<span class="chip">${stars(curDef.difficulty)}</span><span class="chip">${curDef.points} pts</span>` + (pc ? `<a class="chip link" href="#/cours/${pc.file}">Leçon ${pc.code}</a>` : '');
-  refreshFiles(); renderBanner(); applyMode(); renderJournal();
+  refreshFiles(); renderBanner(); applyMode(); renderJournal(); renderCase();
 }
 function listFiles() { if (!curDef || !fsv) return []; const base = wd(curDef); return Object.keys(fsv.snapshot(base)).sort(); }
 function refreshFiles() { const box = $('#files'); if (!box || !curDef) return; const fl = listFiles(); box.innerHTML = fl.length ? fl.map(f => `<button class="file" data-f="${esc(f)}" title="Afficher ${esc(f)}"><span class="ico">${/\/$/.test(f) ? '' : '▤'}</span>${esc(f)}</button>`).join('') : '<p class="muted">Aucun fichier.</p>'; box.querySelectorAll('.file').forEach(b => b.onclick = () => runLine(`cat '${b.dataset.f}'`)); }
 function record(line, rc, out) {
   const w = S.work[curDef.id]; (w.log ||= []).push({ t: w.elapsed || 0, line, rc }); if (w.log.length > 200) w.log.shift(); store.save(S);
-  renderJournal(); renderComprendre(explain(line, rc, out), line);
+  lastRun = { id: curDef.id, line, out }; renderJournal(); renderComprendre(explain(line, rc, out), line); const ad = document.querySelector('[data-cb=add]'); if (ad) ad.disabled = false;
 }
 function renderComprendre(x, line) {
   const el = document.querySelector('[data-ppane=comprendre]'); if (!el) return;
@@ -69,6 +69,16 @@ function renderComprendre(x, line) {
 function renderJournal() {
   const el = document.querySelector('[data-ppane=journal]'); const c = $('#jcount'); const lg = (S.work[curDef.id]?.log) || []; if (c) c.textContent = lg.length; if (!el) return;
   el.innerHTML = lg.length ? `<ol class="jl">${lg.slice().reverse().map(e => `<li><span class="muted">${fmtTime(e.t)}</span> <code>${esc(e.line)}</code> <span class="rc ${e.rc === 0 ? 'ok' : 'ko'}">${e.rc === 0 ? 'ok' : 'code ' + e.rc}</span></li>`).join('')}</ol>` : '<p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p>';
+}
+let lastRun = null;
+function renderCase() {
+  const el = document.querySelector('[data-ppane=casebook]'); if (!el || !curDef) return; const w = S.work[curDef.id]; el.innerHTML = cb.view(w); const c = $('#ccount'); if (c) c.textContent = cb.ensure(w).ev.length;
+  const add = el.querySelector('[data-cb=add]'); if (add) add.disabled = !lastRun || lastRun.id !== curDef.id;
+  const ta = $('#cb-concl'); ta.oninput = () => { cb.ensure(S.work[curDef.id]).concl = ta.value; store.save(S); };
+  el.querySelectorAll('[data-cb]').forEach(b => b.onclick = () => { const k = b.dataset.cb; const w2 = S.work[curDef.id];
+    if (k === 'add') { if (lastRun && cb.addEvidence(w2, lastRun.line, lastRun.out)) { store.save(S); renderCase(); } }
+    else if (k === 'del') { cb.removeEvidence(w2, +b.dataset.n); store.save(S); renderCase(); }
+    else { const r = cb.reportData(curDef, w2, S.prog[curDef.id]); const base = `rapport-defi-${curDef.id}`; if (k === 'md') cb.download(base + '.md', cb.toMarkdown(r), 'text/markdown'); else cb.download(base + '.html', cb.toHtml(r), 'text/html'); } });
 }
 let tick = null;
 function applyMode() {
@@ -116,7 +126,7 @@ const views = {
     $('#main').innerHTML = `<nav id="crumbs" class="crumbs" aria-label="Fil d'Ariane"></nav><div class="defi-head"><h1 id="def-title"></h1><div id="def-meta" class="meta"></div></div><div id="banner" class="banner" hidden></div>
     <div class="defi"><aside class="side" aria-label="Énoncé et fichiers"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="enonce">Énoncé</button><button role="tab" aria-selected="false" data-tab="files">Fichiers</button></div><div class="tabpane" data-pane="enonce"><pre id="enonce-body"></pre></div><div class="tabpane" data-pane="files" hidden><p class="muted small">Cliquez un fichier pour l'afficher dans le terminal.</p><div id="files" class="files"></div></div></aside>
     <section class="work"><div class="toolbar" role="toolbar" aria-label="Actions du défi"><button class="btn small" data-act="valider" title="Vérifier votre travail">Valider</button><button class="btn ghost small" data-act="indice" title="Révèle un indice (-2 points)">Indice</button><button class="btn ghost small" data-act="mode" aria-pressed="false" title="Basculer entre Guidé (indices) et Expert (sans indices, chronomètre)">Mode : Guidé</button><span id="timer" class="chip" hidden aria-live="off">00:00</span><button class="btn ghost small" data-act="edit" title="Ouvrir reponses.txt dans l'éditeur">Éditer reponses.txt</button><button class="btn ghost small" data-act="enonce">Énoncé</button><span class="grow"></span><button class="btn ghost small" data-act="font" title="Taille du texte" aria-label="Agrandir le texte">A+</button><button class="btn ghost small danger" data-act="reset" title="Recommencer ce défi avec de nouvelles données">Recommencer</button></div>
-    <div id="term" class="term" aria-label="Terminal"></div><section class="panel" aria-label="Journal et interprétation"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-ptab="comprendre">Comprendre</button><button role="tab" aria-selected="false" data-ptab="journal">Journal <span id="jcount" class="count">0</span></button></div><div class="ppane" data-ppane="comprendre"><p class="muted small">Exécutez une commande pour en lire l'interprétation.</p></div><div class="ppane" data-ppane="journal" hidden><p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p></div></section><p class="hint">Astuce : Tab complète les noms de fichiers, ↑ rappelle la commande précédente.</p></section></div>`;
+    <div id="term" class="term" aria-label="Terminal"></div><section class="panel" aria-label="Journal et interprétation"><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-ptab="comprendre">Comprendre</button><button role="tab" aria-selected="false" data-ptab="journal">Journal <span id="jcount" class="count">0</span></button><button role="tab" aria-selected="false" data-ptab="casebook">Casebook <span id="ccount" class="count">0</span></button></div><div class="ppane" data-ppane="comprendre"><p class="muted small">Exécutez une commande pour en lire l'interprétation.</p></div><div class="ppane" data-ppane="casebook" hidden></div><div class="ppane" data-ppane="journal" hidden><p class="muted small">Votre journal commence ici. Les commandes de ce défi y sont enregistrées.</p></div></section><p class="hint">Astuce : Tab complète les noms de fichiers, ↑ rappelle la commande précédente.</p></section></div>`;
     document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.tabpane').forEach(p => p.hidden = p.dataset.pane !== b.dataset.tab); });
     const def = await startDef(id, null, !S.work[id]); S.work[id].mode ||= 'guide'; S.work[id].elapsed ||= 0; S.work[id].log ||= []; renderDefHeader(); applyMode(); renderJournal();
     document.querySelectorAll('[data-ptab]').forEach(b => b.onclick = () => { document.querySelectorAll('[data-ptab]').forEach(x => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('.ppane').forEach(p => p.hidden = p.dataset.ppane !== b.dataset.ptab); });

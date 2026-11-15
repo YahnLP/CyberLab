@@ -65,6 +65,6 @@ Principe : les données de chaque défi sont produites par les vrais scripts `se
 
 Le bouton « Installer le lab complet sur une vraie machine » (page `#/installer`) détaille le déploiement Docker pour un poste ou une salle.
 
-Modes : **Guidé** (indices à -2 point) et **Expert** (sans indices, chronomètre, badge). Sous le terminal, le panneau **Comprendre** interprète la dernière commande et le **Journal** garde l'historique du défi.
+Modes : **Guidé** (indices à -2 point) et **Expert** (sans indices, chronomètre, badge). Sous le terminal, le panneau **Comprendre** interprète la dernière commande et le **Journal** garde l'historique du défi et le **Casebook** rassemble preuves et conclusion pour exporter un rapport (Markdown ou HTML).
 
 Limites connues : le défi 01 (incident SSH, qui s'appuie sur `sshd` et `ssh-keygen` réels) reste réservé à l'image Docker ; les outils réseau (nmap, curl, tcpdump) sont absents du simulateur, les données à analyser étant déjà fournies ; en cas de coupure d'octet au milieu d'un caractère accentué, `cut -c` et `head -c` peuvent différer légèrement de bash.
