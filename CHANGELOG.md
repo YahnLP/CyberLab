@@ -1,4 +1,16 @@
 # Changelog
+## v0.9.3
+- Correctif défi 06 : les identifiants CVE tirés au hasard pouvaient se répéter (environ 1 session sur 300), ce qui rendait le corrigé refusé ; tirage sans doublon.
+
+## v0.9.2 — charte Formaxion et ergonomie
+- Habillage aligné sur formaxionlandes.fr : bleu #0082CB, vert #39A848, bleu nuit #0F2939, Montserrat (comme le site), boutons en pilule, cartes arrondies, pied de page sombre. Logo chargé depuis formaxionlandes.fr avec repli texte.
+- Page défi : fil d'Ariane, onglets Énoncé / Fichiers (fichiers cliquables), barre d'actions (Valider, Indice, Éditer reponses.txt, Énoncé, taille du texte, Recommencer), bannière de réussite avec défi suivant.
+- Accueil : progression globale, progression par parcours, état par étape ; accessibilité (lien d'évitement, focus visible, mouvement réduit).
+
+## v0.9.1 — accueil en parcours guidé
+- Accueil du simulateur web réorganisé : Fondations, Parcours métier, Parcours avancés, Cycle HAC ; chaque étape = leçon puis défi, bouton Commencer / Reprendre, leçon suivante.
+- Nouveau défi 00 « Prise en main : preuve et premières commandes » (copie de preuve, empreinte, premières mesures).
+
 ## v0.9.0 — simulateur web (GitHub Pages)
 - Site statique `site/` : terminal simulé (shell, awk, sed, sort, grep...), défis 02 à 17, correcteur, indices, score local, leçons.
 - `tools/build-site-data.mjs` : génère 30 variantes par défi à partir des vrais `setup.sh`.

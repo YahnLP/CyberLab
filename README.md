@@ -8,6 +8,7 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | Défi | Séquence | Points |
 |---|---|---|
 | 01 · Incident SSH : détecter, contenir, corriger | Séquence 5 · Cyber-défense | 60 |
+| 00 · Prise en main : preuve et premières commandes | Fondations | 25 |
 | 02 · Fiche de reconnaissance | Séquence 6 · Parcours métier | 30 |
 | 03 · Écarts d'inventaire | Séquence 6 · Parcours métier | 30 |
 | 04 · Services exposés | Séquence 6 · Parcours métier | 35 |

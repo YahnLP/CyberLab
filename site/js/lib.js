@@ -9,8 +9,17 @@ const given = (files, key) => { const t = files['reponses.txt']; if (t === undef
 export function runChecks(def, variant, files) {
   const out = []; let fail = false; const T = variant.answers;
   const say = (k, t) => out.push({ k, t });
+  let first = true;
+  const preuves = () => {
+    const P = files['preuves/journal.log'];
+    if (P !== undefined && P === files['journal.log']) say('ok', 'copie de journal.log dans preuves/ (identique)'); else { say('ko', "preuves/journal.log absent ou différent de l'original"); fail = true; }
+    const SUMS = files['preuves/SHA256SUMS']; let sumsOk = SUMS !== undefined && SUMS.includes('journal.log');
+    if (sumsOk) for (const l of SUMS.split('\n').filter(Boolean)) { const m = /^([0-9a-f]{64}) [ *](.+)$/.exec(l); if (!m) continue; const t = files['preuves/' + m[2]]; if (t === undefined || sha256(t) !== m[1]) sumsOk = false; }
+    if (sumsOk) say('ok', 'SHA256SUMS valide (sha256sum -c)'); else { say('ko', 'preuves/SHA256SUMS absent ou invalide'); fail = true; }
+    if (sha256(files['journal.log'] ?? '') === T['_log']) say('ok', 'journal original non altéré'); else { say('ko', 'le journal original a été modifié'); fail = true; }
+  };
   for (const c of def.checks) {
-    if (c.t === 'phase') { say('phase', c.title); continue; }
+    if (c.t === 'phase') { say('phase', c.title); if (first && def.special === 'preuves') preuves(); first = false; continue; }
     if (c.t === 'num' || c.t === 'kv') {
       const v = given(files, c.key);
       if (!v) { say('ko', `${c.key} : non renseigné`); fail = true; }

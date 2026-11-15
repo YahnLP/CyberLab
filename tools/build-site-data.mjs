@@ -34,7 +34,7 @@ for (const dirName of fs.readdirSync(path.join(ROOT, 'challenges')).sort()) {
     const loop = /^for (\w+) in ([^;]+); do check_(num|kv) \$\w+/.exec(l); if (loop) { for (const k of loop[2].trim().split(/\s+/)) checks.push({ t: loop[3], key: k }); continue; }
     for (const c of l.matchAll(/check_(set|num|kv) ([a-z_0-9]+)(?: ([^\s;]+))?/g)) { if (c[1] === 'set') checks.push({ t: 'set', key: c[2], file: c[3] }); else checks.push({ t: c[1], key: c[2] }); }
     mm = /^finish "(.*)"/.exec(l); if (mm) finishMsg = mm[1]; }
-  const out = { id, checks, finish: finishMsg, special: id === '09' ? 'synthese' : null, name: dirName, title: m.TITLE, module: m.MODULE, points: +m.POINTS, difficulty: +m.DIFFICULTY, enonce: fs.readFileSync(path.join(CH, 'enonce.txt'), 'utf8'), indices: fs.readFileSync(path.join(CH, 'indices.txt'), 'utf8').split('\n').filter(Boolean), variants };
+  const out = { id, checks, finish: finishMsg, special: { '09': 'synthese', '00': 'preuves' }[id] || null, name: dirName, title: m.TITLE, module: m.MODULE, points: +m.POINTS, difficulty: +m.DIFFICULTY, enonce: fs.readFileSync(path.join(CH, 'enonce.txt'), 'utf8'), indices: fs.readFileSync(path.join(CH, 'indices.txt'), 'utf8').split('\n').filter(Boolean), variants };
   fs.writeFileSync(path.join(ROOT, 'site/data', id + '.json'), JSON.stringify(out));
   fs.writeFileSync(path.join(ROOT, 'tests/web/solutions', id + '.json'), JSON.stringify(solutions));
   index.push({ id, name: dirName, title: m.TITLE, module: m.MODULE, points: +m.POINTS, difficulty: +m.DIFFICULTY });
@@ -45,3 +45,11 @@ fs.writeFileSync(path.join(ROOT, 'site/data/index.json'), JSON.stringify(index))
 const cd = path.join(ROOT, 'site/cours'); fs.mkdirSync(cd, { recursive: true });
 const lessons = fs.readdirSync(path.join(ROOT, 'cours')).filter(f => f.endsWith('.md')); for (const f of lessons) fs.copyFileSync(path.join(ROOT, 'cours', f), path.join(cd, f));
 fs.writeFileSync(path.join(ROOT, 'site/data/cours.json'), JSON.stringify(lessons.filter(f => f !== 'README.md')));
+
+// Parcours : ordre pédagogique tiré de cours/README.md (leçon -> défi associé)
+const rows = fs.readFileSync(path.join(ROOT, 'cours/README.md'), 'utf8').split('\n').filter(l => /^\| \[/.test(l)).map(l => { const c = l.split('|').map(x => x.trim()); const m = /\[(.*?)\]\((.*?)\)/.exec(c[1]); const d = /^(\d\d)/.exec(c[4]); return { code: m[1], file: m[2].replace(/\.md$/, ''), title: c[2], duree: c[3], defi: d ? d[1] : null }; });
+const GROUPS = [['Fondations', c => c === '00'], ['Parcours métier', c => /^P([1-9]|1[01])$/.test(c)], ['Parcours avancés', c => /^P1[2-9]$/.test(c)], ['Cycle HAC', c => /^HAC/.test(c)]];
+const web = new Set(index.map(d => d.id));
+const parcours = GROUPS.map(([name, f]) => ({ name, steps: rows.filter(r => f(r.code)).map(r => ({ ...r, onWeb: r.defi ? web.has(r.defi) : false })) }));
+fs.writeFileSync(path.join(ROOT, 'site/data/parcours.json'), JSON.stringify(parcours));
+console.log('parcours', parcours.map(g => g.name + ':' + g.steps.length).join(' '));

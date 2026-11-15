@@ -6,10 +6,11 @@ CVSS_V=($(shuf -e 8.1 7.5 6.5)); CVSS_O=($(shuf -e 5.3 4.3 6.1 3.7 5.9))
 : > "$WORK/scanner.txt"; echo "cve;paquet;corrige_dans" > "$WORK/avis-securite.csv"
 { echo "Debian GNU/Linux 12 (bookworm)"; echo "Desired=Unknown/Install/Remove/Purge/Hold"; } > "$WORK/paquets-installes.txt"
 echo "# Rapport du scanner de vulnérabilités (détection par version amont) — hôte srv-app-01" > "$WORK/scanner.txt"
+CVES=($(shuf -i 1000-8999 -n 8))
 VRAIS=""; FAUX=""; BEST=""; BESTSCORE=0; vi=0; oi=0
 for n in 0 1 2 3 4 5 6 7; do
   IFS='|' read -r pk up fx iv ic <<< "${P[${ORDER[$n]}]}"; st=${STAT[$n]}
-  cve="CVE-2099-$((1000+RANDOM%8000))"; id=$(printf 'F%02d' $((n+1)))
+  cve="CVE-2099-${CVES[$n]}"; id=$(printf 'F%02d' $((n+1)))
   if [ $st = V ]; then sc=${CVSS_V[$vi]}; vi=$((vi+1)); else sc=${CVSS_O[$oi]}; oi=$((oi+1)); fi
   # le score le plus élevé du rapport est toujours un faux positif (piège)
   if [ $n = 0 ] && [ $st != V ]; then sc=9.8; elif [ $n = 0 ]; then :; fi

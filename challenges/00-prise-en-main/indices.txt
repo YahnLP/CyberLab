@@ -1,0 +1,6 @@
+ls pour voir les fichiers, head journal.log pour en lire le début.
+mkdir preuves puis cp -p journal.log preuves/ ; la copie garde la date d'origine.
+cd preuves && sha256sum journal.log > SHA256SUMS ; vérifiez avec sha256sum -c SHA256SUMS.
+wc -l donne le nombre de lignes ; grep -c ERREUR compte les lignes qui contiennent ERREUR.
+awk '{print $3}' journal.log | sort | uniq -c | sort -rn | head -1 donne l'hôte le plus fréquent.
+Ouvrez reponses.txt avec nano reponses.txt et complétez chaque ligne après le signe = (sans espace).
