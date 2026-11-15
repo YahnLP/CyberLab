@@ -1,6 +1,6 @@
 # Cadrage des modules SIM07, SIM09, SIM16 et SIM18
 
-Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Aucun n'est encore réalisé ; ordre prévu : SIM09, SIM07, SIM16, SIM18.
+Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Réalisés : SIM09 (PR #35) et SIM18 ; restent SIM07 (PR #37) et SIM16 (PR #38) en attente de fusion.
 
 ## Principe commun
 

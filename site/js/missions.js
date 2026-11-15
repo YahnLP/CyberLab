@@ -929,6 +929,58 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['awk -F";" \'NR>1 {printf "%s %.3f\\n", $1, $4/$2}\' campagne-sensibilisation.csv | sort -k2 -n affiche les taux de clic.', 'Même calcul avec $5/$2 pour les signalements.', 'Taux global = somme des cliqués ÷ somme des envoyés (pas la moyenne des taux).', 'Ignorez la ligne d\'en-tête avec NR>1.'],
     check: checker('SIM09-2', tw => { const c = campagne(tw); return [ask('service_le_plus_expose', 'txt', c.top), ask('meilleur_service_signalement', 'txt', c.best), ask('taux_de_clic_global', 'num', c.global)]; }, d2), finish: 'Campagne mesurée : vous savez où former en priorité et qui signale le mieux.' });
 }
+// ---------------------------------------------------------------- SIM18 : IoT et OT, inventaire et segmentation (lecture seule, aucune commande vers un équipement)
+const iotInv = tw => { const R = rng(tw.seed * 181 + 1);
+  const kinds = [['Camera-entree', 'invites', 'rtsp', 554], ['Capteur-temperature', 'production', 'mqtt', 1883], ['Automate-ligne1', 'production', 'modbus', 502], ['Automate-ligne2', 'production', 'modbus', 502], ['Imprimante-etage1', 'bureautique', 'ipp', 631], ['Badge-portail', 'bureautique', 'http', 80], ['Compteur-energie', 'production', 'snmp', 161], ['Passerelle-supervision', 'supervision', 'https', 443], ['Thermostat-salle', 'bureautique', 'telnet', 23], ['Camera-atelier', 'production', 'rtsp', 554]];
+  for (let t = 0; ; t++) { const picks = R.shuffle(kinds).slice(0, 8); const rows = picks.map(([nom, zone, proto, port], i) => ({ id: `EQ${String(i + 1).padStart(2, '0')}`, nom, zone, proto, port, join: zone === 'production' ? R.pick(['oui', 'non', 'non']) : R.pick(['oui', 'oui', 'non']), fw: R.pick(['2019', '2021', '2023', '2024']) }));
+    const pj = rows.filter(r => r.zone === 'production' && r.join === 'oui'), tn = rows.filter(r => r.proto === 'telnet'), old = rows.filter(r => +r.fw <= 2021);
+    if (!pj.length || !old.length || pj.length === rows.filter(r => r.zone === 'production').length) continue;
+    return { text: 'id;equipement;zone;protocole;port;joignable_depuis_bureautique;annee_firmware\n' + rows.map(r => `${r.id};${r.nom};${r.zone};${r.proto};${r.port};${r.join};${r.fw}`).join('\n') + '\n', n: rows.length, pj: pj.map(r => r.id), old: old.length, tn: tn.length }; } };
+const zoneRules = tw => { const R = rng(tw.seed * 181 + 2);
+  const legit = [['bureautique', 'internet', '443', 'autoriser'], ['invites', 'internet', '443', 'autoriser'], ['supervision', 'production', '502', 'autoriser'], ['production', 'supervision', '502', 'autoriser'], ['bureautique', 'supervision', '443', 'autoriser']];
+  const decoys = [['invites', 'bureautique', '445', 'refuser'], ['production', 'internet', '80', 'refuser'], ['bureautique', 'production', '3389', 'refuser']];
+  const bad = [['bureautique', 'production', '3389', 'autoriser'], ['production', 'internet', '80', 'autoriser'], ['invites', 'bureautique', '445', 'autoriser']];
+  const severe = ['invites', 'production', '22', 'autoriser']; const nBad = R.int(1, 2); const chosen = R.shuffle(bad).slice(0, nBad);
+  const all = R.shuffle([...R.shuffle(legit).slice(0, 3), ...R.shuffle(decoys).slice(0, 2), ...chosen, severe]).map((r, i) => ({ n: i + 1, r }));
+  const forb = all.filter(x => x.r[3] === 'autoriser' && ((x.r[0] === 'invites' && x.r[1] !== 'internet') || (x.r[0] === 'bureautique' && x.r[1] === 'production') || (x.r[0] === 'production' && x.r[1] === 'internet')));
+  return { text: 'numero;source;destination;port;action\n' + all.map(x => `${x.n};${x.r.join(';')}`).join('\n') + '\n', nums: forb.map(x => x.n), count: forb.length, severe: all.find(x => x.r === severe).n }; };
+{
+  const d1 = tw => defense(tw, 321, 'Isoler la production dans sa propre zone, ne laisser passer que les flux nécessaires par une passerelle contrôlée, planifier les mises à jour et surveiller le trafic sans rien envoyer aux équipements', ['Couper tous les équipements du réseau pendant la nuit', 'Brancher les équipements directement sur Internet pour les superviser à distance']);
+  M.push({ id: 'SIM18-1', title: 'IoT et OT : inventorier et repérer les expositions', module: 'SIM18 · IoT et OT (segmentation)', points: 35, difficulty: 2, lesson: 'SIM18-iot-ot-segmentation', code: 'SIM18·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_equipements', 'production_joignables', 'equipements_telnet', 'firmware_ancien', 'defense']), 'inventaire-equipements.csv': iotInv(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : ${tw.orgName} dresse l'inventaire de ses équipements connectés (caméras, automates, capteurs ; données fictives, lecture seule :
+aucune commande n'est envoyée aux équipements). Règle : un équipement de la zone « production » ne doit PAS être joignable depuis la
+bureautique. Un firmware daté de 2021 ou avant est jugé ancien.
+
+À FAIRE
+  1 nombre_equipements    nombre d'équipements de l'inventaire
+  2 production_joignables identifiants (colonne id) des équipements de production joignables depuis la bureautique (séparés par des virgules)
+  3 equipements_telnet    nombre d'équipements qui utilisent le protocole telnet
+  4 firmware_ancien       nombre d'équipements dont l'année de firmware est 2021 ou avant
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['wc -l inventaire-equipements.csv compte les lignes ; retirez l\'en-tête.', 'awk -F";" \'$3=="production" && $6=="oui" {print $1}\' inventaire-equipements.csv liste les expositions.', 'awk -F";" \'$4=="telnet"\' inventaire-equipements.csv | wc -l compte telnet.', 'awk -F";" \'NR>1 && $7<=2021\' inventaire-equipements.csv | wc -l compte les firmwares anciens.'],
+    check: checker('SIM18-1', tw => { const i = iotInv(tw); return [ask('nombre_equipements', 'num', i.n), ask('production_joignables', 'set', i.pj.join(',')), ask('equipements_telnet', 'num', i.tn), ask('firmware_ancien', 'num', i.old)]; }, d1), finish: 'Inventaire fait : les équipements de production exposés et les protocoles faibles sont identifiés, sans rien envoyer aux appareils.' });
+  const d2 = tw => defense(tw, 322, 'Refuser par défaut entre les zones, supprimer les règles interdites et ne garder que les flux justifiés, puis rejouer la revue', ['Ouvrir tout le trafic entre zones le temps de la maintenance', 'Ajouter une règle « tout autoriser » en dernier pour éviter les pannes']);
+  M.push({ id: 'SIM18-2', title: 'Segmentation : relire les règles entre zones', module: 'SIM18 · IoT et OT (segmentation)', points: 35, difficulty: 2, lesson: 'SIM18-iot-ot-segmentation', code: 'SIM18·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['numeros_regles_interdites', 'nombre_regles_interdites', 'regle_la_plus_grave', 'defense']), 'regles-zones.csv': zoneRules(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : voici les règles de pare-feu entre les zones de ${tw.orgName} (regles-zones.csv, données fictives). Une règle est INTERDITE si elle AUTORISE :
+  - un flux depuis « invites » vers autre chose qu'Internet ;
+  - un flux de « bureautique » vers « production » ;
+  - un flux de « production » vers Internet.
+Les règles « refuser » ne sont jamais interdites.
+
+À FAIRE
+  1 numeros_regles_interdites   numéros des règles interdites (séparés par des virgules)
+  2 nombre_regles_interdites    leur nombre
+  3 regle_la_plus_grave         le numéro de la règle qui ouvre la production aux invités
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$2=="invites" && $3!="internet" && $5=="autoriser"\' regles-zones.csv liste les flux invités interdits.', 'awk -F";" \'$2=="bureautique" && $3=="production" && $5=="autoriser"\' regles-zones.csv pour le deuxième critère.', 'awk -F";" \'$2=="production" && $3=="internet" && $5=="autoriser"\' regles-zones.csv pour le troisième.', 'La règle la plus grave est celle dont la source est « invites » et la destination « production ».'],
+    check: checker('SIM18-2', tw => { const z = zoneRules(tw); return [ask('numeros_regles_interdites', 'set', z.nums.join(',')), ask('nombre_regles_interdites', 'num', z.count), ask('regle_la_plus_grave', 'num', z.severe)]; }, d2), finish: 'Revue faite : les flux interdits entre zones sont repérés et la règle la plus grave est désignée.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
