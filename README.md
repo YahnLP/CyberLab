@@ -2,7 +2,7 @@
 
 Laboratoire de cyber-défense en ligne de commande : un vrai terminal Linux par stagiaire (Docker + ttyd), des défis auto-corrigés sur des données réalistes générées au hasard à chaque session. Même moteur que BashLab (`defi liste`, `defi start`, `defi indice`, `defi valider`).
 
-Créé par Formaxion Landes — © Yahn LE PRETTRE 2026. **Proposition non publiée : rien n'a été poussé sur GitHub.**
+Créé par Formaxion Landes — © Yahn LE PRETTRE 2026. 
 
 ## Contenu actuel
 | Défi | Séquence | Points |
@@ -27,3 +27,7 @@ Le corrigé (`formateur/solutions/`) n'est pas copié dans l'image.
 
 ## Ajouter un défi
 `challenges/NN-nom/` avec `meta.conf`, `enonce.txt`, `indices.txt`, `setup.sh`, `check.sh` (voir le défi 01 : `gen-log.sh` et `controls.sh` sont des aides partagées facultatives).
+
+## Licence
+
+© 2026 Yahn LE PRETTRE - Formaxion Landes. Distribué sous licence **EUPL 1.2** (fichier `LICENSE`). Le nom et l'identité visuelle ne sont pas couverts par cette licence.
