@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Casebook côté Docker : commandes `defi preuve`, `defi preuves`, `defi preuve-suppr`, `defi conclusion` et `defi rapport` (rapport Markdown avec empreintes SHA-256, 20 preuves maximum, tout reste local). Test `tests/casebook-docker.sh`.
 - Bilan de l'élève : page `#/bilan` (progression par parcours, points, indices), saisie du nom, impression ou PDF, export .txt et .json. Calcul local, rien n'est envoyé. Test navigateur `ui-bilan.mjs`.
 - Panneau graphique « Base SQL » (missions SIM15) : requête construite par l'application fictive, résultat en tableau, erreurs SQL ; passe par la même route que curl, donc visible côté défense. Test `ui-sql.mjs`.
 - Parcours pentest, volet audit défensif : leçons SIM17 (mobile), SIM19 (cloud), SIM20 (certificats) et 6 missions : SIM17-1 (manifeste), SIM17-2 (configuration embarquée), SIM19-1 (droits, stockage public, clés), SIM19-2 (chiffrement et journalisation), SIM20-1 (lecture d'un certificat), SIM20-2 (inventaire des certificats).

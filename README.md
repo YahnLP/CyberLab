@@ -68,7 +68,7 @@ Principe : les données de chaque défi sont produites par les vrais scripts `se
 
 Le bouton « Installer le lab complet sur une vraie machine » (page `#/installer`) détaille le déploiement Docker pour un poste ou une salle.
 
-Modes : **Guidé** (indices à -2 point) et **Expert** (sans indices, chronomètre, badge). Sous le terminal, le panneau **Comprendre** interprète la dernière commande et le **Journal** garde l'historique du défi et le **Casebook** rassemble preuves et conclusion pour exporter un rapport (Markdown ou HTML). La page **Bilan** (menu du haut) résume la progression par parcours, avec impression ou PDF et export texte ou JSON, sans rien envoyer.
+Modes : **Guidé** (indices à -2 point) et **Expert** (sans indices, chronomètre, badge). Sous le terminal, le panneau **Comprendre** interprète la dernière commande et le **Journal** garde l'historique du défi et le **Casebook** rassemble preuves et conclusion pour exporter un rapport (Markdown ou HTML). La page **Bilan** (menu du haut) résume la progression par parcours, avec impression ou PDF et export texte ou JSON, sans rien envoyer. Dans le lab Docker, le Casebook se pilote en commandes : `defi preuve <commande>`, `defi preuves`, `defi conclusion "texte"`, `defi rapport` (rapport Markdown dans le dossier personnel).
 
 Le défi 01 (incident SSH) est aussi jouable : `ssh-keygen -lf` et `sshd -T` sont simulés (résultats comparés aux vrais outils par `tests/web/diff-ssh.mjs`), et le correcteur est vérifié contre le vrai `check.sh` sur 16 erreurs injectées.
 
