@@ -26,6 +26,7 @@ jobs:
           (cd site && python3 -m http.server 8765 >/dev/null 2>&1 &)
           sleep 2
           NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-expert.mjs
+          NODE_PATH=/tmp/pw/node_modules CHROME="$(command -v google-chrome || command -v chromium)" node tests/web/ui-install.mjs
   docker:
     runs-on: ubuntu-latest
     steps:

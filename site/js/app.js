@@ -1,4 +1,4 @@
-import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js';
+import { VFS } from './vfs.js'; import { Shell, Stream } from './shell.js'; import { Term, editor } from './term.js'; import { runChecks } from './lib.js'; import { md } from './md.js'; import { explain, fmtTime } from './panel.js'; import * as inst from './install.js';
 const $ = s => document.querySelector(s); const KEY = 'cyberlab.v1';
 const store = { load() { try { return JSON.parse(localStorage.getItem(KEY)) || { prog: {}, cur: null, work: {} }; } catch { return { prog: {}, cur: null, work: {} }; } }, save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { } } };
 let S = store.load(); const cache = {}; let index = [], lessons = [], parcours = [];
@@ -98,7 +98,7 @@ const views = {
     let h = `<section class="hero"><div><p class="eyebrow">Laboratoire de cybersécurité</p><h1>Comprendre. Pratiquer. Passer à l'action.</h1><p class="lead">Un laboratoire <strong>100 % dans le navigateur</strong> : chaque étape propose une <strong>leçon</strong> puis un <strong>défi</strong>, avec des données fictives réalistes, un terminal et une correction automatique. Rien à installer, votre progression reste sur cet appareil.</p><p class="cta">`;
     h += !done && !cur ? `<a class="btn" href="#/cours/00-prise-en-main">Commencer par la prise en main</a><a class="btn ghost" href="#parcours" data-scroll>Voir le parcours</a>` : (cur ? `<a class="btn" href="#/defi/${cur}">Reprendre le défi ${cur}</a>` : (nextId ? `<a class="btn" href="#/defi/${nextId}">Défi suivant : ${nextId}</a>` : '')) + '<a class="btn ghost" href="#parcours" data-scroll>Voir le parcours</a>';
     h += `</p></div><aside class="progress-card" aria-label="Progression"><div class="ring" style="--p:${pct}"><span>${pct}<small>%</small></span></div><p><strong>${done}/${tot}</strong> défis réussis<br><span class="muted">${pts}/${max} points</span></p></aside></section>`;
-    h += `<p class="note">Terminal simulé : commandes usuelles (grep, awk, sed, sort, cut…) réimplémentées en JavaScript. Pour le laboratoire complet avec un vrai Linux, utilisez l'image Docker du dépôt.</p><div id="parcours">`;
+    h += `<p class="note">Terminal simulé : commandes usuelles (grep, awk, sed, sort, cut…) réimplémentées en JavaScript. Pour le laboratoire complet avec un vrai Linux, utilisez l'image Docker du dépôt.</p><p class="cta-real"><a class="btn ghost" href="#/installer">Installer le lab complet sur une vraie machine</a></p><div id="parcours">`;
     parcours.forEach((g, gi) => {
       const ids = g.steps.map(x => x.defi).filter((x, i, a) => x && a.indexOf(x) === i && byId(x)); const dn = ids.filter(i => S.prog[i]?.st === 'reussi').length;
       h += `<section class="group"><header><h2><span class="gnum">${gi + 1}</span>${esc(g.name)}</h2><span class="muted">${dn}/${ids.length} défis</span></header><ol class="steps">`;
@@ -137,7 +137,7 @@ const views = {
 async function route() {
   const [, k, a] = location.hash.split('/'); document.querySelectorAll('.top nav a').forEach(x => x.classList.toggle('on', x.getAttribute('href') === '#/' + (k || ''))); term = null; runLine = () => { };
   if (location.hash.startsWith('#parcours')) return;
-  try { if (k === 'defi') await views.defi(a); else if (k === 'cours' && a) await views.cours(a); else await views.home(); } catch (e) { $('#main').innerHTML = `<p class="err">Erreur de chargement : ${esc(e.message)}</p>`; }
+  try { if (k === 'defi') await views.defi(a); else if (k === 'cours' && a) await views.cours(a); else if (k === 'installer') { $('#main').innerHTML = inst.render(); inst.wire($('#main')); } else await views.home(); } catch (e) { $('#main').innerHTML = `<p class="err">Erreur de chargement : ${esc(e.message)}</p>`; }
   window.scrollTo(0, 0); $('#main').focus({ preventScroll: true });
 }
 (async function init() { try { index = await get('data/index.json'); lessons = await get('data/cours.json'); parcours = await get('data/parcours.json'); } catch (e) { $('#main').innerHTML = '<p class="err">Données introuvables : lancez <code>node tools/build-site-data.mjs</code> (voir README).</p>'; return; } updateScore(); window.addEventListener('hashchange', route); route(); })();
