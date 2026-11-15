@@ -16,7 +16,7 @@ Date : 15/11/2026. Sources : compte FREE de la plateforme de référence (portai
 
 | Fonction de la référence | Docker | Simulateur web | Écart |
 |---|---|---|---|
-| Terminal et TP auto-vérifiés | Oui (18 défis) | Oui (17 défis, 01 absent) | Défi 01 non porté |
+| Terminal et TP auto-vérifiés | Oui (18 défis) | Oui (18 défis) | |
 | Variantes aléatoires | Oui | Oui (30 par défi) | |
 | Guidé / Semi-guidé | Énoncé + indices (-2 pt) | Idem | |
 | Expert sans indices | Non | Oui (v0.10.0, chronomètre et badge) | Docker : à faire |
@@ -39,6 +39,6 @@ Aucune fonction payante dans le simulateur. Pas de comptes ni de serveur : tout 
 ## Priorités
 1. ~~Rapport et preuves sur tous les défis~~ (Casebook fait côté simulateur web ; côté Docker, à porter).
 2. ~~Mode Expert sans indices avec chronomètre~~ (fait côté simulateur web).
-3. Porter le défi 01 sur le web.
+3. ~~Porter le défi 01 sur le web~~ (fait).
 4. Export du bilan élève.
 5. Vue du lab et journal, pour la formation Formaxion Landes.
