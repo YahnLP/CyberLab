@@ -617,6 +617,121 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['curl "http://www.DOMAINE/produit?id=1%20OR%201=1" renvoie tous les produits visibles seulement.', 'Ajoutez %20--%20 : le filtre « AND visible = 1 » est coupé et un produit de plus apparaît.', 'Comptez les lignes avec wc -l ou grep -c nom.', 'Le produit réservé est celui qui n\'était pas dans la première liste.'],
     check: checker('SIM15-2', tw => { const v = tw.db.products.filter(p => p.visible); const h = tw.db.products.find(p => !p.visible); return [ask('nombre_produits_visibles', 'num', v.length), ask('nombre_produits_total', 'num', tw.db.products.length), ask('produit_cache', 'txt', h.nom), ask('prix_produit_cache', 'num', h.prix)]; }, d2), finish: 'Démonstration faite sur la base fictive : une saisie modifie la requête et expose une donnée réservée.' });
 }
+// ---------------------------------------------------------------- SIM17 : mobile (audit défensif d'une application fictive)
+const manifest = tw => { const R = rng(tw.seed * 113 + 1); const bad = R.shuffle(['READ_SMS', 'RECORD_AUDIO', 'READ_CONTACTS', 'READ_CALL_LOG', 'ACCESS_FINE_LOCATION']).slice(0, 2); const dbg = R.pick(['true', 'false']); const bk = R.pick(['true', 'false']); const comp = R.pick(['DeepLinkActivity', 'ExportReceiver', 'FileShareProvider']);
+  const perms = R.shuffle(['INTERNET', 'ACCESS_NETWORK_STATE', 'POST_NOTIFICATIONS', ...bad]).map(x => `    <uses-permission android:name="android.permission.${x}"/>`).join('\n');
+  const text = `<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="example.${tw.slug.replace(/-/g, '')}.rdv">\n${perms}\n    <application android:label="Rendez-vous" android:allowBackup="${bk}" android:debuggable="${dbg}">\n        <activity android:name=".MainActivity" android:exported="true">\n            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>\n        </activity>\n        <service android:name=".sync.SyncService" android:exported="false"/>\n        <receiver android:name=".${comp}" android:exported="true"/>\n        <provider android:name=".SafeProvider" android:exported="false" android:authorities="example.rdv.safe"/>\n    </application>\n</manifest>\n`; return { text, bad, dbg, bk, comp }; };
+const appConfig = tw => { const R = rng(tw.seed * 113 + 2); const key = `FAKEKEY-${hex(R, 24)}`; const legacy = `http://api-rdv.${tw.domain}/v2/rendez-vous`; const pin = R.pick(['true', 'false']); const level = R.pick(['DEBUG', 'INFO']);
+  const lines = R.shuffle(['app_name=Rendez-vous', `base_url=https://api.${tw.domain}/v1/`, `legacy_endpoint=${legacy}`, `API_KEY=${key}`, `certificate_pinning=${pin}`, `log_level=${level}`, 'locale=fr_FR', `support_mail=support@${tw.domain}`]); return { text: lines.join('\n') + '\n', key, legacy, pin, level }; };
+{
+  const d1 = tw => defense(tw, 171, 'Retirer les permissions inutiles, désactiver debuggable et allowBackup en production et protéger les composants exportés par une permission', ['Demander ces permissions seulement à la première utilisation sans les justifier', 'Renommer les composants exportés']);
+  M.push({ id: 'SIM17-1', title: 'Mobile : relire le manifeste d\'une application', module: 'SIM17 · Mobile', points: 35, difficulty: 2, lesson: 'SIM17-mobile', code: 'SIM17·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['permissions_injustifiees', 'debuggable', 'sauvegarde_autorisee', 'composant_exporte_a_risque', 'defense']), 'AndroidManifest.xml': manifest(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : une application de prise de rendez-vous (fictive) doit seulement accéder au réseau et envoyer des
+notifications. Relisez son manifeste (AndroidManifest.xml) comme lors d'une revue avant publication.
+
+À FAIRE
+  1 permissions_injustifiees   les deux permissions sensibles sans rapport avec la fonction (nom court, ex : READ_SMS)
+  2 debuggable                 true ou false
+  3 sauvegarde_autorisee       valeur de allowBackup (true ou false)
+  4 composant_exporte_a_risque le composant exporté (exported="true") qui n'est pas l'écran d'accueil (nom sans le point initial)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep uses-permission AndroidManifest.xml liste les permissions demandées.', 'INTERNET, ACCESS_NETWORK_STATE et POST_NOTIFICATIONS sont justifiées ; les autres non.', 'grep -o \'debuggable="[a-z]*"\' donne la valeur ; même méthode pour allowBackup.', 'grep exported="true" montre les composants accessibles aux autres applications : MainActivity est l\'écran d\'accueil.'],
+    check: checker('SIM17-1', tw => { const m = manifest(tw); return [ask('permissions_injustifiees', 'set', m.bad.join(',')), ask('debuggable', 'txt', m.dbg), ask('sauvegarde_autorisee', 'txt', m.bk), ask('composant_exporte_a_risque', 'txt', m.comp)]; }, d1), finish: 'Manifeste audité : permissions superflues et composant exposé relevés.' });
+  const d2 = tw => defense(tw, 172, 'Retirer la clé du code et la révoquer, passer en HTTPS partout, activer l\'épinglage de certificat et réduire la verbosité des journaux', ['Encoder la clé en base64 dans l\'application', 'Garder le point d\'accès en HTTP mais derrière un nom discret']);
+  M.push({ id: 'SIM17-2', title: 'Mobile : revue de la configuration embarquée', module: 'SIM17 · Mobile', points: 35, difficulty: 2, lesson: 'SIM17-mobile', code: 'SIM17·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['cle_en_dur', 'adresse_non_chiffree', 'epinglage_actif', 'niveau_de_journalisation', 'defense']), 'config-appli.txt': appConfig(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : la configuration embarquée de l'application (config-appli.txt, fictive) est distribuée à tous les
+utilisateurs. Relisez-la avant la mise en production.
+
+À FAIRE
+  1 cle_en_dur               la valeur de API_KEY (commence par FAKEKEY-)
+  2 adresse_non_chiffree     l'adresse qui commence par http:// (et non https://)
+  3 epinglage_actif          valeur de certificate_pinning (true ou false)
+  4 niveau_de_journalisation valeur de log_level (DEBUG ou INFO)
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep KEY config-appli.txt isole la clé.', 'grep "http://" config-appli.txt trouve l\'adresse non chiffrée.', 'grep pinning config-appli.txt et grep log_level config-appli.txt donnent les valeurs.', 'Tout ce qui est dans l\'application est lisible par ses utilisateurs : une clé en dur doit être révoquée.'],
+    check: checker('SIM17-2', tw => { const c = appConfig(tw); return [ask('cle_en_dur', 'txt', c.key), ask('adresse_non_chiffree', 'txt', c.legacy), ask('epinglage_actif', 'txt', c.pin), ask('niveau_de_journalisation', 'txt', c.level)]; }, d2), finish: 'Configuration relue : clé en dur, adresse en clair, épinglage et journalisation évalués.' });
+}
+// ---------------------------------------------------------------- SIM19 : cloud (audit défensif d'un compte fictif)
+const cloudData = tw => { const R = rng(tw.seed * 131 + 1); const users = R.shuffle(['svc-sauvegarde', 'svc-site', 'dev-marie', 'dev-paul', 'compta-lea']).slice(0, 4); const root = R.pick(users);
+  const pol = users.map(u => `{"utilisateur":"${u}","actions":${u === root ? '["*"]' : '["stockage:Lire"]'},"ressources":${u === root ? '["*"]' : `["arn:fictif:stockage:::${R.pick(['sauvegardes', 'site', 'documents'])}/*"]`}}`).join('\n') + '\n';
+  const bkts = R.shuffle(['sauvegardes', 'site-statique', 'documents-rh', 'journaux']); const pub = R.pick(bkts); const rows = bkts.map(b => ({ b, acl: b === pub ? 'public-lecture' : 'prive', enc: R.pick(['oui', 'oui', 'non']), log: R.pick(['oui', 'non']) })); rows[0].enc = 'non'; rows[1].log = 'non';
+  const buckets = 'nom;acl;chiffrement;journalisation\n' + rows.map(r => `${r.b};${r.acl};${r.enc};${r.log}`).join('\n') + '\n';
+  const dates = R.shuffle(['2024-03-10', '2025-01-18', '2026-09-02', '2026-10-21']); const keys = 'utilisateur;cree_le;derniere_utilisation\n' + users.map((u, i) => `${u};${dates[i]};2026-11-1${i}`).join('\n') + '\n'; const oldest = users[dates.indexOf('2024-03-10')];
+  return { pol, buckets, keys, root, pub, oldest, noEnc: rows.filter(r => r.enc === 'non').map(r => r.b), noLog: rows.filter(r => r.log === 'non').map(r => r.b) }; };
+{
+  const d1 = tw => defense(tw, 191, 'Appliquer le moindre privilège (retirer le droit total), rendre le stockage privé et renouveler les clés anciennes', ['Garder les droits totaux mais changer le nom de l\'utilisateur', 'Rendre le stockage public pour simplifier les accès']);
+  M.push({ id: 'SIM19-1', title: 'Cloud : droits trop larges, stockage public, clé ancienne', module: 'SIM19 · Cloud', points: 35, difficulty: 2, lesson: 'SIM19-cloud', code: 'SIM19·1', duree: '40 min',
+    setup: tw => { const c = cloudData(tw); return { 'reponses.txt': tmpl(['utilisateur_droits_totaux', 'stockage_public', 'utilisateur_cle_la_plus_ancienne', 'defense']), 'politiques-iam.jsonl': c.pol, 'stockage.csv': c.buckets, 'cles-acces.csv': c.keys }; },
+    enonce: tw => `${head(tw)}
+MISSION : audit d'un compte cloud fictif de ${tw.orgName} : politiques d'accès (politiques-iam.jsonl), espaces de
+stockage (stockage.csv) et clés d'accès (cles-acces.csv).
+
+À FAIRE
+  1 utilisateur_droits_totaux        l'utilisateur dont la politique autorise toutes les actions sur toutes les ressources
+  2 stockage_public                  l'espace dont l'acl est « public-lecture »
+  3 utilisateur_cle_la_plus_ancienne l'utilisateur dont la clé a été créée le plus tôt
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep \'"actions":\\["\\*"\\]\' politiques-iam.jsonl cherche le droit total.', 'grep public-lecture stockage.csv désigne l\'espace ouvert à tous.', 'sort -t";" -k2 cles-acces.csv trie par date de création (la plus ancienne en premier, hors en-tête).', 'Une clé ancienne et un droit total sont des constats prioritaires.'],
+    check: checker('SIM19-1', tw => { const c = cloudData(tw); return [ask('utilisateur_droits_totaux', 'txt', c.root), ask('stockage_public', 'txt', c.pub), ask('utilisateur_cle_la_plus_ancienne', 'txt', c.oldest)]; }, d1), finish: 'Compte cloud audité : privilèges excessifs, stockage ouvert et clé ancienne repérés.' });
+  const d2 = tw => defense(tw, 192, 'Activer le chiffrement et la journalisation sur chaque espace de stockage, en commençant par ceux qui contiennent des données personnelles', ['Activer la journalisation seulement sur l\'espace public', 'Supprimer les journaux pour économiser de l\'espace']);
+  M.push({ id: 'SIM19-2', title: 'Cloud : chiffrement et journalisation du stockage', module: 'SIM19 · Cloud', points: 30, difficulty: 2, lesson: 'SIM19-cloud', code: 'SIM19·2', duree: '30 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['espaces_non_chiffres', 'espaces_sans_journalisation', 'defense']), 'stockage.csv': cloudData(tw).buckets }),
+    enonce: tw => `${head(tw)}
+MISSION : vérifiez l'hygiène des espaces de stockage fictifs de ${tw.orgName} (stockage.csv).
+
+À FAIRE
+  1 espaces_non_chiffres        les espaces dont la colonne chiffrement vaut « non » (séparés par des virgules)
+  2 espaces_sans_journalisation les espaces dont la colonne journalisation vaut « non »
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$3=="non" {print $1}\' stockage.csv liste les espaces non chiffrés.', 'Même méthode avec $4 pour la journalisation.', 'La première ligne est l\'en-tête du tableau : elle ne compte pas.', 'Sans journalisation, un accès anormal ne laisse aucune trace exploitable.'],
+    check: checker('SIM19-2', tw => { const c = cloudData(tw); return [ask('espaces_non_chiffres', 'set', c.noEnc.join(',')), ask('espaces_sans_journalisation', 'set', c.noLog.join(','))]; }, d2), finish: 'Stockage évalué : espaces non chiffrés et sans journal identifiés.' });
+}
+// ---------------------------------------------------------------- SIM20 : cryptographie (audit défensif de certificats)
+const certInfo = tw => { const R = rng(tw.seed * 137 + 2); const exp = R.pick(['2026-08-04', '2027-03-14', '2026-12-01', '2028-01-20']); const sig = R.pick(['sha1WithRSAEncryption', 'sha256WithRSAEncryption']); const bits = R.pick([1024, 2048, 4096]);
+  const text = `Certificate:\n    Data:\n        Version: 3 (0x2)\n        Signature Algorithm: ${sig}\n        Issuer: CN = Autorite-Demo-${tw.slug}\n        Validity\n            Not Before: 2025-11-14\n            Not After : ${exp}\n        Subject: CN = www.${tw.domain}\n        Public Key Algorithm: rsaEncryption\n            RSA Public-Key: (${bits} bit)\n`; return { text, exp, sig, bits, expired: exp < '2026-11-15' ? 'oui' : 'non' }; };
+const certInventory = tw => { const R = rng(tw.seed * 137 + 4); const names = R.shuffle(['www', 'mail', 'vpn', 'api', 'intranet']); const dates = R.shuffle(['2026-09-30', '2026-11-28', '2027-02-10', '2027-08-01', '2026-12-20']); const sigs = R.shuffle(['sha1', 'sha256', 'sha256', 'sha1', 'sha256']);
+  const rows = names.map((n, i) => ({ n: `${n}.${tw.domain}`, d: dates[i], s: sigs[i] })); const text = 'hote;expiration;signature\n' + rows.map(r => `${r.n};${r.d};${r.s}`).join('\n') + '\n# date du relevé : 2026-11-15\n';
+  return { text, expired: rows.filter(r => r.d < '2026-11-15').map(r => r.n), soon: rows.filter(r => r.d >= '2026-11-15' && r.d <= '2026-12-15').map(r => r.n), weak: rows.filter(r => r.s === 'sha1').map(r => r.n) }; };
+{
+  const d1 = tw => defense(tw, 201, 'Renouveler le certificat avant son expiration avec une clé d\'au moins 2048 bits et une signature SHA-256, puis automatiser le suivi des échéances', ['Prolonger la date d\'expiration dans l\'affichage du serveur', 'Désactiver la vérification de certificat chez les clients']);
+  M.push({ id: 'SIM20-1', title: 'Cryptographie : lire un certificat', module: 'SIM20 · Cryptographie', points: 30, difficulty: 2, lesson: 'SIM20-cryptographie', code: 'SIM20·1', duree: '30 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['date_expiration', 'algorithme_signature', 'taille_cle', 'certificat_expire', 'defense']), 'certificat.txt': certInfo(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : relisez le certificat du serveur web www (certificat.txt, fictif, au format d'un relevé openssl).
+Nous sommes le 15/11/2026.
+
+À FAIRE
+  1 date_expiration       la date « Not After » (format AAAA-MM-JJ)
+  2 algorithme_signature  l'algorithme de signature (ex : sha256WithRSAEncryption)
+  3 taille_cle            la taille de la clé RSA en bits (nombre)
+  4 certificat_expire     oui si la date d'expiration est dépassée, sinon non
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep "Not After" certificat.txt donne la date de fin de validité.', 'grep Signature certificat.txt donne l\'algorithme : sha1 est obsolète.', 'grep "bit" certificat.txt donne la taille de clé : 1024 bits est insuffisant.', 'Comparez la date d\'expiration à la date du jour (2026-11-15).'],
+    check: checker('SIM20-1', tw => { const c = certInfo(tw); return [ask('date_expiration', 'txt', c.exp), ask('algorithme_signature', 'txt', c.sig), ask('taille_cle', 'num', c.bits), ask('certificat_expire', 'txt', c.expired)]; }, d1), finish: 'Certificat lu : échéance, algorithme et taille de clé évalués.' });
+  const d2 = tw => defense(tw, 202, 'Renouveler d\'abord les certificats expirés, planifier ceux qui expirent sous 30 jours et remplacer les signatures SHA-1', ['Attendre l\'expiration pour renouveler', 'Remplacer tous les certificats le même jour sans test']);
+  M.push({ id: 'SIM20-2', title: 'Cryptographie : inventaire des certificats', module: 'SIM20 · Cryptographie', points: 35, difficulty: 2, lesson: 'SIM20-cryptographie', code: 'SIM20·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['certificats_expires', 'expirent_sous_30_jours', 'signatures_sha1', 'defense']), 'inventaire-certificats.csv': certInventory(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : inventaire des certificats de ${tw.orgName} (inventaire-certificats.csv, relevé du 15/11/2026).
+
+À FAIRE
+  1 certificats_expires      les hôtes dont la date d'expiration est antérieure au 2026-11-15 (séparés par des virgules)
+  2 expirent_sous_30_jours   les hôtes dont l'expiration est entre le 2026-11-15 et le 2026-12-15 inclus
+  3 signatures_sha1          les hôtes dont la signature est sha1
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Les dates au format AAAA-MM-JJ se comparent comme du texte : awk -F";" \'$2<"2026-11-15"\'.', 'Pour la fenêtre de 30 jours, gardez les dates comprises entre 2026-11-15 et 2026-12-15.', 'awk -F";" \'$3=="sha1" {print $1}\' liste les signatures obsolètes.', 'Ignorez la ligne d\'en-tête et la ligne de commentaire (#).'],
+    check: checker('SIM20-2', tw => { const c = certInventory(tw); return [ask('certificats_expires', 'set', c.expired.join(',')), ask('expirent_sous_30_jours', 'set', c.soon.join(',')), ask('signatures_sha1', 'set', c.weak.join(','))]; }, d2), finish: 'Inventaire trié : certificats expirés, proches de l\'échéance et à signature obsolète.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

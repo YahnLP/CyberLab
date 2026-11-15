@@ -1,6 +1,12 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest, volet audit défensif : leçons SIM17 (mobile), SIM19 (cloud), SIM20 (certificats) et 6 missions : SIM17-1 (manifeste), SIM17-2 (configuration embarquée), SIM19-1 (droits, stockage public, clés), SIM19-2 (chiffrement et journalisation), SIM20-1 (lecture d'un certificat), SIM20-2 (inventaire des certificats).
+- SIM16 (sans fil) et SIM18 (IoT/OT) sont reportés, à cadrer avec le formateur.
+- Tests : 34 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 36 leçons.
+
+## Non publié
+
 - Parcours pentest : leçons SIM13 (serveur web), SIM14 (application web), SIM15 (couche SQL) et 6 missions : SIM13-1, SIM13-2, SIM14-1, SIM14-2, SIM15-1, SIM15-2.
 - Jumeau numérique : formulaire de recherche (chemin et paramètre tirés au hasard) qui renvoie la saisie sans l'échapper, page `/produit` à requête vulnérable simulée par un mini-évaluateur SQL (erreurs de type MySQL, `OR`, commentaires), catalogue fictif avec un produit réservé. Aucune base réelle, aucune donnée réelle.
 - Tests : 28 missions résolues dans le simulateur (1320 contrôles) ; `tests/check-cours.sh` contrôle 33 leçons.
