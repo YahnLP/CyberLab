@@ -12,7 +12,8 @@ Statut : **cadrage validé** (nom, offre, prix, financement, quatre modules comp
 | Effort moyen | **6 h 30 par semaine**, soit environ **14 semaines** (≈ 90 h au total) |
 | Financement | Ni CPF ni Qualiopi pour le moment |
 | Communication avec le formateur | **E-mail en priorité** |
-| Plateforme | Campus (formateur : modules et leçons ; responsable pédagogique : formation et affectation des apprenants) |
+| Plateforme | **Tout est géré sur Campus** (formateur : modules et leçons ; responsable pédagogique : formation et affectation des apprenants). Le simulateur CyberLab est **indépendant** de la formation et sert de **support d'entraînement** |
+| Contenus | **Nouveaux contenus rédigés pour les apprenants**, plus clairs que les leçons du simulateur : explications progressives, schémas, exemples fil rouge, encadrés « à retenir » et « erreur fréquente », mini-quiz. Les leçons du dépôt servent de base technique, pas de texte final |
 | Modules complémentaires | SIM07, SIM09, SIM16, SIM18 validés (voir `CADRAGE-SIM07-09-16-18.md`) |
 
 ## 2. Nom et texte pour le site formaxionlandes.fr
@@ -99,33 +100,41 @@ Compléments **optionnels** (hors volume) : Parcours sécurité offensive SO1 à
 
 ## 8. Plateforme Campus et rôles
 
-Campus a été consulté en lecture seule. Fonctions constatées : modules de leçons et de QCM, formations regroupant des modules, suivi des apprenants avec avancement individuel, certificats, pages légales et RGPD. Les 20 modules déjà présents (TSSR, démonstration) servent de modèle.
+Campus a été consulté avec votre session. Fonctions constatées et utilisées :
+
+- **Modules** composés de leçons, de QCM, de livrables, d'épreuves blanches et d'exercices Python ; **formations** regroupant des modules.
+- **Leçons en Markdown** (import de fichiers possible), avec tableaux, code, formules, vidéos, images, réponses déroulantes et **schémas Mermaid** (organigrammes, séquences, cycles) dessinés dans la leçon. Le SVG brut n'est **pas** conservé : les schémas passent par Mermaid.
+- **QCM** : questions fixes (format texte) et banque de questions, seuil de réussite, nombre d'essais, correction détaillée.
+- **Livrables** notés sur 20 points avec dépôts successifs et correction depuis « Corrections » : c'est le support du **projet final**.
+- **Forum** (avec modération), **suivi des apprenants**, **certificats**, pages légales et RGPD.
 
 | Rôle | Actions dans Campus |
 |---|---|
-| **Formateur** | Crée les **14 modules** et leurs **leçons** (une leçon par leçon CyberLab, avec lien vers le simulateur et consigne de mission) ; saisit les **QCM** ; relit les projets |
-| **Responsable pédagogique** | Crée la formation **Cyber Déclic** (assemblage des 14 modules dans l'ordre) ; **affecte les apprenants** à leur inscription ; suit les avancements et délivre les certificats |
+| **Formateur** | Crée les **14 modules** et leurs **leçons** ; écrit les **QCM** et le **livrable** du projet ; corrige les livrables |
+| **Responsable pédagogique** | Crée la formation **Cyber Déclic** (assemblage des modules publiés, dans l'ordre) ; **affecte les apprenants** ; suit les avancements ; délivre les certificats |
 
-Bonnes pratiques à convenir entre les deux rôles :
-- Le formateur laisse les modules en **brouillon** jusqu'à relecture, puis les publie.
-- Le responsable pédagogique n'ouvre la formation aux inscriptions qu'une fois les 14 modules publiés.
-- Chaque nouvelle entrée déclenche : affectation dans Campus, e-mail d'accueil (charte, lien du simulateur, adresse de suivi).
+Bonnes pratiques :
+- Les modules restent en **brouillon** jusqu'à relecture, puis sont publiés (un module non publié ne peut pas entrer dans une formation).
+- Chaque leçon renvoie au simulateur CyberLab comme exercice d'entraînement.
+- Chaque nouvelle entrée déclenche : affectation, e-mail d'accueil (charte, lien du simulateur, adresse de suivi).
 
-Non constaté, à vérifier : dépôt de fichiers par l'apprenant (sinon, e-mail), échanges internes. Avant l'ouverture publique : accessibilité depuis Internet, sauvegardes, RGPD pour les apprenants extérieurs.
+À vérifier avant l'ouverture publique : accessibilité depuis Internet, sauvegardes (le module s'exporte en fichier .json), RGPD pour les apprenants extérieurs.
 
 ## 9. Temps de préparation (une fois)
 
+Les contenus sont **réécrits pour les apprenants** (et non repris du simulateur) : cela représente l'essentiel de la charge.
+
 | Tâche | Heures | Qui |
 |---|---|---|
-| Structuration des 14 modules et fiches de module | 20 | Formateur |
-| Création des modules et des leçons dans Campus (≈ 40 leçons) | 45 | Formateur |
-| QCM (13 modules × 6 à 8 questions) et grille du projet | 15 | Formateur |
+| Structuration des 14 modules et fiches de module | 15 | Formateur |
+| Rédaction des **≈ 50 leçons** illustrées (explications, schémas Mermaid, exemples, mini-quiz) : ≈ 2 h par leçon, relecture comprise | 100 | Formateur |
+| QCM (13 modules × 6 à 8 questions) et livrable du projet avec grille | 15 | Formateur |
 | Charte, conditions, livret d'accueil, e-mails types | 10 | Formateur |
 | Tests complets du parcours (compte apprenant de test) | 12 | Formateur |
 | Création de la formation et réglages d'inscription | 4 | Responsable pédagogique |
-| **Total** | **106 h** | |
+| **Total** | **156 h** | |
 
-Les contenus eux-mêmes (40 leçons, 41 missions, 17 défis) sont déjà produits.
+La rédaction peut être assistée pour gagner du temps ; chaque leçon est **relue et publiée par le formateur**. À 80 € l'heure, la préparation représente **≈ 12 500 €** de temps valorisé (contre 8 480 € dans l'estimation initiale).
 
 ## 10. Coût
 
@@ -135,7 +144,7 @@ Les contenus eux-mêmes (40 leçons, 41 missions, 17 défis) sont déjà produit
 - Suivi par apprenant : **5 h** (réponses aux e-mails 2 h, suivi hebdomadaire dans Campus 1 h, bilan de mi-parcours 0,5 h, correction du projet et retour 1,5 h) + **0,5 h** d'administration (affectation, accueil, attestation) = **5,5 h**, soit 440 €.
 - Outils et hébergement : **1 000 € par an** (hypothèse à remplacer par vos coûts).
 - Mix de tarifs : 70 % au plein tarif (990 €), 30 % au tarif réduit (690 €), soit un prix moyen de **900 €**.
-- Préparation : 106 h × 80 € = **8 480 €**, à rentabiliser.
+- Préparation : 156 h × 80 € = **12 480 €**, à rentabiliser.
 
 ### Par apprenant
 
@@ -147,13 +156,13 @@ Les contenus eux-mêmes (40 leçons, 41 missions, 17 défis) sont déjà produit
 
 ### Selon le nombre d'inscrits par an
 
-| Inscrits par an | Recettes | Coût de suivi | Outils | Reste pour amortir la préparation (8 480 €) |
+| Inscrits par an | Recettes | Coût de suivi | Outils | Reste pour amortir la préparation (12 480 €) |
 |---|---|---|---|---|
 | 10 | 9 000 € | 4 400 € | 1 000 € | 3 600 € |
 | 20 | 18 000 € | 8 800 € | 1 000 € | 8 200 € |
 | 30 | 27 000 € | 13 200 € | 1 000 € | 12 800 € |
 
-La préparation est rentabilisée à **environ 21 inscrits** (8 480 ÷ 460 ≈ 18, plus ≈ 2 pour les outils), soit un peu plus d'**un an** à 20 inscrits par an ou **deux ans et demi** à 10. Le **temps de suivi par apprenant** est le levier principal : chaque heure de suivi en plus coûte 80 € par inscrit.
+La préparation est rentabilisée à **environ 30 inscrits** (12 480 ÷ 460 ≈ 27, plus ≈ 2 pour les outils), soit **un an et demi** à 20 inscrits par an ou **trois ans** à 10. Si vous ne valorisez pas votre temps de rédaction, le coût réel de départ est surtout l'hébergement. Le **temps de suivi par apprenant** est le levier principal : chaque heure de suivi en plus coûte 80 € par inscrit.
 
 Le résultat est une **valorisation de votre temps**, avant cotisations, impôts et TVA. Le régime de TVA de la formation et les cotisations sont à valider avec votre comptable.
 
