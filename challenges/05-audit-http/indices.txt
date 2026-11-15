@@ -1,0 +1,5 @@
+grep -il 'content-security-policy' pages/* liste les pages qui possèdent l'en-tête (-i ignore la casse).
+Pour trouver ce qui manque : grep -iL (L majuscule) liste les fichiers SANS correspondance.
+Le statut est sur la première ligne : head -n1 pages/login.http
+Un cookie : Set-Cookie: nom=valeur; attributs ; l'attribut HttpOnly est un mot isolé.
+basename fichier .http donne le nom de la page.

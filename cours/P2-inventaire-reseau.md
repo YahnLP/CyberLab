@@ -1,6 +1,6 @@
 # P2 · Inventaire réseau
 
-Durée : 1 h · Prérequis : P1 · Défi associé : à créer
+Durée : 1 h · Prérequis : P1 · Défi associé : 03 · Écarts d'inventaire
 
 ## Objectifs
 - Lire une configuration IP et calculer une plage CIDR.

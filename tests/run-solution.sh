@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
-# Test de non-régression : joue le corrigé formateur contre le défi 01 dans un HOME jetable.
+# Joue chaque corrigé formateur contre son défi dans un HOME jetable. Usage : tests/run-solution.sh [NN ...]
 set -u
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"; export BASHLAB_HOME="$ROOT" HOME="$(mktemp -d)"
-D="$ROOT/engine/defi"
-$D start 01 >/dev/null || exit 1
-cd "$HOME/atelier/01-incident-ssh" || exit 1
-echo "--- avant corrigé (doit échouer) :"; $D valider >/dev/null && { echo "ANOMALIE : validé sans rien faire"; exit 1; } || echo "échec attendu OK"
-bash "$ROOT/formateur/solutions/01-incident-ssh.sh" || exit 1
-echo "--- après corrigé :"; $D valider
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"; export BASHLAB_HOME="$ROOT"
+D="$ROOT/engine/defi"; ids=("$@"); rc=0
+[ ${#ids[@]} -eq 0 ] && for f in "$ROOT"/formateur/solutions/*.sh; do ids+=("$(basename "$f" | cut -d- -f1)"); done
+for id in "${ids[@]}"; do
+  export HOME; HOME="$(mktemp -d)"
+  sol=$(ls "$ROOT"/formateur/solutions/"$id"-*.sh) || { echo "pas de corrigé pour $id"; rc=1; continue; }
+  name=$(basename "$sol" .sh)
+  $D start "$id" >/dev/null || { echo "KO $id : start"; rc=1; continue; }
+  cd "$HOME/atelier/$name" || { echo "KO $id : atelier"; rc=1; continue; }
+  if $D valider >/dev/null 2>&1; then echo "KO $id : validé sans rien faire"; rc=1; continue; fi
+  bash "$sol" >/dev/null 2>&1 || { echo "KO $id : le corrigé échoue"; rc=1; continue; }
+  if $D valider >/tmp/out.$$ 2>&1; then echo "OK $id : $name"; else echo "KO $id : corrigé refusé"; sed 's/\x1b\[[0-9;]*m//g' /tmp/out.$$ | grep -E '✘'; rc=1; fi
+done
+exit $rc

@@ -8,6 +8,10 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 | Défi | Séquence | Points |
 |---|---|---|
 | 01 · Incident SSH : détecter, contenir, corriger | Séquence 5 · Cyber-défense | 60 |
+| 02 · Fiche de reconnaissance | Séquence 6 · Parcours métier | 30 |
+| 03 · Écarts d'inventaire | Séquence 6 · Parcours métier | 30 |
+| 04 · Services exposés | Séquence 6 · Parcours métier | 35 |
+| 05 · Audit HTTP | Séquence 6 · Parcours métier | 35 |
 
 ## Cours
 17 leçons originales réparties en trois parcours (Fondations, Parcours métier P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
@@ -23,7 +27,7 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 
 ## Tester
 ```bash
-bash tests/run-solution.sh      # joue le corrigé formateur contre le défi
+bash tests/run-solution.sh      # joue chaque corrigé formateur contre son défi (ou : run-solution.sh 03)
 docker compose up --build       # terminal web sur le port 7681
 ```
 Le corrigé (`formateur/solutions/`) n'est pas copié dans l'image.

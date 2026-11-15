@@ -1,0 +1,17 @@
+SERVICES EXPOSÉS — la surface d'attaque correspond-elle à la politique ?
+
+Données :
+  scan.gnmap      « nmap -sV -oG » sur le segment (ports open / filtered, versions)
+  politique.csv   ports autorisés par hôte (ip;ports_autorises)
+
+À produire :
+ 1 reponses.txt    ports_ouverts : nombre total de ports OPEN, tous hôtes
+                   confondus ; ports_filtres : nombre total de ports FILTERED
+ 2 non-conformes.txt  un « ip:port » par ligne : port ouvert absent de la
+                   politique de son hôte. S'il n'y en a aucun, écrivez : aucun
+ 3 en-clair.txt    un « ip:port » par ligne : ports ouverts dont le protocole
+                   transmet les identifiants en clair (FTP 21, Telnet 23),
+                   qu'ils soient autorisés ou non. S'il n'y en a aucun : aucun
+
+Un port « filtered » n'est ni ouvert ni fermé : ne le comptez pas comme ouvert.
+Validation : defi valider

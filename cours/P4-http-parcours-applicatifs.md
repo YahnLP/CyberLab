@@ -1,6 +1,6 @@
 # P4 · HTTP et parcours applicatifs
 
-Durée : 1 h 15 · Prérequis : P3 · Défi associé : à créer
+Durée : 1 h 15 · Prérequis : P3 · Défi associé : 05 · Audit HTTP
 
 ## Objectifs
 - Lire une requête et une réponse HTTP.

@@ -1,0 +1,20 @@
+ÉCARTS D'INVENTAIRE — l'inventaire officiel est-il fidèle au réseau ?
+
+Vous disposez de trois sources :
+  inventaire.csv     ce qui devrait exister (ip;nom;type)
+  scan-ping.gnmap    sortie de « nmap -sn -oG » (découverte par ICMP/ARP)
+  arp.txt            sortie de « ip neigh » prise sur le même segment
+  cidr.txt           une plage à dimensionner
+
+À produire :
+ 1 inconnus.txt   les adresses vues (scan OU table ARP) mais absentes de
+                  l'inventaire : équipements non gérés ou intrus
+ 2 absents.txt    les adresses de l'inventaire qui n'apparaissent NULLE PART
+                  (attention : une entrée « FAILED » dans la table ARP n'est
+                  pas une preuve de présence)
+ 3 reponses.txt   hote_icmp_filtre : l'adresse inventoriée présente dans la table
+                  ARP mais qui n'a pas répondu au scan ;
+                  adresses_utilisables : nombre d'hôtes utilisables de la plage
+                  de cidr.txt
+
+Validation : defi valider

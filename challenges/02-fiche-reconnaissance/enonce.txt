@@ -1,0 +1,19 @@
+FICHE DE RECONNAISSANCE — mandat AUD-2026-014 (domaine fictif exemple.test)
+
+Avant tout test actif, vous préparez la fiche de reconnaissance. Données :
+  zone.txt     enregistrements DNS publics de la zone
+  scope.txt    périmètre autorisé et exclusions
+  headers.txt  en-têtes HTTP relevés sur le site web (curl -sI)
+
+À produire :
+ 1 perimetre.txt   un nom complet par ligne (www.exemple.test) : uniquement les
+                   noms qui RÉSOLVENT vers une adresse du périmètre et hors
+                   exclusions. Pensez aux alias (CNAME) : ils suivent leur cible.
+ 2 reponses.txt    nb_mx (nombre d'enregistrements MX), serveur (nginx ou
+                   apache), version_annoncee (ex : 1.22.1), statut_version
+                   (fait ou hypothese : que vaut une version lue dans une
+                   bannière ?), en_tetes_a_masquer (liste séparée par des
+                   virgules des en-têtes qui divulguent la technologie).
+
+Aucun test réseau : tout se fait par lecture de fichiers (grep, awk, sort).
+Validation : defi valider
