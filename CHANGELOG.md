@@ -1,6 +1,12 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçons SIM13 (serveur web), SIM14 (application web), SIM15 (couche SQL) et 6 missions : SIM13-1, SIM13-2, SIM14-1, SIM14-2, SIM15-1, SIM15-2.
+- Jumeau numérique : formulaire de recherche (chemin et paramètre tirés au hasard) qui renvoie la saisie sans l'échapper, page `/produit` à requête vulnérable simulée par un mini-évaluateur SQL (erreurs de type MySQL, `OR`, commentaires), catalogue fictif avec un produit réservé. Aucune base réelle, aucune donnée réelle.
+- Tests : 28 missions résolues dans le simulateur (1320 contrôles) ; `tests/check-cours.sh` contrôle 33 leçons.
+
+## Non publié
+
 - Parcours pentest : leçons SIM10 (disponibilité), SIM11 (sessions et cookies), SIM12 (pare-feu et détection d'intrusion) et 6 missions : SIM10-1, SIM10-2, SIM11-1, SIM11-2, SIM12-1, SIM12-2.
 - Données générées par graine : journal web nginx, métriques de supervision, en-têtes Set-Cookie, journal de connexions, règles de pare-feu, alertes IDS ; SIM12-1 se recoupe avec un scan `nmap -p-` du serveur web du jumeau.
 - Tests : 22 missions résolues dans le simulateur (1080 contrôles) ; correction d'un défaut du solveur de test (lecture des lignes de `nmap` sans `-sV`).

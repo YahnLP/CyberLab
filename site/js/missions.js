@@ -501,6 +501,122 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['grep -o \'\\[1:[0-9]*\' alertes-ids.log | sort | uniq -c | sort -rn | head -1 donne la signature la plus fréquente.', 'grep -o "{TCP} [0-9.]*" alertes-ids.log | sort | uniq -c | sort -rn compte les alertes par source.', 'grep -c ADRESSE_AUDIT alertes-ids.log compte les alertes de votre poste (cherchez « {TCP} ADRESSE »).', 'Une alerte provoquée par un test autorisé reste à noter, pas à traiter comme une attaque.'],
     check: checker('SIM12-2', tw => { const l = idsLog(tw); return [ask('sid_le_plus_frequent', 'num', l.top), ask('ip_attaque_externe', 'txt', l.ext), ask('alertes_du_poste_audit', 'num', l.auditN)]; }, d2), finish: 'Alertes triées : l\'attaque externe est isolée et vos propres tests sont reconnus.' });
 }
+// ---------------------------------------------------------------- SIM13 : serveur web (configuration et sondages)
+const webConf = tw => { const R = rng(tw.seed * 101 + 4); const weak = R.pick([['TLSv1', 'TLSv1.1'], ['TLSv1.1'], ['TLSv1']]); const strong = ['TLSv1.2', 'TLSv1.3']; const protos = [...weak, ...strong]; const tokens = R.pick(['on', 'off']); const W = tw.web;
+  const hdrs = W.present.map(h => `    add_header ${h} "${h === 'Strict-Transport-Security' ? 'max-age=31536000' : h === 'X-Frame-Options' ? 'SAMEORIGIN' : h === 'X-Content-Type-Options' ? 'nosniff' : "default-src 'self'"}" always;`);
+  const text = `# /etc/nginx/sites-enabled/www (extrait)\nserver {\n    listen 443 ssl;\n    server_name www.${tw.domain};\n    ssl_protocols ${protos.join(' ')};\n    server_tokens ${tokens};\n${hdrs.join('\n')}\n    root /var/www/html;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n    location ${W.leakPath} {\n        autoindex on;\n    }\n    location /admin/ {\n        auth_basic "Administration";\n        auth_basic_user_file /etc/nginx/.htpasswd;\n    }\n}\n`;
+  return { text, weak, tokens, nHdr: W.present.length }; };
+const probeLog = tw => { const R = rng(tw.seed * 101 + 6); const bot = `198.51.100.${R.int(10, 240)}`; const probes = R.shuffle(['/.git/config', '/.env', '/backup.zip', '/wp-login.php', '/phpmyadmin/', '/server-status', '/config.php.bak', '/admin.php', '/.htpasswd', '/dump.sql', '/test.php', '/info.php']); const exposed = R.pick(['/.env', '/backup.zip', '/dump.sql', '/config.php.bak']); const nProbe = R.int(8, 12); const used = probes.slice(0, nProbe); if (!used.includes(exposed)) used[0] = exposed; const clients = Array.from({ length: 8 }, () => `203.0.113.${R.int(150, 250)}`); const rows = []; const row = (t, ip, path, st, sz, ua = 'Mozilla/5.0') => rows.push({ t, line: `${ip} - - [15/Nov/2026:15:${pad2(Math.floor(t / 60))}:${pad2(t % 60)} +0000] "GET ${path} HTTP/1.1" ${st} ${sz} "-" "${ua}"` });
+  for (let i = 0; i < 90; i++) row(R.int(0, 1799), R.pick(clients), R.pick(['/', '/produits', '/contact', '/actualites']), 200, R.int(900, 9000));
+  const t0 = R.int(200, 900); used.forEach((pth, i) => row(t0 + i * 2, bot, pth, pth === exposed ? 200 : R.pick([404, 404, 403]), pth === exposed ? R.int(300, 4000) : 162, 'Nikto/2.5.0')); return { text: rows.sort((a, b) => a.t - b.t).map(r => r.line).join('\n') + '\n', bot, exposed, n: used.length }; };
+{
+  const d1 = tw => defense(tw, 131, 'Désactiver l\'index automatique, retirer les protocoles TLS obsolètes, masquer la version et ajouter les en-têtes de sécurité manquants', ['Garder la configuration et ajouter un robots.txt', 'Passer le serveur derrière un nom de domaine plus discret']);
+  M.push({ id: 'SIM13-1', title: 'Serveur web : relire la configuration nginx', module: 'SIM13 · Serveur web', points: 35, difficulty: 2, lesson: 'SIM13-serveur-web', code: 'SIM13·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['chemin_index_ouvert', 'protocoles_tls_faibles', 'server_tokens', 'nombre_en_tetes_securite', 'defense']), 'nginx.conf': webConf(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : relisez la configuration du serveur web www (extrait nginx.conf) comme le ferait un auditeur.
+
+À FAIRE
+  1 chemin_index_ouvert        le chemin dont le contenu est listé automatiquement (autoindex on)
+  2 protocoles_tls_faibles     les protocoles TLS obsolètes autorisés (TLSv1, TLSv1.1), séparés par des virgules
+  3 server_tokens              la valeur de server_tokens (on ou off)
+  4 nombre_en_tetes_securite   le nombre d'en-têtes de sécurité configurés (lignes add_header)
+${faceBlue(d1(tw))}
+Recoupez avec le site : curl -I http://www.${tw.domain}/ montre les en-têtes réellement envoyés.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep -n autoindex nginx.conf donne la ligne ; remontez au bloc location voisin.', 'grep ssl_protocols nginx.conf liste les protocoles : TLSv1 et TLSv1.1 sont obsolètes.', 'grep -c add_header nginx.conf compte les en-têtes configurés (0 est possible).', 'server_tokens on laisse la version dans l\'en-tête Server.'],
+    check: checker('SIM13-1', tw => { const c = webConf(tw); return [ask('chemin_index_ouvert', 'txt', tw.web.leakPath), ask('protocoles_tls_faibles', 'set', c.weak.join(',')), ask('server_tokens', 'txt', c.tokens), ask('nombre_en_tetes_securite', 'num', c.nHdr)]; }, d1), finish: 'Configuration relue : index ouvert, protocoles obsolètes et en-têtes manquants relevés.' });
+  const d2 = tw => defense(tw, 132, 'Retirer immédiatement le fichier exposé du site public, changer les secrets qu\'il contient et bloquer les chemins sensibles', ['Renommer le fichier pour qu\'il soit moins évident', 'Bloquer uniquement l\'adresse de ce visiteur']);
+  M.push({ id: 'SIM13-2', title: 'Serveur web : un outil de sondage a trouvé un fichier', module: 'SIM13 · Serveur web', points: 35, difficulty: 2, lesson: 'SIM13-serveur-web', code: 'SIM13·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ip_sonde', 'nombre_chemins_testes', 'chemin_expose', 'defense']), 'access.log': probeLog(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : un visiteur a testé des chemins sensibles (sondage automatique). Retrouvez-le dans access.log et
+dites ce qu'il a trouvé.
+
+À FAIRE
+  1 ip_sonde               l'adresse du visiteur dont l'agent client est « Nikto »
+  2 nombre_chemins_testes  le nombre de chemins différents qu'il a demandés
+  3 chemin_expose          le seul chemin sensible auquel le serveur a répondu 200
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep Nikto access.log isole les lignes de l\'outil.', 'awk \'{print $7}\' sur ces lignes | sort -u | wc -l compte les chemins distincts.', 'Le code de réponse est le champ 9 : 404 et 403 = refusé, 200 = trouvé.', 'Un fichier de configuration ou une sauvegarde qui répond 200 est un secret exposé.'],
+    check: checker('SIM13-2', tw => { const l = probeLog(tw); return [ask('ip_sonde', 'txt', l.bot), ask('nombre_chemins_testes', 'num', l.n), ask('chemin_expose', 'txt', l.exposed)]; }, d2), finish: 'Sondage reconstitué : vous savez qui a cherché quoi, et ce que le serveur a livré.' });
+}
+// ---------------------------------------------------------------- SIM14 : application web (réflexion et revue de code)
+{
+  const d1 = tw => defense(tw, 141, 'Encoder la valeur à l\'affichage (échappement HTML) et ajouter une politique de contenu (CSP)', ['Interdire seulement le mot « script » dans la recherche', 'Mettre le formulaire en méthode POST sans autre changement']);
+  M.push({ id: 'SIM14-1', title: 'Application web : une recherche qui renvoie ce qu\'on lui donne', module: 'SIM14 · Application web', points: 35, difficulty: 2, lesson: 'SIM14-application-web', code: 'SIM14·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['chemin_recherche', 'parametre', 'balise_renvoyee_telle_quelle', 'type_de_faille', 'defense']) }),
+    enonce: tw => `${head(tw)}
+MISSION : la page d'accueil de http://www.${tw.domain}/ propose une recherche. Étudiez-la avec curl, sans rien casser.
+
+À FAIRE
+  1 chemin_recherche             le chemin du formulaire de recherche (champ action)
+  2 parametre                    le nom du champ de saisie (champ name)
+  3 balise_renvoyee_telle_quelle oui ou non : si vous envoyez <i>x</i>, la balise revient-elle intacte dans la page ?
+  4 type_de_faille               xss si c'est le cas (injection de script dans la page), sinon aucune
+${faceBlue(d1(tw))}
+Astuce : encodez les caractères spéciaux dans l'URL (%3C pour <, %3E pour >).
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['curl http://www.DOMAINE/ affiche la page : cherchez <form action=… et <input name=….', 'curl "http://www.DOMAINE/CHEMIN?PARAMETRE=test" montre où votre texte réapparaît.', 'Envoyez %3Ci%3Ex%3C/i%3E : si la page contient <i>x</i> tel quel, la sortie n\'est pas échappée.', 'Une valeur renvoyée sans échappement permet d\'injecter du code : c\'est une faille XSS réfléchie.'],
+    check: checker('SIM14-1', tw => [ask('chemin_recherche', 'txt', tw.web.search.path), ask('parametre', 'txt', tw.web.search.param), ask('balise_renvoyee_telle_quelle', 'txt', 'oui'), ask('type_de_faille', 'txt', 'xss')], d1), finish: 'Réflexion mesurée : la page renvoie votre saisie sans l\'échapper, c\'est le principe d\'une faille XSS.' });
+  const code = tw => { const R = rng(tw.seed * 103 + 8); const fill = n => Array.from({ length: n }, () => R.pick(['// vérifie la saisie', '// récupère les paramètres', '// TODO : factoriser', '// journalisation', '// compatibilité ancien site', '']));
+    const hash = R.pick(['md5', 'sha1']); const conn = ['<?php', 'session_start();', "require 'config.php';", ...fill(R.int(2, 6)), "$login = $_POST['login'] ?? '';", "$pass  = $_POST['password'] ?? '';", ...fill(R.int(2, 5)), `$hash = ${hash}($pass);`, ...fill(R.int(1, 4))]; const sqlIdx = conn.length; conn.push('$sql = "SELECT id, role FROM utilisateurs WHERE login = \'$login\' AND mdp = \'$hash\'";', '$res = $db->query($sql);', 'if ($res && $res->num_rows === 1) { $_SESSION[\'user\'] = $login; header(\'Location: /compte\'); }');
+    const rech = ['<?php', "require 'config.php';", ...fill(R.int(2, 6)), "$titre = htmlspecialchars($_GET['titre'] ?? '', ENT_QUOTES);", 'echo "<h1>$titre</h1>";', ...fill(R.int(2, 5))]; const xssIdx = rech.length; rech.push('echo "<p>Résultats pour : " . $_GET[\'q\'] . "</p>";', ...fill(R.int(1, 3)), '?>');
+    return { conn: conn.join('\n') + '\n', rech: rech.join('\n') + '\n', sqlLine: sqlIdx + 1, xssLine: xssIdx + 1, hash }; };
+  const d2 = tw => defense(tw, 142, 'Utiliser des requêtes préparées, hacher les mots de passe avec password_hash et échapper toute sortie affichée', ['Retirer les apostrophes de la saisie avec une liste noire', 'Passer le hachage de md5 à sha1']);
+  M.push({ id: 'SIM14-2', title: 'Application web : relire le code de connexion et de recherche', module: 'SIM14 · Application web', points: 40, difficulty: 3, lesson: 'SIM14-application-web', code: 'SIM14·2', duree: '45 min',
+    setup: tw => { const c = code(tw); return { 'reponses.txt': tmpl(['ligne_injection_sql', 'ligne_xss', 'fonction_hachage_faible', 'defense']), 'connexion.php': c.conn, 'recherche.php': c.rech }; },
+    enonce: tw => `${head(tw)}
+MISSION : revue de code de deux pages PHP (connexion.php et recherche.php). Trouvez les trois défauts.
+
+À FAIRE
+  1 ligne_injection_sql      numéro de la ligne de connexion.php qui construit la requête SQL avec la saisie
+  2 ligne_xss                numéro de la ligne de recherche.php qui affiche une saisie sans l'échapper
+  3 fonction_hachage_faible  la fonction de hachage du mot de passe (md5 ou sha1)
+${faceBlue(d2(tw))}
+La ligne 'htmlspecialchars' de recherche.php est un contre-exemple : elle est correcte.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep -n SELECT connexion.php donne le numéro de la ligne de la requête.', 'grep -n "echo" recherche.php liste les affichages : lequel n\'est pas dans htmlspecialchars ?', 'grep -n "md5\\|sha1" connexion.php montre la fonction de hachage.', 'Une variable insérée directement dans une chaîne SQL est injectable.'],
+    check: checker('SIM14-2', tw => { const c = code(tw); return [ask('ligne_injection_sql', 'num', c.sqlLine), ask('ligne_xss', 'num', c.xssLine), ask('fonction_hachage_faible', 'txt', c.hash)]; }, d2), finish: 'Code relu : une requête injectable, un affichage non échappé et un hachage faible repérés.' });
+}
+// ---------------------------------------------------------------- SIM15 : SQL (requête vulnérable simulée, sans base réelle)
+{
+  const d1 = tw => defense(tw, 151, 'Désactiver l\'affichage des erreurs détaillées côté utilisateur, les journaliser côté serveur et utiliser des requêtes préparées', ['Remplacer le message d\'erreur par un autre texte et garder la requête construite à la main', 'Augmenter la durée de conservation des journaux']);
+  M.push({ id: 'SIM15-1', title: 'SQL : une erreur qui en dit trop', module: 'SIM15 · Couche SQL', points: 35, difficulty: 2, lesson: 'SIM15-sql', code: 'SIM15·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['code_http_erreur', 'moteur_de_base', 'colonne_du_filtre', 'defense']) }),
+    enonce: tw => `${head(tw)}
+MISSION : la page http://www.${tw.domain}/produit?id=1 affiche une fiche produit. Que révèle-t-elle quand
+son paramètre est invalide ? (Base de démonstration fictive : aucune donnée réelle.)
+
+À FAIRE
+  1 code_http_erreur   le code HTTP renvoyé quand id contient une apostrophe (id=1')
+  2 moteur_de_base     le moteur de base de données (mysql, postgresql ou sqlite), d'après le message
+  3 colonne_du_filtre  le nom de la colonne de filtrage qui apparaît dans le message d'erreur
+${faceBlue(d1(tw))}
+Encodez l'apostrophe dans l'URL : %27. Utilisez curl -i pour voir le code de réponse.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['curl -i "http://www.DOMAINE/produit?id=1%27" affiche l\'état HTTP et le message.', 'Le message commence par « ERROR 1064 » et parle de « MySQL server version ».', 'Après « near » apparaît la fin de la requête : un nom de colonne y figure.', 'Une apostrophe dans la saisie casse la requête : elle est donc construite par concaténation.'],
+    check: checker('SIM15-1', tw => [ask('code_http_erreur', 'num', 500), ask('moteur_de_base', 'txt', 'mysql'), ask('colonne_du_filtre', 'txt', 'visible')], d1), finish: 'Erreur exploitée en lecture seule : le message révèle le moteur et la structure de la requête.' });
+  const d2 = tw => defense(tw, 152, 'Utiliser des requêtes préparées (paramètres liés), un compte de base à droits minimaux et valider le type de id', ['Filtrer le mot OR dans la saisie', 'Cacher la page produit de la navigation']);
+  M.push({ id: 'SIM15-2', title: 'SQL : afficher ce que le filtre cache', module: 'SIM15 · Couche SQL', points: 45, difficulty: 3, lesson: 'SIM15-sql', code: 'SIM15·2', duree: '45 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_produits_visibles', 'nombre_produits_total', 'produit_cache', 'prix_produit_cache', 'defense']) }),
+    enonce: tw => `${head(tw)}
+MISSION : la requête de /produit filtre les produits visibles (colonne visible = 1). Montrez qu'une saisie
+construite pour la modifier fait apparaître le produit réservé (démonstration sur la base fictive).
+
+À FAIRE
+  1 nombre_produits_visibles   combien de produits la saisie « 1 OR 1=1 » renvoie (le filtre visible reste actif)
+  2 nombre_produits_total      combien de produits renvoie la saisie qui neutralise aussi le filtre
+  3 produit_cache              le nom du produit qui n'apparaît qu'avec cette saisie
+  4 prix_produit_cache         son prix
+${faceBlue(d2(tw))}
+Indice de méthode : un commentaire SQL (-- suivi d'un espace) supprime le reste de la requête.
+Dans l'URL : id=1%20OR%201=1%20--%20
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['curl "http://www.DOMAINE/produit?id=1%20OR%201=1" renvoie tous les produits visibles seulement.', 'Ajoutez %20--%20 : le filtre « AND visible = 1 » est coupé et un produit de plus apparaît.', 'Comptez les lignes avec wc -l ou grep -c nom.', 'Le produit réservé est celui qui n\'était pas dans la première liste.'],
+    check: checker('SIM15-2', tw => { const v = tw.db.products.filter(p => p.visible); const h = tw.db.products.find(p => !p.visible); return [ask('nombre_produits_visibles', 'num', v.length), ask('nombre_produits_total', 'num', tw.db.products.length), ask('produit_cache', 'txt', h.nom), ask('prix_produit_cache', 'num', h.prix)]; }, d2), finish: 'Démonstration faite sur la base fictive : une saisie modifie la requête et expose une donnée réservée.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

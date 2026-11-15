@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM10 à SIM12 |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM10 à SIM15 |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -55,3 +55,6 @@ Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les dé
 | [SIM10](SIM10-disponibilite.md) | Disponibilité : repérer une saturation | 1 h 15 | SIM10-1, SIM10-2 |
 | [SIM11](SIM11-sessions-cookies.md) | Sessions et cookies | 1 h 15 | SIM11-1, SIM11-2 |
 | [SIM12](SIM12-parefeu-ids.md) | Périmètre réseau : pare-feu et détection d'intrusion | 1 h 30 | SIM12-1, SIM12-2 |
+| [SIM13](SIM13-serveur-web.md) | Serveur web : configuration et exposition | 1 h 15 | SIM13-1, SIM13-2 |
+| [SIM14](SIM14-application-web.md) | Application web : saisies, affichage et revue de code | 1 h 30 | SIM14-1, SIM14-2 |
+| [SIM15](SIM15-sql.md) | La couche SQL : erreurs et injection (base fictive) | 1 h 30 | SIM15-1, SIM15-2 |
