@@ -9,6 +9,9 @@ Créé par Formaxion Landes — © Yahn LE PRETTRE 2026.
 |---|---|---|
 | 01 · Incident SSH : détecter, contenir, corriger | Séquence 5 · Cyber-défense | 60 |
 
+## Cours
+17 leçons originales réparties en trois parcours (Fondations, Parcours métier P1 à P11, Cycle HAC 1 à 5) : voir [`cours/README.md`](cours/README.md). Contrôle de structure : `bash tests/check-cours.sh`.
+
 ## Pourquoi c'est réaliste
 - `auth.log` au format syslog Debian, avec du bruit crédible (cron, scanners, fautes de frappe d'un admin, sudo), généré par gawk.
 - Vraies clés SSH ED25519 (`ssh-keygen`) : l'empreinte à retrouver est celle d'une vraie clé.

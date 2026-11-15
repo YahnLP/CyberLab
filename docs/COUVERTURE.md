@@ -18,3 +18,6 @@ Sources : pages et API publiques observées avec un compte FREE (structure, offr
 | Network, Web, AD, Metasploit, pivot | STUDENT/PRO | Non (autres défis à créer) |
 | Exam | STUDENT | À faire : variante sans indices |
 | Trainer dashboard, classes, analytics, SSO | ACADEMY | À faire : portail BashLab existant à réutiliser |
+
+## Leçons
+Les 17 leçons de `cours/` couvrent les modules annoncés (prise en main, P1 à P11, HAC 1 à 5). Les défis pratiques associés restent à créer, hormis le défi 01 (P7, P8, P10).
