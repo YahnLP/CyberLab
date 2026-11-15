@@ -1,6 +1,12 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçons SIM06 (accès contrôlé et élévation de privilèges) et SIM08 (capture et analyse de trafic), 4 missions : SIM06-1 (UID 0 caché, mot de passe vide, hachages faibles), SIM06-2 (règle sudo dangereuse, SUID inattendu), SIM08-1 (balayage et mot de passe en clair), SIM08-2 (exfiltration par DNS).
+- Données générées par graine (passwd, shadow, sudoers, SUID, captures au format tcpdump) ; missions résolues dans le simulateur avec awk, grep, sort et uniq.
+- `tests/check-cours.sh` contrôle 27 leçons.
+
+## Non publié
+
 - Parcours pentest : leçons SIM01 (cadrage, règles d'engagement, preuves), SIM04 (énumération SMB et SNMP) et SIM05 (analyse de vulnérabilités et priorisation).
 - 6 nouvelles missions : SIM01-1 (mandat et périmètre), SIM01-2 (preuve de scan scellée par SHA-256), SIM04-1 (partages SMB anonymes), SIM04-2 (SNMP et communauté devinée), SIM05-1 (avis de sécurité et versions), SIM05-2 (priorisation gravité × exposition).
 - Jumeau numérique : partages SMB (dont un partage sensible lisible sans compte), imprimante SNMP, périmètre d'un mandat ; outils simulés `smbclient`, `snmpget`, `snmpwalk` avec traces côté défense.

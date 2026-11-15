@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM05 |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08 |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -50,3 +50,5 @@ Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les dé
 | [SIM03](SIM03-scan-reseau.md) | Scan réseau : hôtes, ports et services | 1 h 30 | SIM03-1, SIM03-2, SIM03-3 |
 | [SIM04](SIM04-enumeration-smb-snmp.md) | Énumération SMB et SNMP | 1 h 30 | SIM04-1, SIM04-2 |
 | [SIM05](SIM05-analyse-vulnerabilites.md) | Analyse de vulnérabilités et priorisation | 1 h 30 | SIM05-1, SIM05-2 |
+| [SIM06](SIM06-acces-privileges.md) | Accès contrôlé et élévation de privilèges | 1 h 30 | SIM06-1, SIM06-2 |
+| [SIM08](SIM08-capture-trafic.md) | Capture et analyse de trafic | 1 h 30 | SIM08-1, SIM08-2 |

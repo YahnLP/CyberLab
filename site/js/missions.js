@@ -274,6 +274,107 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['La grille donne gravité et exposition : multipliez-les pour chaque constat.', 'Un hôte est exposé s\'il a une adresse 203.0.113.x publiée dans le DNS (dig +short www.DOMAINE).', 'En cas d\'égalité, le plus grave passe d\'abord, puis l\'ordre C1, C2, …', 'Écrivez seulement l\'identifiant (C1 à C5) pour chaque priorité.'],
     check: checker('SIM05-2', tw => { const f = findings(tw); return [ask('priorite_1', 'txt', f[0].id), ask('priorite_2', 'txt', f[1].id), ask('priorite_3', 'txt', f[2].id)]; }, d2), finish: 'Priorités posées : le plan de correction suit le risque réel, pas l\'ordre de la liste.' });
 }
+// ---------------------------------------------------------------- SIM06 : accès contrôlé et privilèges (analyse d'un hôte Linux fictif)
+const hex = (R, n) => Array.from({ length: n }, () => '0123456789abcdef'[R.int(0, 15)]).join('');
+const b64 = (R, n) => Array.from({ length: n }, () => './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[R.int(0, 63)]).join('');
+const accounts = tw => { const R = rng(tw.seed * 61 + 3); const extra = R.shuffle(['dsi', 'compta', 'support', 'deploy', 'maintenance', 'stagiaire2']).slice(0, 5); const uid0 = R.pick(extra.filter(n => ['support', 'maintenance', 'deploy'].includes(n))); const rest = extra.filter(n => n !== uid0); const empty = R.pick(rest); const weak = R.shuffle(rest.filter(n => n !== empty)).slice(0, 2);
+  const users = [{ n: 'root', uid: 0 }, { n: 'daemon', uid: 1 }, { n: 'www-data', uid: 33 }, { n: 'sshd', uid: 105 }, ...extra.map((n, i) => ({ n, uid: n === uid0 ? 0 : 1000 + i }))];
+  const hashes = {}; for (const u of users) { const sys = ['daemon', 'www-data', 'sshd'].includes(u.n); hashes[u.n] = sys ? '*' : u.n === empty ? '' : weak.includes(u.n) ? `$1$${b64(R, 8)}$${b64(R, 22)}` : `$6$${b64(R, 8)}$${b64(R, 86)}`; }
+  return { users, hashes, uid0, empty, weak }; };
+const passwdFile = a => a.users.map(u => `${u.n}:x:${u.uid}:${u.uid}:${u.n}:${u.uid === 0 && u.n === 'root' ? '/root' : '/home/' + u.n}:${['daemon', 'www-data', 'sshd'].includes(u.n) ? '/usr/sbin/nologin' : '/bin/bash'}`).join('\n') + '\n';
+const shadowFile = a => a.users.map(u => `${u.n}:${a.hashes[u.n]}:20400:0:99999:7:::`).join('\n') + '\n';
+const GTFO = ['vim', 'find', 'less', 'awk', 'tar'];
+const sudoData = tw => { const R = rng(tw.seed * 67 + 9); const a = accounts(tw); const names = a.users.filter(u => u.uid >= 1000 || u.uid === 0).map(u => u.n).filter(n => n !== 'root'); const risky = R.pick(names.filter(n => n !== a.uid0)); const bin = R.pick(GTFO); const safeUser = R.pick(names.filter(n => n !== risky));
+  const suspicious = R.pick(['/usr/local/bin/sync-data', '/opt/outils/export', '/home/deploy/.bin/vim.basic']);
+  const sudoers = `# /etc/sudoers (extrait)\nDefaults\tenv_reset\nDefaults\tsecure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"\n\nroot\tALL=(ALL:ALL) ALL\n%admin\tALL=(ALL) ALL\n${safeUser}\tALL=(root) NOPASSWD: /usr/bin/systemctl restart nginx\n${risky}\tALL=(root) NOPASSWD: /usr/bin/${bin}\n`;
+  const std = ['/usr/bin/passwd', '/usr/bin/su', '/usr/bin/mount', '/usr/bin/umount', '/usr/bin/sudo', '/usr/bin/chsh', '/usr/bin/chfn', '/usr/bin/gpasswd', '/usr/bin/newgrp', '/usr/lib/openssh/ssh-keysign', '/usr/lib/dbus-1.0/dbus-daemon-launch-helper'];
+  const list = R.shuffle([...std, suspicious]); return { risky, bin, suspicious, sudoers, suid: list.join('\n') + '\n' }; };
+{
+  const d1 = tw => defense(tw, 61, 'Passer le compte en UID normal, verrouiller les comptes sans mot de passe et remplacer les hachages MD5 par SHA-512 (changement de mot de passe forcé)', ['Renommer le compte UID 0 pour qu\'il passe inaperçu', 'Garder les hachages tels quels : ils sont déjà illisibles']);
+  M.push({ id: 'SIM06-1', title: 'Comptes : UID 0 caché, mot de passe vide, hachages faibles', module: 'SIM06 · Accès contrôlé et privilèges', points: 35, difficulty: 2, lesson: 'SIM06-acces-privileges', code: 'SIM06·1', duree: '40 min',
+    setup: tw => { const a = accounts(tw); return { 'reponses.txt': tmpl(['compte_uid0', 'compte_sans_mot_de_passe', 'comptes_hachage_faible', 'defense']), 'passwd.txt': passwdFile(a), 'shadow-extrait.txt': shadowFile(a) }; },
+    enonce: tw => `${head(tw)}
+MISSION : audit des comptes du serveur www. Deux fichiers sont fournis : une copie de
+passwd.txt (comptes) et un extrait de shadow-extrait.txt (mots de passe hachés).
+
+À FAIRE
+  1 compte_uid0               le compte AUTRE que root qui a l'UID 0 (tous les droits)
+  2 compte_sans_mot_de_passe  le compte dont le champ de mot de passe est vide
+  3 comptes_hachage_faible    les comptes dont le hachage commence par $1$ (MD5), séparés par des virgules
+${faceBlue(d1(tw))}
+Rappel : « * » ou « ! » veut dire compte sans connexion par mot de passe, ce n'est PAS un champ vide.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F: \'$3==0\' passwd.txt affiche les comptes dont l\'UID est 0.', 'awk -F: \'$2==""\' shadow-extrait.txt affiche les mots de passe vides.', 'grep \'\\$1\\$\' shadow-extrait.txt repère les hachages MD5 ($1$).', 'Un compte système a « * » : ce n\'est pas un mot de passe vide.'],
+    check: checker('SIM06-1', tw => { const a = accounts(tw); return [ask('compte_uid0', 'txt', a.uid0), ask('compte_sans_mot_de_passe', 'txt', a.empty), ask('comptes_hachage_faible', 'set', a.weak.join(','))]; }, d1), finish: 'Comptes audités : un UID 0 caché, un mot de passe vide et des hachages faibles, relevés dans les fichiers.' });
+  const d2 = tw => defense(tw, 62, 'Supprimer la règle sudo qui donne un shell, la remplacer par une commande dédiée sans échappement possible, et retirer le bit SUID inattendu', ['Ajouter un mot de passe sur la règle et conserver le même binaire', 'Interdire seulement la connexion SSH de cet utilisateur']);
+  M.push({ id: 'SIM06-2', title: 'Privilèges : règle sudo dangereuse et binaire SUID inattendu', module: 'SIM06 · Accès contrôlé et privilèges', points: 40, difficulty: 3, lesson: 'SIM06-acces-privileges', code: 'SIM06·2', duree: '45 min',
+    setup: tw => { const d = sudoData(tw); return { 'reponses.txt': tmpl(['utilisateur_a_risque', 'binaire_sudo_dangereux', 'binaire_suid_inattendu', 'defense']), 'sudoers.txt': d.sudoers, 'suid-liste.txt': d.suid }; },
+    enonce: tw => `${head(tw)}
+MISSION : un utilisateur sans privilèges peut-il devenir root sur le serveur www ? Deux
+sources : sudoers.txt (règles sudo) et suid-liste.txt (résultat de find / -perm -4000).
+
+À FAIRE
+  1 utilisateur_a_risque      l'utilisateur dont la règle sudo permet d'obtenir un shell root
+  2 binaire_sudo_dangereux    le programme concerné (nom seul : vim, find, less, awk ou tar)
+  3 binaire_suid_inattendu    le chemin complet du programme SUID qui n'est pas un classique du système
+${faceBlue(d2(tw))}
+Une règle qui autorise un éditeur, un pager ou find sans mot de passe permet de lancer un shell.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Cherchez les lignes NOPASSWD : grep NOPASSWD sudoers.txt.', 'Un programme interactif (éditeur, find, tar, awk…) peut lancer un shell : c\'est la règle à risque.', 'Les programmes SUID classiques sont dans /usr/bin et /usr/lib ; cherchez un chemin ailleurs (/usr/local, /opt, /home) : grep -Ev "^/usr/(bin|lib)/" suid-liste.txt.', 'systemctl restart nginx est une commande précise : ce n\'est pas un shell.'],
+    check: checker('SIM06-2', tw => { const d = sudoData(tw); return [ask('utilisateur_a_risque', 'txt', d.risky), ask('binaire_sudo_dangereux', 'txt', d.bin), ask('binaire_suid_inattendu', 'txt', d.suspicious)]; }, d2), finish: 'Élévation repérée : une règle sudo trop large et un programme SUID hors norme permettaient de devenir root.' });
+}
+// ---------------------------------------------------------------- SIM08 : capture et trafic (texte au format tcpdump, jamais de trafic réel)
+const capture = tw => { const R = rng(tw.seed * 71 + 11); const clients = tw.hosts.filter(h => h.up && !h.self && h.ports.length === 0 && !h.shadow).concat([tw.H['poste-audit']]).map(h => h.ip); const web = tw.H.www.ip, gw = tw.H.gw.ip, db = tw.H.db.ip; const scanner = `${tw.net}.${R.int(150, 199)}`; const proto = R.pick(['ftp', 'http']); const user = R.pick(['marie.d', 'compta01', 'admin-site', 'plaquette']); const secret = `${R.pick(['Hiver', 'Soleil', 'Lagune'])}${R.int(2020, 2026)}!`; const ftpHost = tw.exHost === 'files' ? tw.H.files.ip : tw.H.files.ip;
+  const lines = []; let t = 14 * 3600 + 20 * 60; const ts = () => { t += R.int(0, 2); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60; return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(R.int(0, 999999)).padStart(6, '0')}`; };
+  const pkt = (src, sp, dst, dp, flags, len, extra = '') => lines.push(`${ts()} IP ${src}.${sp} > ${dst}.${dp}: Flags [${flags}], length ${len}${extra}`);
+  for (let i = 0; i < 8; i++) { const c = R.pick(clients); const sp = R.int(40000, 60000); pkt(c, sp, web, 443, 'S', 0); pkt(web, 443, c, sp, 'S.', 0); pkt(c, sp, web, 443, 'P.', R.int(200, 900)); lines.push(`${ts()} IP ${c}.${R.int(40000, 60000)} > ${gw}.53: ${R.int(1000, 60000)}+ A? ${R.pick(['www', 'mail', 'vpn'])}.${tw.domain}. (${R.int(30, 50)})`); }
+  const ports = R.shuffle([21, 22, 23, 25, 80, 110, 139, 143, 443, 445, 1433, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 9200, 27017]).slice(0, 14); for (const p of ports) pkt(scanner, 44000 + p % 100, db, p, 'S', 0);
+  const c = R.pick(clients); const sp = R.int(40000, 60000);
+  if (proto === 'ftp') { pkt(c, sp, ftpHost, 21, 'S', 0); pkt(c, sp, ftpHost, 21, 'P.', 16, `: FTP: USER ${user}`); pkt(ftpHost, 21, c, sp, 'P.', 34, ': FTP: 331 Please specify the password.'); pkt(c, sp, ftpHost, 21, 'P.', 16 + secret.length, `: FTP: PASS ${secret}`); pkt(ftpHost, 21, c, sp, 'P.', 23, ': FTP: 230 Login successful.'); }
+  else { pkt(c, sp, web, 80, 'S', 0); pkt(c, sp, web, 80, 'P.', 212, `: HTTP: POST /login HTTP/1.1`); lines.push(`\tHost: www.${tw.domain}`); lines.push('\tContent-Type: application/x-www-form-urlencoded'); lines.push(`\tlogin=${user}&password=${secret}`); pkt(web, 80, c, sp, 'P.', 120, ': HTTP: HTTP/1.1 302 Found'); }
+  for (let i = 0; i < 10; i++) { const c2 = R.pick(clients); pkt(c2, R.int(40000, 60000), web, 443, 'P.', R.int(120, 600)); }
+  return { text: lines.join('\n') + '\n', scanner, target: db, proto, user, secret }; };
+const dnsCapture = tw => { const R = rng(tw.seed * 73 + 17); const src = R.pick(tw.hosts.filter(h => h.up && !h.self && !h.shadow && h.name !== 'gw').map(h => h)); const evil = `${R.pick(['cdn-stat', 'update-check', 'sync-api'])}-${R.int(10, 99)}.example`; const n = R.int(18, 30); const lines = []; let t = 3 * 3600 + 12 * 60; const ts = () => { t += R.int(1, 3); return `0${Math.floor(t / 3600)}:${String(Math.floor(t % 3600 / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}.${String(R.int(0, 999999)).padStart(6, '0')}`; };
+  const normal = [`www.${tw.domain}.`, `mail.${tw.domain}.`, 'debian.org.', 'security.debian.org.']; const all = [];
+  for (let i = 0; i < n; i++) all.push({ ip: src.ip, name: `${hex(R, 40)}.${evil}.`, type: 'TXT' });
+  for (let i = 0; i < 9; i++) all.push({ ip: R.pick(tw.hosts.filter(h => h.up && !h.self && !h.shadow).map(h => h.ip)), name: R.pick(normal), type: 'A' });
+  for (const q of R.shuffle(all)) lines.push(`${ts()} IP ${q.ip}.${R.int(40000, 60000)} > ${tw.H.gw.ip}.53: ${R.int(1000, 60000)}+ ${q.type}? ${q.name} (${q.name.length + 4})`);
+  return { text: lines.join('\n') + '\n', src, evil, n }; };
+{
+  const d1 = tw => defense(tw, 81, 'Remplacer le protocole par sa version chiffrée (SFTP, FTPS ou HTTPS), bloquer l\'ancien port et changer le mot de passe exposé', ['Conserver le protocole en clair mais changer l\'identifiant', 'Ne rien changer : le réseau interne est de confiance']);
+  M.push({ id: 'SIM08-1', title: 'Capture : un balayage et un mot de passe en clair', module: 'SIM08 · Capture et trafic', points: 35, difficulty: 2, lesson: 'SIM08-capture-trafic', code: 'SIM08·1', duree: '40 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['ip_scanner', 'serveur_cible', 'protocole_en_clair', 'identifiant_expose', 'defense']), 'capture.txt': capture(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : le pare-feu a enregistré dix minutes de trafic (capture.txt, format tcpdump en
+texte). Une machine inconnue est active et un mot de passe a circulé en clair.
+
+À FAIRE
+  1 ip_scanner          l'adresse qui envoie des paquets SYN vers de nombreux ports
+  2 serveur_cible       l'adresse du serveur visé par ce balayage
+  3 protocole_en_clair  ftp ou http : le protocole sur lequel le mot de passe est lisible
+  4 identifiant_expose  l'identifiant qui apparaît dans cet échange
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['Les SYN sans réponse sont des « Flags [S] » : comptez-les par adresse source avec awk et sort | uniq -c.', 'Une adresse source qui contacte une seule cible sur 14 ports différents est un balayage de ports.', 'grep -n "PASS\\|password" capture.txt repère les mots de passe lisibles.', 'Notez le protocole (FTP: ou HTTP:) et l\'identifiant (USER ou login=).'],
+    check: checker('SIM08-1', tw => { const c = capture(tw); return [ask('ip_scanner', 'txt', c.scanner), ask('serveur_cible', 'txt', c.target), ask('protocole_en_clair', 'txt', c.proto), ask('identifiant_expose', 'txt', c.user)]; }, d1), finish: 'Capture lue : balayage identifié et identifiants exposés repérés, sans rien rejouer.' });
+  const d2 = tw => defense(tw, 82, 'Isoler le poste source, n\'autoriser que le résolveur interne vers l\'extérieur et alerter sur les requêtes DNS longues ou très nombreuses', ['Bloquer toutes les requêtes DNS de l\'entreprise', 'Ignorer : le DNS n\'est pas un canal de données']);
+  M.push({ id: 'SIM08-2', title: 'Capture : exfiltration par requêtes DNS', module: 'SIM08 · Capture et trafic', points: 40, difficulty: 3, lesson: 'SIM08-capture-trafic', code: 'SIM08·2', duree: '45 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['hote_source', 'domaine_suspect', 'nombre_requetes', 'defense']), 'capture-dns.txt': dnsCapture(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : une nuit, le résolveur (${tw.H.gw.ip}) a reçu des requêtes étranges (capture-dns.txt). Un
+poste interne semble sortir des données encodées dans des noms de domaine.
+
+À FAIRE
+  1 hote_source        le nom de l'hôte interne qui envoie ces requêtes (nom de la plage, ex : db)
+  2 domaine_suspect    le domaine externe interrogé (sans le point final, ex : exemple.example)
+  3 nombre_requetes    le nombre de requêtes TXT vers ce domaine
+${faceBlue(d2(tw))}
+Associez l'adresse source à l'hôte avec nmap -sn ou host -x ; un nom de 40 caractères hexadécimaux
+suivi d'un domaine inhabituel est typique d'une exfiltration.
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['grep TXT capture-dns.txt isole les requêtes de type TXT.', 'awk \'{print $3}\' capture-dns.txt | sort | uniq -c montre quelle adresse source domine.', 'host ADRESSE (résolution inverse) donne le nom de l\'hôte interne.', 'Le domaine suspect est ce qui suit les 40 caractères hexadécimaux.'],
+    check: checker('SIM08-2', tw => { const c = dnsCapture(tw); return [ask('hote_source', 'txt', c.src.name), ask('domaine_suspect', 'txt', c.evil), ask('nombre_requetes', 'num', c.n)]; }, d2), finish: 'Canal caché repéré : un poste interne exfiltrait des données par des requêtes DNS.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
