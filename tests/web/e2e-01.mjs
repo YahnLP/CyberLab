@@ -5,7 +5,7 @@ import { runChecks } from '../../site/js/lib.js'; import { detectOutputs } from 
 const def = JSON.parse(fs.readFileSync(new URL('../../site/data/01.json', import.meta.url))); const sol = fs.readFileSync(new URL('../../formateur/solutions/01-incident-ssh.sh', import.meta.url), 'utf8');
 let bad = 0;
 for (const [i, v] of def.variants.entries()) {
-  const fs_ = new VFS(); const W = '/h/atelier/01'; fs_.mkdirp(W); for (const [k, c] of Object.entries(v.files)) { const p = W + '/' + k; fs_.mkdirp(p.slice(0, p.lastIndexOf('/'))); fs_.write(p, c); if (k === 'retest.sh') fs_.f.get(p).x = true; }
+  const fs_ = new VFS(); const W = '/h/atelier/01'; fs_.mkdirp(W); for (const [k, c] of Object.entries(v.files)) { const p = W + '/' + k; fs_.mkdirp(p.slice(0, p.lastIndexOf('/'))); fs_.write(p, c); if (v.exec.includes(k)) fs_.f.get(p).x = true; }
   const sh = new Shell(fs_, { home: '/h', cwd: W }); const o = new Stream(); const io = { in: new Stream(''), out: o, err: o };
   fs_.write('/h/sol.sh', sol); const rc = await sh.run('cd ' + W + ' && bash /h/sol.sh', io);
   const files = fs_.snapshot(W); const R = fs_.f.get(W + '/preuves/retest.txt')?.m; const watched = Object.keys(files).filter(k => /^srv01\/(etc\/ssh\/sshd_config|etc\/nftables\.conf|home\/[^/]+\/\.ssh\/authorized_keys|var\/spool\/cron\/crontabs\/[^/]+)$/.test(k));

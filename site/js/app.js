@@ -8,8 +8,8 @@ const stars = n => '★'.repeat(Math.min(n, 3)) + '☆'.repeat(Math.max(0, 3 - n
 const HOME = '/home/stagiaire'; const wd = def => `${HOME}/atelier/${def.name}`;
 let term = null, shell = null, fsv = null, curDef = null;
 
-function snapshot() { if (!curDef || !fsv) return; S.work[curDef.id] = { ...S.work[curDef.id], files: fsv.snapshot(wd(curDef)) }; store.save(S); }
-function mount(def, variant, files) { fsv = new VFS(); fsv.mkdirp(wd(def)); fsv.mkdirp(HOME + '/.bashlab'); for (const [k, c] of Object.entries(files)) { const p = wd(def) + '/' + k; fsv.mkdirp(p.slice(0, p.lastIndexOf('/'))); fsv.write(p, c); } shell = new Shell(fsv, { home: HOME, cwd: wd(def), edit: editor, defi: defiCmd }); }
+function snapshot() { if (!curDef || !fsv) return; S.work[curDef.id] = { ...S.work[curDef.id], files: fsv.snapshot(wd(curDef)), x: [...fsv.f].filter(([k, v]) => v.x && k.startsWith(wd(curDef) + '/')).map(([k]) => k.slice(wd(curDef).length + 1)) }; store.save(S); }
+function mount(def, variant, files) { fsv = new VFS(); fsv.mkdirp(wd(def)); fsv.mkdirp(HOME + '/.bashlab'); for (const [k, c] of Object.entries(files)) { const p = wd(def) + '/' + k; fsv.mkdirp(p.slice(0, p.lastIndexOf('/'))); fsv.write(p, c); } for (const k of new Set([...(variant.exec || []), ...(S.work[def.id]?.x || [])])) { const f = fsv.f.get(wd(def) + '/' + k); if (f) f.x = true; } shell = new Shell(fsv, { home: HOME, cwd: wd(def), edit: editor, defi: defiCmd }); }
 const header = t => `\n${CYA}${B}╔══════════════════════════════════════════════════════════╗${R}\n${CYA}${B}║${R}  ${B}${t}${R}\n${CYA}${B}╚══════════════════════════════════════════════════════════╝${R}\n`;
 const indent = s => s.split('\n').map(l => '  ' + l).join('\n');
 

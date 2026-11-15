@@ -11,6 +11,7 @@ const T = [
   "awk -F';' '{print $1\":\"$NF}' F | head -3", "sed -E 's/([0-9]+)/<\\1>/' F | head -2", "grep -w -c the F", "tr -s ' ' < F | head -2", "awk 'NR%2==0' F | head -2", "paste -sd, F | wc -l",
   "sort -u F | wc -l", "awk '{a[$1]=a[$1]+1}END{n=0;for(k in a)n++;print n}' F", "grep -n . F | head -2", "sed '/^$/d' F | wc -l", "awk 'BEGIN{FS=\";\"}{s+=$2}END{print s+0}' F",
   "awk '{printf \"%-10s|%5.1f\\n\", $1, NR/3}' F | head -2", "sort -n F | tail -2", "sort -f F | head -2", "grep -F -x -c a F", "awk '$1 ~ /^[0-9]/' F | wc -l", "awk 'tolower($0) ~ /get|post/' F | wc -l",
+  "cat > t.out <<'X'\n$HOME et $(echo 1)\nX\ncat t.out", "v=7; cat <<X | tr a-z A-Z\nval=$v $(echo sub) \\$lit\nX", "cat <<-X\n\tindente\n\tX", "wc -l <<X\na\nb\nX", "sed '\\#e#d' F | head -3",
 ];
 let bad = 0, n = 0; const shown = new Set();
 for (const id of ['02', '03', '04', '05', '06', '07', '10', '11', '12', '14', '15', '16', '17']) {

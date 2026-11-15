@@ -56,14 +56,14 @@ for (const dirName of fs.readdirSync(path.join(ROOT, 'challenges')).sort()) {
     fs.rmSync(ANS, { force: true });
     const env = { ...process.env, LC_ALL: 'C', WORK, CH, LAB_LIB: path.join(ROOT, 'engine/lib.sh'), ANSWER_FILE: ANS };
     execFileSync('bash', [path.join(CH, 'setup.sh')], { cwd: WORK, env, stdio: ['ignore', 'ignore', 'inherit'] });
-    const files = walk(WORK); const answers = Object.fromEntries(fs.readFileSync(ANS, 'utf8').split('\n').filter(Boolean).map(l => { const i = l.indexOf(':'); return [l.slice(0, i), l.slice(i + 1)]; }));
+    const files = walk(WORK); const execs = Object.keys(files).filter(k => fs.statSync(path.join(WORK, k)).mode & 0o111); const answers = Object.fromEntries(fs.readFileSync(ANS, 'utf8').split('\n').filter(Boolean).map(l => { const i = l.indexOf(':'); return [l.slice(0, i), l.slice(i + 1)]; }));
     if (id === '01') { // adaptations web : pas de clé d'hôte privée, retest via le contrôleur intégré, journal de rejeu précalculé
       delete files['srv01/etc/ssh/ssh_host_ed25519_key'];
       files['retest.sh'] = '#!/usr/bin/env bash\ncd "$(dirname "$0")" || exit 1\nmkdir -p preuves\nlab-controls | tee preuves/retest.txt\n';
       const RL = path.join(WORK, '.replay.log'); const rep = execFileSync('bash', ['-c', '. "$CH/gen-log.sh"; RA="203.0.113.$((RANDOM%100+100))"; RN=$((RANDOM%30+30)); gen_auth_log "$1" "$RA" "$RN" svc-x "198.51.100.$((RANDOM%200+10))" "192.168.10.$((RANDOM%200+10))" "$((RANDOM*32768+RANDOM))" "$1.ts"; echo "$RA $RN"', 'x', RL], { env, encoding: 'utf8' }).trim().split(' ');
-      variants.push({ files, answers, replay: { log: fs.readFileSync(RL, 'utf8'), ip: rep[0], n: rep[1] } }); fs.rmSync(RL, { force: true }); fs.rmSync(RL + '.ts', { force: true });
+      variants.push({ files, answers, exec: execs, replay: { log: fs.readFileSync(RL, 'utf8'), ip: rep[0], n: rep[1] } }); fs.rmSync(RL, { force: true }); fs.rmSync(RL + '.ts', { force: true });
     } else
-    variants.push({ files, answers });
+    variants.push({ files, answers, exec: execs });
     // corrigé : fichiers créés ou modifiés par le formateur
     execFileSync('bash', [path.join(ROOT, 'formateur/solutions', sol)], { cwd: WORK, env, stdio: ['ignore', 'ignore', 'inherit'] });
     const after = walk(WORK); const delta = {}; for (const [k, c] of Object.entries(after)) if (files[k] !== c && !(id === '01' && (k === 'retest.sh' || k.endsWith('ssh_host_ed25519_key')))) delta[k] = c;

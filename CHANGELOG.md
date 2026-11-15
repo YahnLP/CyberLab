@@ -1,4 +1,9 @@
 # Changelog
+## v0.12.0 — défi 01 sur le simulateur web
+- Défi 01 (incident SSH, 60 points, 8 phases) jouable dans le navigateur : commandes `ssh-keygen -lf` et `sshd -T` simulées, retest 6 contrôles, détection rejouée sur un second journal, rapport contrôlé. La clé d'hôte privée n'est pas publiée.
+- Terminal simulé : documents en ligne (`<<EOF`, `<<'EOF'`, `<<-EOF`), adresses `sed '\#re#d'`, `$$`, `set`, dossier `/tmp`, droits d'exécution conservés avec la progression.
+- Tests : correcteur JS comparé au vrai correcteur bash sur des variantes « presque bonnes » (16 erreurs injectées par variante), le corrigé formateur est exécuté tel quel dans le simulateur (`tests/web/e2e-01.mjs`), `ssh-keygen`/`sshd -T` comparés aux vrais outils, test navigateur `ui-defi01.mjs`. Test différentiel de l'émulateur : 3 128 commandes identiques à bash.
+
 ## v0.11.0 — Casebook (simulateur web)
 - Onglet « Casebook » sous le terminal : ajouter la sortie d'une commande aux preuves (empreinte SHA-256 de la sortie, horodatage, 20 preuves maximum), rédiger la conclusion, exporter le rapport en Markdown ou en HTML autonome. Tout reste dans le navigateur, conservé avec la progression.
 - Test navigateur `tests/web/ui-casebook.mjs`, exécuté en CI.
