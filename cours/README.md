@@ -10,7 +10,7 @@ Leçons originales, rédigées pour CyberLab (aucun contenu repris d'une autre p
 | **Parcours professionnalisant** (reconnaissance à restitution) | tout stagiaire | P1 à P11 |
 | **Parcours sécurité offensive** (audit d'intrusion complet) | stagiaires avancés | SO1 à SO5 |
 | **Parcours avancés** (annuaire, forensic, segmentation) | stagiaires avancés | P12 à P14 |
-| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM09, SIM10 à SIM15, SIM17, SIM09, SIM19 à SIM24 |
+| **Parcours pentest** (simulateur web, jumeau numérique) | stagiaires avancés | SIM01 à SIM06 et SIM08, SIM09, SIM10 à SIM17, SIM19 à SIM24 |
 
 Ordre conseillé : 00, P1 à P4, P5 et P6, P7 à P9, P10 et P11 ; le parcours sécurité offensive peut se suivre en parallèle à partir de P4.
 
@@ -66,3 +66,4 @@ Les leçons sont écrites pour un usage **autorisé et en laboratoire**. Les dé
 | [SIM23](SIM23-soc-forensic.md) | SOC, forensic et purple team | 1 h 30 | SIM23-1, SIM23-2, SIM23-3 |
 | [SIM24](SIM24-synthese.md) | Synthèse : investiguer un incident avec plusieurs journaux | 1 h 30 | SIM24-1 |
 | [SIM09](SIM09-ingenierie-sociale-defense.md) | Ingénierie sociale : reconnaître et mesurer | 1 h 15 | SIM09-1, SIM09-2 |
+| [SIM16](SIM16-sans-fil-audit.md) | Réseaux sans fil : audit de configuration | 1 h 15 | SIM16-1, SIM16-2 |

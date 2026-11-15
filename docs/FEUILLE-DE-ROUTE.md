@@ -27,7 +27,7 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM13 | Serveur web | Livré : missions SIM13-1 (configuration nginx) et SIM13-2 (sondage dans le journal) |
 | SIM14 | Application web | Livré : missions SIM14-1 (XSS réfléchi via curl) et SIM14-2 (revue de code PHP) |
 | SIM15 | SQL et couche données | Livré : route /produit à requête vulnérable simulée (mini-évaluateur SQL, base fictive) ; missions SIM15-1 (erreur) et SIM15-2 (filtre neutralisé) ; panneau Base SQL graphique livré (onglet des missions SIM15) |
-| SIM16 | Sans fil (simulé) | Reporté : à cadrer avec le formateur |
+| SIM16 | Sans fil (simulé) | Livré, volet défensif : audit d'un inventaire de bornes et détection d'une borne non autorisée (SIM16-1, SIM16-2) |
 | SIM17 | Mobile (artefacts) | Livré, volet audit défensif : manifeste et configuration embarquée (SIM17-1, SIM17-2) |
 | SIM18 | IoT / OT | Reporté : à cadrer avec le formateur |
 | SIM19 | Cloud (IAM, métadonnées) | Livré, volet audit défensif : droits, stockage, clés (SIM19-1, SIM19-2) ; métadonnées à cadrer |
