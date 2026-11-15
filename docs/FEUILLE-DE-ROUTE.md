@@ -35,7 +35,7 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM21 | Annuaire (Active Directory fictif) | Livré, volet revue défensive (SIM21-1, SIM21-2) |
 | SIM22 | Pivot, mouvement latéral | Livré, volet détection dans les journaux (SIM22-1) |
 | SIM23 | SOC, forensic, purple team | Livré (SIM23-1, SIM23-2, SIM23-3) |
-| SIM24 | Scénario final multi-systèmes | Absent |
+| SIM24 | Scénario final multi-systèmes | Livré, version investigation défensive sur deux journaux (SIM24-1) ; scénario plus large à étendre |
 
 Bilan : 18 défis couvrent environ la moitié des thèmes, surtout par l'analyse de données fournies. Il manque la **pratique outillée** sur une plage vivante et 9 thèmes.
 

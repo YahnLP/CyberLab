@@ -5,8 +5,9 @@
 - Parcours pentest, volet audit défensif : leçons SIM17 (mobile), SIM19 (cloud), SIM20 (certificats) et 6 missions : SIM17-1 (manifeste), SIM17-2 (configuration embarquée), SIM19-1 (droits, stockage public, clés), SIM19-2 (chiffrement et journalisation), SIM20-1 (lecture d'un certificat), SIM20-2 (inventaire des certificats).
 - Parcours pentest, phase 5 : leçons SIM21 (annuaire), SIM22 (mouvement latéral), SIM23 (SOC, forensic, purple team) et 6 missions défensives (SIM21-1/2, SIM22-1, SIM23-1/2/3).
 - Correction : la commande `comm` du simulateur accepte maintenant les options -1, -2, -3 et leurs combinaisons (-12, -13, -23).
+- Parcours pentest : leçon SIM24 (synthèse) et mission SIM24-1 (investigation croisant journal web et journal SSH).
 - SIM16 (sans fil) et SIM18 (IoT/OT) sont reportés, à cadrer avec le formateur.
-- Tests : 40 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 39 leçons.
+- Tests : 41 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 40 leçons.
 
 ## Non publié
 
