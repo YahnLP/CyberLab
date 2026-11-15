@@ -53,7 +53,7 @@ Cohérence exigée : une même ligne de données apparaît dans le terminal, la 
 3. **SIM13 à SIM15** : serveur web, application web, couche SQL sur base de démonstration (démonstration d'une requête vulnérable et de sa correction).
 4. **SIM16 à SIM20** : sans fil, mobile, IoT/OT, cloud, cryptographie (hachage, certificats, encodage : possibles en vrai, hors ligne).
 5. **SIM21 à SIM24** : annuaire, pivot, SOC et purple team, scénario final multi-systèmes.
-6. **Transverse** : vue Red/Blue, rapport (Casebook déjà fait), mode Expert (fait), bilan élève exportable, puis la **formation distancielle Formaxion Landes** bâtie sur ces modules avec des approfondissements.
+6. **Transverse** : vue Red/Blue, rapport (Casebook déjà fait), mode Expert (fait), bilan élève exportable (fait : page #/bilan), puis la **formation distancielle Formaxion Landes** bâtie sur ces modules avec des approfondissements.
 
 ## Ordre de grandeur
 24 modules à 3 ou 5 missions : 70 à 120 missions. À rythme actuel (une PR par lot), compter une PR pour le socle puis une PR par groupe de 2 ou 3 modules.

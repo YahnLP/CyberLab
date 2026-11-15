@@ -1,0 +1,21 @@
+// Test navigateur : page Bilan (calcul, saisie du nom, export). Usage : node tests/web/ui-bilan.mjs [URL]
+import { createRequire } from 'node:module'; const { chromium } = createRequire(import.meta.url)('playwright');
+const BASE = process.argv[2] || 'http://127.0.0.1:8765/';
+const br = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--proxy-server=direct://', '--proxy-bypass-list=*'] });
+const ctx = await br.newContext({ viewport: { width: 390, height: 800 }, acceptDownloads: true }); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message));
+let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
+await pg.goto(BASE); await pg.waitForSelector('.hero');
+await pg.evaluate(() => localStorage.setItem('cyberlab.v1', JSON.stringify({ prog: { '01': { st: 'reussi', pts: 40, hints: 1 }, '02': { st: 'en cours' } }, cur: null, work: {} })));
+await pg.reload(); await pg.waitForSelector('.hero');
+await pg.click('.top nav a[href="#/bilan"]'); await pg.waitForSelector('.bilan');
+ok((await pg.textContent('.bilan-tot')).includes('1/'), 'le bilan compte 1 défi réussi');
+ok((await pg.textContent('.bilan')).includes('40/'), 'les points du défi réussi sont comptés');
+await pg.fill('#bilan-nom', 'Camille Test'); await pg.waitForTimeout(700);
+ok(await pg.inputValue('#bilan-nom') === 'Camille Test', 'le nom saisi est conservé');
+const [dl] = await Promise.all([pg.waitForEvent('download'), pg.click('#bilan-txt')]); const fs = await import('node:fs'); const txt = fs.readFileSync(await dl.path(), 'utf8');
+ok(dl.suggestedFilename() === 'bilan-cyberlab.txt' && txt.includes('Élève : Camille Test') && txt.includes('[x] 01'), 'export texte avec nom et défi réussi');
+const [dj] = await Promise.all([pg.waitForEvent('download'), pg.click('#bilan-json')]); const j = JSON.parse(fs.readFileSync(await dj.path(), 'utf8'));
+ok(j.nom === 'Camille Test' && j.reussis === 1 && j.groupes.length > 0, 'export JSON cohérent');
+ok(await pg.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'pas de débordement horizontal sur mobile');
+ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
+await br.close(); console.log(bad ? `ECHEC (${bad})` : 'UI Bilan : OK'); process.exit(bad ? 1 : 0);
