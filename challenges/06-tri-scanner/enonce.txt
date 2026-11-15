@@ -1,0 +1,26 @@
+TRIER LES RÉSULTATS D'UN SCANNER — 8 alertes, combien sont réelles ?
+
+Un scanner détecte les vulnérabilités à partir de la version AMONT affichée. Or Debian
+corrige souvent une faille en gardant le même numéro amont (correctif rétroporté) :
+la version installée peut donc être sûre malgré l'alerte. Les identifiants CVE-2099-xxxx
+de ce défi sont fictifs.
+
+Données :
+  scanner.txt             les 8 alertes (cve, paquet, score CVSS)
+  avis-securite.csv       pour chaque CVE : paquet et version qui la corrige dans Debian
+  paquets-installes.txt   paquets réellement installés (format dpkg -l)
+
+Classez chaque alerte :
+  vrai positif   le paquet est installé ET sa version est INFÉRIEURE à la version corrigée
+  faux positif   version installée corrigée (supérieure ou égale), ou paquet absent
+
+À produire :
+ 1 vrais-positifs.txt   les CVE des vrais positifs, une par ligne
+ 2 faux-positifs.txt    les CVE des faux positifs, une par ligne
+ 3 reponses.txt         le_plus_grave : la CVE au score CVSS le plus élevé parmi
+                        les VRAIS positifs (le score le plus élevé du rapport n'est
+                        pas forcément un vrai positif)
+
+Ne comparez pas les versions à l'œil : dpkg --compare-versions A lt B répond vrai
+si A est inférieure à B (il connaît les règles de numérotation Debian).
+Validation : defi valider

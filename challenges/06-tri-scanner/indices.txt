@@ -1,0 +1,5 @@
+Associez chaque CVE à son paquet puis à la version corrigée dans avis-securite.csv (séparateur ;).
+grep "^ii  nom-du-paquet " paquets-installes.txt donne la version installée (aucune ligne = paquet absent).
+dpkg --compare-versions "2.4.57-2" lt "2.4.57-2+deb12u1" && echo vulnérable
+Un paquet absent ne peut pas être vulnérable : c'est un faux positif.
+Parmi les vrais positifs seulement, relisez les scores cvss= dans scanner.txt et prenez le plus haut.

@@ -1,0 +1,6 @@
+Croisez requetes.log et proprietes.csv : awk avec NR==FNR charge le premier fichier en tableau.
+Un 403 est un refus correct ; le défaut, c'est un 200 sur l'objet d'autrui.
+grep -E 'Exception|SQL' requetes.log repère les messages bavards ; ne gardez que les statuts 500.
+Charge utile : cut -d. -f2 jeton.txt puis tr '_-' '/+' et ajoutez des « = » jusqu'à une longueur multiple de 4.
+base64 -d lit le résultat ; jq . (si disponible) ou grep -o '"role":"[^"]*"' l'extrait.
+grep -c ' 429 ' requetes.log : l'API a-t-elle limité les connexions ?

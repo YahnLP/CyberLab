@@ -1,0 +1,23 @@
+CONTRÔLE D'ACCÈS D'UNE API — qui peut lire quoi ?
+
+Vous auditez une API de commandes avec deux comptes de test, alice et bob.
+Données :
+  proprietes.csv   à qui appartient chaque commande (commande;proprietaire)
+  requetes.log     journal : identifiant, heure, utilisateur, méthode, chemin, statut, détail
+                   (utilisateur « - » = requête non authentifiée)
+  jeton.txt        un jeton JWT capturé (en-tête.charge.signature, base64url)
+
+À produire :
+ 1 acces-non-autorises.txt  les identifiants de requêtes (ex : r017) où un
+                            utilisateur a obtenu un 200 sur la commande d'un AUTRE
+                            utilisateur (défaut d'autorisation, type IDOR)
+ 2 reponses-bavardes.txt    les identifiants des erreurs 500 dont le message révèle
+                            des détails internes (exception, trace, SQL) ; s'il n'y
+                            en a pas : aucun
+ 3 reponses.txt             limitation_en_place (oui/non : l'API répond-elle 429 à la
+                            rafale de connexions ?), utilisateur_du_jeton (champ sub),
+                            role_du_jeton (champ role de la charge utile)
+
+Le jeton est SIGNÉ mais pas CHIFFRÉ : sa charge utile se lit sans clé. Le base64url
+remplace + / par - _ et omet le « = » final : il faut les rétablir avant base64 -d.
+Validation : defi valider
