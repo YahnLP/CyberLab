@@ -18,7 +18,7 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM04 | Énumération | Livré : smbclient, snmpget, snmpwalk simulés ; missions SIM04-1 (SMB) et SIM04-2 (SNMP) |
 | SIM05 | Analyse de vulnérabilités | Livré : missions SIM05-1 (avis et versions) et SIM05-2 (priorisation par exposition) |
 | SIM06 | Accès contrôlé, privilèges | Livré : missions SIM06-1 (comptes) et SIM06-2 (sudo et SUID) |
-| SIM07 | Analyse de malwares (inerte) | Absent |
+| SIM07 | Analyse de malwares (inerte) | Livré, volet défensif : triage d'un échantillon inerte et mesure d'une règle de détection (SIM07-1, SIM07-2) |
 | SIM08 | Capture et trafic | Livré : missions SIM08-1 (balayage, mot de passe en clair) et SIM08-2 (exfiltration DNS) |
 | SIM09 | Ingénierie sociale (sensibilisation) | Livré, volet défensif : tri de messages fictifs et mesure de campagne (SIM09-1, SIM09-2) |
 | SIM10 | Disponibilité, DoS | Livré : missions SIM10-1 (rafale dans le journal web) et SIM10-2 (ressource saturée) |
