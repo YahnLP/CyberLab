@@ -1081,6 +1081,55 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['awk -F";" \'NR==FNR{f[$1]=$2; next} FNR>1 && $3<f[$2]\' bulletins-editeur.csv parc-equipements.csv joint les deux fichiers et compare les builds.', 'Ajoutez && $4=="internet" pour garder les équipements exposés.', 'Mémorisez aussi la gravité : g[$1]=$3 dans le premier fichier, puis testez g[$2]=="critique".', 'Les comptes se font avec c++ puis END{print c+0}.'],
     check: checker('SIM25-2', tw => { const p = fwParc(tw); return [ask('nombre_vulnerables', 'num', p.vul), ask('ids_prioritaires', 'set', p.pri.join(',')), ask('nombre_critiques_prioritaires', 'num', p.crit)]; }, d2), finish: 'Priorisation faite : les correctifs critiques sur les équipements exposés passent en premier.' });
 }
+// ---------------------------------------------------------------- SIM16 : réseaux sans fil, audit de configuration (inventaires fictifs, aucune capture)
+const wifiInv = tw => { const R = rng(tw.seed * 179 + 1); const fwMin = R.pick(['3.2', '3.4', '4.0']);
+  const names = R.shuffle(['Entreprise', 'Atelier', 'Direction', 'Invites', 'Accueil', 'Logistique', 'Visiteurs', 'Reunion']).slice(0, 7);
+  for (let t = 0; ; t++) { const rows = names.map((ssid, i) => { const guest = /Invites|Visiteurs|Accueil/.test(ssid); const chiff = R.pick(guest ? ['WPA2', 'WPA2', 'ouvert'] : ['WPA3', 'WPA2', 'WPA2', 'ouvert']); const wps = R.int(0, 99) < 30 ? 'oui' : 'non'; const iso = guest ? R.pick(['oui', 'non']) : 'na'; const fw = R.pick(['2.9', '3.1', '3.3', '3.6', '4.1']); return { id: `AP${String(i + 1).padStart(2, '0')}`, ssid, chiff, wps, iso, fw, guest }; });
+    const op = rows.filter(r => r.chiff === 'ouvert'), wp = rows.filter(r => r.wps === 'oui'), old = rows.filter(r => parseFloat(r.fw) < parseFloat(fwMin)), gn = rows.filter(r => r.guest && r.iso === 'non');
+    if (!op.length || !wp.length || !old.length || !gn.length || op.length > 3) continue;
+    return { text: 'id;ssid;chiffrement;wps;isolation_invites;firmware\n' + rows.map(r => `${r.id};${r.ssid};${r.chiff};${r.wps};${r.iso};${r.fw}`).join('\n') + '\n', fwMin, nWps: wp.length, open: op.map(r => r.ssid), old: old.map(r => r.id), gn: gn.map(r => r.ssid) }; } };
+const wifiRogue = tw => { const R = rng(tw.seed * 179 + 2); const mac = () => '02:' + Array.from({ length: 5 }, () => R.int(16, 255).toString(16)).join(':');
+  const legit = R.shuffle(['Entreprise', 'Invites', 'Atelier', 'Direction']).slice(0, 3).map(s => ({ ssid: s, mac: mac(), canal: R.pick([1, 6, 11]) }));
+  const twin = R.pick(legit); const rogue = { ssid: twin.ssid, mac: mac(), canal: R.pick([1, 6, 11]) };
+  const others = Array.from({ length: R.int(1, 2) }, (_, i) => ({ ssid: R.pick(['Telephone-de-Marc', 'Hotspot-' + R.int(10, 99), 'Imprimante-direct']) + (i ? '-2' : ''), mac: mac(), canal: R.pick([1, 6, 11]) }));
+  const observed = R.shuffle([...legit, rogue, ...others]).map(o => ({ ...o, signal: -R.int(35, 80) }));
+  return { auth: 'ssid;mac;canal\n' + legit.map(l => `${l.ssid};${l.mac};${l.canal}`).join('\n') + '\n', obs: 'ssid;mac;canal;signal\n' + observed.map(o => `${o.ssid};${o.mac};${o.canal};${o.signal}`).join('\n') + '\n', nNon: 1 + others.length, rogueMac: rogue.mac, rogueSsid: rogue.ssid }; };
+{
+  const d1 = tw => defense(tw, 311, 'Passer en WPA3 ou WPA2-Enterprise, désactiver WPS, isoler le réseau invités sur un VLAN dédié et mettre le firmware à jour', ['Masquer les noms de réseau (SSID) pour se protéger', 'Garder WPS actif pour faciliter la connexion des visiteurs']);
+  M.push({ id: 'SIM16-1', title: 'Sans fil : auditer l\'inventaire des bornes', module: 'SIM16 · Réseaux sans fil (audit)', points: 35, difficulty: 2, lesson: 'SIM16-sans-fil-audit', code: 'SIM16·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_wps_actif', 'reseaux_ouverts', 'bornes_firmware_obsolete', 'invites_non_isoles', 'defense']), 'inventaire-bornes.csv': wifiInv(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : ${tw.orgName} fait auditer ses bornes sans fil. L'inventaire (inventaire-bornes.csv) est un export de configuration :
+aucune capture, aucun test d'accès, données fictives. La politique impose : chiffrement WPA2 ou WPA3 (jamais « ouvert »),
+WPS désactivé, firmware d'au moins la version ${wifiInv(tw).fwMin}, et isolation des réseaux invités (isolation_invites = oui).
+
+À FAIRE
+  1 nombre_wps_actif          nombre de bornes avec WPS activé (wps = oui)
+  2 reseaux_ouverts           les SSID au chiffrement « ouvert » (séparés par des virgules)
+  3 bornes_firmware_obsolete  les identifiants (colonne id) dont le firmware est inférieur à ${wifiInv(tw).fwMin}
+  4 invites_non_isoles        les SSID de réseaux invités dont l'isolation vaut « non »
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$4=="oui"\' inventaire-bornes.csv | wc -l compte les bornes avec WPS.', 'awk -F";" \'$3=="ouvert" {print $2}\' inventaire-bornes.csv liste les réseaux ouverts.', 'awk -F";" \'NR>1 && $6+0 < MIN {print $1}\' inventaire-bornes.csv compare les versions (remplacez MIN par la version minimale).', 'awk -F";" \'$5=="non" {print $2}\' inventaire-bornes.csv donne les réseaux invités non isolés.'],
+    check: checker('SIM16-1', tw => { const w = wifiInv(tw); return [ask('nombre_wps_actif', 'num', w.nWps), ask('reseaux_ouverts', 'set', w.open.join(',')), ask('bornes_firmware_obsolete', 'set', w.old.join(',')), ask('invites_non_isoles', 'set', w.gn.join(','))]; }, d1), finish: 'Audit fait : chiffrement, WPS, firmware et isolation des invités sont contrôlés, sans toucher à un réseau.' });
+  const d2 = tw => defense(tw, 312, 'Localiser et déconnecter la borne pirate, surveiller en continu les bornes non autorisées et protéger les postes par 802.1X', ['Changer le mot de passe Wi-Fi sans chercher la borne pirate', 'Désactiver définitivement le Wi-Fi de toute l\'entreprise']);
+  M.push({ id: 'SIM16-2', title: 'Sans fil : repérer une borne non autorisée', module: 'SIM16 · Réseaux sans fil (audit)', points: 35, difficulty: 2, lesson: 'SIM16-sans-fil-audit', code: 'SIM16·2', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_non_autorisees', 'mac_borne_pirate', 'ssid_usurpe', 'defense']), 'bornes-autorisees.csv': wifiRogue(tw).auth, 'bornes-observees.csv': wifiRogue(tw).obs }),
+    enonce: tw => `${head(tw)}
+MISSION : une ronde de surveillance a relevé les bornes visibles dans les locaux de ${tw.orgName} (bornes-observees.csv ; export d'un
+inventaire, aucune capture de trafic). bornes-autorisees.csv donne la liste officielle (nom de réseau, adresse matérielle, canal).
+Une borne est NON AUTORISÉE si son adresse matérielle (mac) ne figure pas dans la liste officielle.
+Une borne PIRATE annonce le nom d'un réseau officiel avec une adresse matérielle différente.
+
+À FAIRE
+  1 nombre_non_autorisees  combien de bornes observées ne sont pas autorisées
+  2 mac_borne_pirate       l'adresse matérielle de la borne qui imite un réseau officiel
+  3 ssid_usurpe            le nom de réseau officiel qu'elle imite
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'NR>1 {print $2}\' bornes-autorisees.csv > officielles.txt prépare la liste des adresses officielles.', 'awk -F";" \'NR>1 {print $2}\' bornes-observees.csv | grep -v -F -f officielles.txt liste les adresses inconnues.', 'Parmi les inconnues, la borne pirate est celle dont le nom de réseau figure aussi dans bornes-autorisees.csv.', 'grep -F ADRESSE bornes-observees.csv donne la ligne complète d\'une adresse.'],
+    check: checker('SIM16-2', tw => { const r = wifiRogue(tw); return [ask('nombre_non_autorisees', 'num', r.nNon), ask('mac_borne_pirate', 'txt', r.rogueMac), ask('ssid_usurpe', 'txt', r.rogueSsid)]; }, d2), finish: 'Ronde faite : la borne qui imite un réseau officiel est repérée en comparant l\'observé à l\'autorisé.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
