@@ -981,6 +981,55 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['awk -F";" \'$2=="invites" && $3!="internet" && $5=="autoriser"\' regles-zones.csv liste les flux invités interdits.', 'awk -F";" \'$2=="bureautique" && $3=="production" && $5=="autoriser"\' regles-zones.csv pour le deuxième critère.', 'awk -F";" \'$2=="production" && $3=="internet" && $5=="autoriser"\' regles-zones.csv pour le troisième.', 'La règle la plus grave est celle dont la source est « invites » et la destination « production ».'],
     check: checker('SIM18-2', tw => { const z = zoneRules(tw); return [ask('numeros_regles_interdites', 'set', z.nums.join(',')), ask('nombre_regles_interdites', 'num', z.count), ask('regle_la_plus_grave', 'num', z.severe)]; }, d2), finish: 'Revue faite : les flux interdits entre zones sont repérés et la règle la plus grave est désignée.' });
 }
+// ---------------------------------------------------------------- SIM25 : firmwares, leçons d'incidents réels (audit de fichiers fournis, rien n'est envoyé à un équipement)
+const fwAudit = tw => { const R = rng(tw.seed * 251 + 1);
+  const noms = ['Camera-IP-Hall', 'Camera-IP-Parking', 'Imprimante-MFP-Etage1', 'Frigo-Connecte-Cuisine', 'Thermostat-Salle', 'Routeur-Agence', 'NAS-Archives', 'Passerelle-Badges'];
+  for (;;) { const rows = R.shuffle(noms).slice(0, 7).map(n => ({ n, tel: R.pick(['oui', 'non']), mdp: R.pick(['oui', 'non']), sig: R.pick(['oui', 'non']), p2p: R.pick(['oui', 'non']) }));
+    const tel = rows.filter(r => r.tel === 'oui'), rem = rows.filter(r => r.mdp === 'oui' && r.sig === 'non');
+    if (!tel.length || !rem.length || tel.length === rows.length) continue;
+    return { text: 'modele;telnet_actif;mot_de_passe_fixe;mise_a_jour_signee;p2p_cloud_actif\n' + rows.map(r => `${r.n};${r.tel};${r.mdp};${r.sig};${r.p2p}`).join('\n') + '\n', tel: tel.map(r => r.n), mdp: rows.filter(r => r.mdp === 'oui').length, rem: rem.map(r => r.n), p2p: rows.filter(r => r.p2p === 'oui').length }; } };
+const fwParc = tw => { const R = rng(tw.seed * 251 + 2);
+  const mods = [['Camera-A', 2105], ['Camera-B', 2203], ['Imprimante-C', 2310], ['Routeur-D', 2008]];
+  for (;;) { const bul = mods.map(([m, f]) => [m, f + R.int(0, 9) * 3, R.pick(['critique', 'haute', 'critique'])]);
+    const rows = Array.from({ length: 9 }, (_, i) => { const b = R.pick(bul); const v = R.pick([true, false]); return { id: `EQ${String(i + 1).padStart(2, '0')}`, m: b[0], build: v ? b[1] - R.int(1, 40) : b[1] + R.int(0, 30), exp: R.pick(['internet', 'interne', 'internet']), g: b[2] }; });
+    const vul = rows.filter(r => r.build < bul.find(b => b[0] === r.m)[1]), pri = vul.filter(r => r.exp === 'internet');
+    if (pri.length < 2 || pri.length === vul.length || !pri.some(r => r.g === 'critique')) continue;
+    return { parc: 'id;modele;build_installe;exposition\n' + rows.map(r => `${r.id};${r.m};${r.build};${r.exp}`).join('\n') + '\n', bul: 'modele;build_corrige;gravite\n' + bul.map(b => b.join(';')).join('\n') + '\n', vul: vul.length, pri: pri.map(r => r.id), crit: pri.filter(r => r.g === 'critique').length }; } };
+{
+  const d1 = tw => defense(tw, 323, 'Changer les identifiants par défaut, désactiver telnet et le relais P2P inutiles, n\'accepter que des mises à jour signées et placer les équipements dans une zone isolée', ['Cacher le nom du modèle dans l\'interface web', 'Redémarrer chaque équipement une fois par semaine']);
+  M.push({ id: 'SIM25-1', title: 'Firmwares : relever les faiblesses d\'un parc', module: 'SIM25 · Firmwares et incidents réels', points: 35, difficulty: 2, lesson: 'SIM25-firmware-incidents', code: 'SIM25·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['modeles_telnet', 'nombre_mdp_fixe', 'modeles_a_remplacer', 'nombre_p2p', 'defense']), 'audit-firmware.csv': fwAudit(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : ${tw.orgName} a relevé la configuration de ses équipements connectés (audit-firmware.csv, données fictives tirées du fichier de configuration de chaque
+firmware ; rien n'est envoyé aux équipements). Les incidents réels étudiés dans la leçon (botnets de caméras, imprimantes, routeurs) exploitaient les mêmes
+faiblesses : identifiants fixes, services anciens ouverts, mises à jour non vérifiées, relais cloud actif par défaut.
+Un modèle est « à remplacer ou isoler en priorité » s'il cumule un mot de passe fixe ET une mise à jour non signée.
+
+À FAIRE
+  1 modeles_telnet         noms des modèles dont telnet est actif (séparés par des virgules)
+  2 nombre_mdp_fixe        nombre de modèles avec un mot de passe fixe (non modifiable)
+  3 modeles_a_remplacer    noms des modèles qui cumulent mot de passe fixe et mise à jour non signée
+  4 nombre_p2p             nombre de modèles dont le relais P2P cloud est actif
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$2=="oui" {print $1}\' audit-firmware.csv liste les modèles avec telnet.', 'awk -F";" \'$3=="oui"\' audit-firmware.csv | wc -l compte les mots de passe fixes.', 'awk -F";" \'$3=="oui" && $4=="non" {print $1}\' audit-firmware.csv pour le cumul.', 'awk -F";" \'$5=="oui"\' audit-firmware.csv | wc -l compte le P2P.'],
+    check: checker('SIM25-1', tw => { const a = fwAudit(tw); return [ask('modeles_telnet', 'set', a.tel.join(',')), ask('nombre_mdp_fixe', 'num', a.mdp), ask('modeles_a_remplacer', 'set', a.rem.join(',')), ask('nombre_p2p', 'num', a.p2p)]; }, d1), finish: 'Audit fait : les faiblesses de firmware connues des incidents réels sont repérées dans le parc, sans rien envoyer aux équipements.' });
+  const d2 = tw => defense(tw, 324, 'Corriger d\'abord les équipements vulnérables exposés à Internet et de gravité critique, puis les autres, avec un inventaire des versions tenu à jour', ['Mettre à jour dans l\'ordre alphabétique des identifiants', 'Attendre qu\'un équipement tombe en panne avant de le corriger']);
+  M.push({ id: 'SIM25-2', title: 'Firmwares : prioriser les correctifs', module: 'SIM25 · Firmwares et incidents réels', points: 35, difficulty: 2, lesson: 'SIM25-firmware-incidents', code: 'SIM25·2', duree: '35 min',
+    setup: tw => { const p = fwParc(tw); return { 'reponses.txt': tmpl(['nombre_vulnerables', 'ids_prioritaires', 'nombre_critiques_prioritaires', 'defense']), 'parc-equipements.csv': p.parc, 'bulletins-editeur.csv': p.bul }; },
+    enonce: tw => `${head(tw)}
+MISSION : voici le parc de ${tw.orgName} (parc-equipements.csv) et les bulletins de l'éditeur (bulletins-editeur.csv, données fictives). Un équipement est VULNÉRABLE si son
+build installé est strictement inférieur au build corrigé de son modèle. Il est PRIORITAIRE s'il est vulnérable ET exposé à Internet (colonne exposition).
+
+À FAIRE
+  1 nombre_vulnerables            nombre d'équipements vulnérables (exposés ou non)
+  2 ids_prioritaires              identifiants des équipements prioritaires (séparés par des virgules)
+  3 nombre_critiques_prioritaires nombre d'équipements prioritaires dont la gravité du bulletin est « critique »
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'NR==FNR{f[$1]=$2; next} FNR>1 && $3<f[$2]\' bulletins-editeur.csv parc-equipements.csv joint les deux fichiers et compare les builds.', 'Ajoutez && $4=="internet" pour garder les équipements exposés.', 'Mémorisez aussi la gravité : g[$1]=$3 dans le premier fichier, puis testez g[$2]=="critique".', 'Les comptes se font avec c++ puis END{print c+0}.'],
+    check: checker('SIM25-2', tw => { const p = fwParc(tw); return [ask('nombre_vulnerables', 'num', p.vul), ask('ids_prioritaires', 'set', p.pri.join(',')), ask('nombre_critiques_prioritaires', 'num', p.crit)]; }, d2), finish: 'Priorisation faite : les correctifs critiques sur les équipements exposés passent en premier.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));

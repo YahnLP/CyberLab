@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Parcours pentest : leçon SIM25 (firmwares, leçons d'incidents réels) et missions SIM25-1 (audit d'un parc : telnet, mots de passe fixes, mises à jour non signées, P2P) et SIM25-2 (priorisation des correctifs selon version, exposition et gravité). Données fictives, aucun firmware réel ni outil d'exploitation. Recherche préalable dans `docs/RECHERCHE-INCIDENTS-FIRMWARE.md`.
 - Parcours pentest : leçon SIM18 (IoT et OT, segmentation) et missions SIM18-1 (inventaire d'équipements connectés et expositions) et SIM18-2 (revue des règles de pare-feu entre zones). Lecture seule : aucune commande n'est envoyée à un équipement.
 - Formation Cyber Déclic : le simulateur reste indépendant, tout est géré sur Campus avec de nouveaux contenus illustrés ; capacités de Campus constatées (Markdown, Mermaid, QCM, livrables, forum) ; temps de préparation révisé (156 h).
 - Parcours pentest : leçon SIM09 (ingénierie sociale, côté défense) et missions SIM09-1 (tri de messages fictifs selon SPF, DKIM, DMARC, réponse et liens) et SIM09-2 (mesure d'une campagne de sensibilisation autorisée). Aucun message d'attaque n'est écrit.
@@ -13,7 +14,7 @@
 - Correction : la commande `comm` du simulateur accepte maintenant les options -1, -2, -3 et leurs combinaisons (-12, -13, -23).
 - Parcours pentest : leçon SIM24 (synthèse) et mission SIM24-1 (investigation croisant journal web et journal SSH).
 - SIM16 (sans fil) est reporté, à cadrer avec le formateur.
-- Tests : 45 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 42 leçons.
+- Tests : 47 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 43 leçons.
 
 ## Non publié
 
