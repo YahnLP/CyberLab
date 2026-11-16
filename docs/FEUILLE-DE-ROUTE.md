@@ -29,13 +29,14 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM15 | SQL et couche données | Livré : route /produit à requête vulnérable simulée (mini-évaluateur SQL, base fictive) ; missions SIM15-1 (erreur) et SIM15-2 (filtre neutralisé) ; panneau Base SQL graphique livré (onglet des missions SIM15) |
 | SIM16 | Sans fil (simulé) | Reporté : à cadrer avec le formateur |
 | SIM17 | Mobile (artefacts) | Livré, volet audit défensif : manifeste et configuration embarquée (SIM17-1, SIM17-2) |
-| SIM18 | IoT / OT | Reporté : à cadrer avec le formateur |
+| SIM18 | IoT / OT | Livré, volet défensif : inventaire d'équipements et revue des règles entre zones (SIM18-1, SIM18-2) |
 | SIM19 | Cloud (IAM, métadonnées) | Livré, volet audit défensif : droits, stockage, clés (SIM19-1, SIM19-2) ; métadonnées à cadrer |
 | SIM20 | Cryptographie et PKI | Livré, volet certificats : lecture et inventaire (SIM20-1, SIM20-2) |
 | SIM21 | Annuaire (Active Directory fictif) | Livré, volet revue défensive (SIM21-1, SIM21-2) |
 | SIM22 | Pivot, mouvement latéral | Livré, volet détection dans les journaux (SIM22-1) |
 | SIM23 | SOC, forensic, purple team | Livré (SIM23-1, SIM23-2, SIM23-3) |
 | SIM24 | Scénario final multi-systèmes | Livré, version investigation défensive sur deux journaux (SIM24-1) ; scénario plus large à étendre |
+| SIM26 | Lire les CVE et corriger (ajout) | Livré, volet défensif : décodage de fiches et plan de correction (SIM26-1, SIM26-2) |
 
 Bilan : 18 défis couvrent environ la moitié des thèmes, surtout par l'analyse de données fournies. Il manque la **pratique outillée** sur une plage vivante et 9 thèmes.
 
