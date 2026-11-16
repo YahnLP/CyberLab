@@ -981,6 +981,57 @@ Réponses dans reponses.txt. Validation : defi valider`,
     indices: ['awk -F";" \'$2=="invites" && $3!="internet" && $5=="autoriser"\' regles-zones.csv liste les flux invités interdits.', 'awk -F";" \'$2=="bureautique" && $3=="production" && $5=="autoriser"\' regles-zones.csv pour le deuxième critère.', 'awk -F";" \'$2=="production" && $3=="internet" && $5=="autoriser"\' regles-zones.csv pour le troisième.', 'La règle la plus grave est celle dont la source est « invites » et la destination « production ».'],
     check: checker('SIM18-2', tw => { const z = zoneRules(tw); return [ask('numeros_regles_interdites', 'set', z.nums.join(',')), ask('nombre_regles_interdites', 'num', z.count), ask('regle_la_plus_grave', 'num', z.severe)]; }, d2), finish: 'Revue faite : les flux interdits entre zones sont repérés et la règle la plus grave est désignée.' });
 }
+// ---------------------------------------------------------------- SIM26 : lire une fiche CVE et construire le plan de correction (identifiants fictifs CVE-2099-xxxx, rien n'est envoyé à un équipement)
+const cveFiches = tw => { const R = rng(tw.seed * 263 + 1);
+  const prods = ['Passerelle-VPN', 'Serveur-Web', 'Imprimante-MFP', 'Camera-IP', 'Routeur-Agence', 'Base-Inventaire', 'Messagerie', 'Portail-RH'];
+  const AV = ['N', 'N', 'A', 'L'], AC = ['L', 'H'], PR = ['N', 'N', 'L', 'H'], UI = ['N', 'R'];
+  for (;;) { const rows = R.shuffle(prods).slice(0, 8).map((p, i) => ({ id: `CVE-2099-${1001 + i * 7}`, p, v: `AV:${R.pick(AV)}/AC:${R.pick(AC)}/PR:${R.pick(PR)}/UI:${R.pick(UI)}`, s: (R.int(30, 98) / 10).toFixed(1), x: R.pick(['oui', 'non', 'non']) }));
+    const net = rows.filter(r => r.v.startsWith('AV:N')), noauth = net.filter(r => r.v.includes('PR:N')), crit = rows.filter(r => +r.s >= 9), first = rows.filter(r => +r.s >= 7 && r.x === 'oui');
+    if (!net.length || !noauth.length || !crit.length || !first.length || net.length === rows.length) continue;
+    return { text: 'cve;produit;vecteur;score;exploitee\n' + rows.map(r => `${r.id};${r.p};${r.v};${r.s};${r.x}`).join('\n') + '\n', net: net.length, noauth: noauth.map(r => r.id), crit: crit.map(r => r.id), first: first.map(r => r.id) }; } };
+const cvePlan = tw => { const R = rng(tw.seed * 263 + 2);
+  const sv = ['vpn', 'web', 'impr', 'cam', 'rout', 'bdd'];
+  for (;;) { const cves = R.shuffle(sv).slice(0, 4).map((s, i) => ({ id: `CVE-2099-${2001 + i * 11}`, s, max: 20 + R.int(0, 9) * 5, fix: R.pick(['oui', 'oui', 'non']) }));
+    const hosts = Array.from({ length: 8 }, (_, i) => ({ h: `H${String(i + 1).padStart(2, '0')}`, s: R.pick(sv), b: 15 + R.int(0, 20) * 5 }));
+    const hm = {}; const rows = hosts.map(x => { const c = cves.find(k => k.s === x.s); return { ...x, c, vul: !!c && x.b <= c.max }; });
+    const vul = rows.filter(r => r.vul), patch = vul.filter(r => r.c.fix === 'oui'), mitig = vul.filter(r => r.c.fix === 'non');
+    const cnt = {}; vul.forEach(r => cnt[r.h] = 1); const touchedCves = new Set(vul.map(r => r.c.id));
+    if (!patch.length || !mitig.length || vul.length === rows.length) continue;
+    return { cve: 'cve;service;build_max_affecte;correctif_disponible\n' + cves.map(c => `${c.id};${c.s};${c.max};${c.fix}`).join('\n') + '\n', srv: 'hote;service;build\n' + rows.map(r => `${r.h};${r.s};${r.b}`).join('\n') + '\n', patch: patch.map(r => r.h), mitig: mitig.map(r => r.h), nbcve: touchedCves.size }; } };
+{
+  const d1 = tw => defense(tw, 325, 'Ne pas se fier au seul score : croiser vecteur d\'attaque, exploitation connue et exposition de l\'équipement, puis traiter d\'abord ce qui est joignable et déjà exploité', ['Corriger dans l\'ordre de publication des fiches', 'Ignorer toutes les fiches dont le score est inférieur à 9']);
+  M.push({ id: 'SIM26-1', title: 'CVE : déchiffrer des fiches de vulnérabilités', module: 'SIM26 · Lire les CVE et corriger', points: 35, difficulty: 2, lesson: 'SIM26-cve-correction', code: 'SIM26·1', duree: '35 min',
+    setup: tw => ({ 'reponses.txt': tmpl(['nombre_distance', 'cve_sans_authentification', 'cve_critiques', 'cve_a_traiter_en_premier', 'defense']), 'fiches-cve.csv': cveFiches(tw).text }),
+    enonce: tw => `${head(tw)}
+MISSION : voici huit fiches de vulnérabilités touchant ${tw.orgName} (fiches-cve.csv ; identifiants fictifs CVE-2099-xxxx). Le vecteur est une version simplifiée de CVSS :
+AV = d'où l'attaque est possible (N réseau, A réseau voisin, L local), AC = complexité (L faible, H élevée), PR = privilèges requis (N aucun, L faibles, H élevés),
+UI = action d'un utilisateur (N aucune, R requise). Une fiche est CRITIQUE si son score est supérieur ou égal à 9,0.
+
+À FAIRE
+  1 nombre_distance            nombre de fiches exploitables depuis le réseau (AV:N)
+  2 cve_sans_authentification  identifiants des fiches exploitables depuis le réseau SANS privilège (AV:N et PR:N), séparés par des virgules
+  3 cve_critiques              identifiants des fiches critiques (score supérieur ou égal à 9,0)
+  4 cve_a_traiter_en_premier   identifiants des fiches de score supérieur ou égal à 7,0 ET déjà exploitées (colonne exploitee = oui)
+${faceBlue(d1(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'$3 ~ /AV:N/\' fiches-cve.csv | wc -l compte les fiches réseau.', 'awk -F";" \'$3 ~ /AV:N/ && $3 ~ /PR:N/ {print $1}\' fiches-cve.csv liste les fiches sans authentification.', 'awk -F";" \'$4>=9 {print $1}\' fiches-cve.csv liste les fiches critiques.', 'awk -F";" \'$4>=7 && $5=="oui" {print $1}\' fiches-cve.csv pour la dernière question.'],
+    check: checker('SIM26-1', tw => { const c = cveFiches(tw); return [ask('nombre_distance', 'num', c.net), ask('cve_sans_authentification', 'set', c.noauth.join(',')), ask('cve_critiques', 'set', c.crit.join(',')), ask('cve_a_traiter_en_premier', 'set', c.first.join(','))]; }, d1), finish: 'Lecture faite : vecteur, score et exploitation sont décodés, et les fiches à traiter en premier sont désignées.' });
+  const d2 = tw => defense(tw, 326, 'Appliquer le correctif là où il existe, et là où il n\'existe pas, appliquer la mesure d\'atténuation du bulletin (isoler, filtrer, désactiver le service) puis revérifier les versions', ['Attendre le prochain correctif sans rien changer', 'Désactiver la supervision pour gagner du temps']);
+  M.push({ id: 'SIM26-2', title: 'CVE : bâtir le plan de correction du parc', module: 'SIM26 · Lire les CVE et corriger', points: 35, difficulty: 2, lesson: 'SIM26-cve-correction', code: 'SIM26·2', duree: '40 min',
+    setup: tw => { const p = cvePlan(tw); return { 'reponses.txt': tmpl(['hotes_a_corriger', 'hotes_a_attenuer', 'nombre_cve_concernees', 'defense']), 'cve-produits.csv': p.cve, 'services-parc.csv': p.srv }; },
+    enonce: tw => `${head(tw)}
+MISSION : relier les bulletins (cve-produits.csv) aux services du parc de ${tw.orgName} (services-parc.csv ; données fictives). Un hôte est CONCERNÉ si le build de son service est
+inférieur ou égal au build maximal affecté de la fiche correspondante (un service par fiche). Si un correctif est disponible, l'hôte est « à corriger » ; sinon il est « à atténuer ».
+
+À FAIRE
+  1 hotes_a_corriger        hôtes concernés pour lesquels un correctif est disponible (séparés par des virgules)
+  2 hotes_a_attenuer        hôtes concernés pour lesquels il n'existe pas encore de correctif
+  3 nombre_cve_concernees   nombre de fiches qui touchent au moins un hôte du parc
+${faceBlue(d2(tw))}
+Réponses dans reponses.txt. Validation : defi valider`,
+    indices: ['awk -F";" \'NR==FNR{m[$2]=$3; c[$2]=$4; next} FNR>1 && $3<=m[$2]\' cve-produits.csv services-parc.csv joint les deux fichiers sur le service.', 'Ajoutez && c[$2]=="oui" {print $1} pour les hôtes à corriger.', 'Pour les hôtes à atténuer, testez c[$2]=="non".', 'Pour compter les fiches, mémorisez les services touchés dans un tableau : t[$2]=1, puis comptez-les en fin de traitement.'],
+    check: checker('SIM26-2', tw => { const p = cvePlan(tw); return [ask('hotes_a_corriger', 'set', p.patch.join(',')), ask('hotes_a_attenuer', 'set', p.mitig.join(',')), ask('nombre_cve_concernees', 'num', p.nbcve)]; }, d2), finish: 'Plan fait : correctifs et mesures d\'atténuation sont répartis par hôte, sans toucher aux équipements.' });
+}
 M.sort((a, b) => a.id.localeCompare(b.id));
 export const MISSIONS = M;
 export const TW = Object.fromEntries(M.map(m => [m.id, m]));
