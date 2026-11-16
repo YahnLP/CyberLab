@@ -1,6 +1,6 @@
 # Cadrage des modules SIM07, SIM09, SIM16 et SIM18
 
-Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Réalisés : SIM09 (PR #35), SIM18 (PR #39) et SIM07 ; reste SIM16 (PR #38). SIM07 n'a demandé aucun nouvel outil : `sha256sum`, `grep -F -f` et `awk` suffisent (`strings`, `file` et `md5sum` ne sont pas nécessaires, l'échantillon étant un fichier texte).
+Statut : **validé par le formateur le 15/11/2026** (les quatre modules). Tous réalisés : SIM09 (PR #35), SIM18 (PR #39), SIM16 (PR #38) et SIM07. SIM07 n'a demandé aucun nouvel outil : `sha256sum`, `grep -F -f` et `awk` suffisent (`strings`, `file` et `md5sum` ne sont pas nécessaires, l'échantillon étant un fichier texte).
 
 ## Principe commun
 

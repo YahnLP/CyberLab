@@ -2,6 +2,8 @@
 ## Non publié
 
 - Parcours pentest : leçon SIM07 (fichiers suspects, volet inerte et défensif) et missions SIM07-1 (échantillon texte inerte : empreinte SHA-256, indicateurs de compromission, machines touchées) et SIM07-2 (règle de détection : faux positifs, faux négatifs, choix du seuil). Aucun code ni charge utile.
+- Parcours pentest : leçon SIM16 (sans fil, audit défensif) et missions SIM16-1 (audit d'un inventaire de bornes : chiffrement, WPS, firmware, isolation des invités) et SIM16-2 (détection d'une borne non autorisée ou jumelle). Uniquement des inventaires : aucune capture, aucun cassage de clé, aucune désauthentification.
+- Parcours pentest : leçon SIM25 (firmwares, leçons d'incidents réels) et missions SIM25-1 (audit d'un parc : telnet, mots de passe fixes, mises à jour non signées, P2P) et SIM25-2 (priorisation des correctifs selon version, exposition et gravité). Données fictives, aucun firmware réel ni outil d'exploitation. Recherche préalable dans `docs/RECHERCHE-INCIDENTS-FIRMWARE.md`.
 - Parcours pentest : leçon SIM26 (lire une fiche CVE et corriger l'infrastructure) et missions SIM26-1 (décoder vecteur, score et exploitation de fiches fictives) et SIM26-2 (relier bulletins et services du parc : hôtes à corriger, hôtes à atténuer). Identifiants fictifs CVE-2099-xxxx, aucun exploit.
 - Parcours pentest : leçon SIM18 (IoT et OT, segmentation) et missions SIM18-1 (inventaire d'équipements connectés et expositions) et SIM18-2 (revue des règles de pare-feu entre zones). Lecture seule : aucune commande n'est envoyée à un équipement.
 - Formation Cyber Déclic : le simulateur reste indépendant, tout est géré sur Campus avec de nouveaux contenus illustrés ; capacités de Campus constatées (Markdown, Mermaid, QCM, livrables, forum) ; temps de préparation révisé (156 h).
@@ -15,7 +17,7 @@
 - Correction : la commande `comm` du simulateur accepte maintenant les options -1, -2, -3 et leurs combinaisons (-12, -13, -23).
 - Parcours pentest : leçon SIM24 (synthèse) et mission SIM24-1 (investigation croisant journal web et journal SSH).
 - SIM16 (sans fil) est reporté, à cadrer avec le formateur.
-- Tests : 49 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 44 leçons.
+- Tests : 53 missions résolues dans le simulateur ; `tests/check-cours.sh` contrôle 46 leçons.
 
 ## Non publié
 

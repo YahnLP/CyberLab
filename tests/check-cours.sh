@@ -15,6 +15,6 @@ done
 # liens du README
 grep -oE '\]\(([^)]+\.md)\)' README.md | sed 's/](\(.*\))/\1/' | while read -r l; do [ -f "$l" ] || { echo "KO lien mort : $l"; exit 1; }; done || fail=1
 n=$(ls [0-9]*.md P*.md SO*.md SIM*.md 2>/dev/null | wc -l)
-[ "$n" -eq 44 ] || { echo "KO : $n leçons au lieu de 44"; fail=1; }
+[ "$n" -eq 46 ] || { echo "KO : $n leçons au lieu de 46"; fail=1; }
 [ $fail = 0 ] && echo "OK : $n leçons conformes"
 exit $fail
