@@ -36,6 +36,7 @@ Date : 15/11/2026. Point de départ : le catalogue de la référence compte 24 m
 | SIM22 | Pivot, mouvement latéral | Livré, volet détection dans les journaux (SIM22-1) |
 | SIM23 | SOC, forensic, purple team | Livré (SIM23-1, SIM23-2, SIM23-3) |
 | SIM24 | Scénario final multi-systèmes | Livré, version investigation défensive sur deux journaux (SIM24-1) ; scénario plus large à étendre |
+| SIM25 | Firmwares et incidents réels (ajout) | Livré, volet défensif : audit de parc et priorisation des correctifs (SIM25-1, SIM25-2) ; recherche dans `RECHERCHE-INCIDENTS-FIRMWARE.md` |
 | SIM26 | Lire les CVE et corriger (ajout) | Livré, volet défensif : décodage de fiches et plan de correction (SIM26-1, SIM26-2) |
 
 Bilan : 18 défis couvrent environ la moitié des thèmes, surtout par l'analyse de données fournies. Il manque la **pratique outillée** sur une plage vivante et 9 thèmes.
