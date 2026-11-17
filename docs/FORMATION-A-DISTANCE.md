@@ -9,7 +9,7 @@ Statut : **cadrage validé** (nom, offre, prix, financement, quatre modules comp
 | Nom | **Cyber Déclic** (vérification INPI à faire avant usage) |
 | Offre | Une seule offre, entrée **au fil de l'eau** (pas de date de session) |
 | Prix | **990 €**, tarif réduit **690 €** (étudiants et demandeurs d'emploi) |
-| Effort moyen | **6 h 30 par semaine**, soit environ **14 semaines** (≈ 90 h au total) |
+| Effort moyen | **6 h 30 par semaine**, soit environ **15 semaines** (**100 h** au total) |
 | Financement | Ni CPF ni Qualiopi pour le moment |
 | Communication avec le formateur | **E-mail en priorité** |
 | Plateforme | **Tout est géré sur Campus** (formateur : modules et leçons ; responsable pédagogique : formation et affectation des apprenants). Le simulateur CyberLab est **indépendant** de la formation et sert de **support d'entraînement** |
@@ -22,10 +22,10 @@ Nom retenu : **Cyber Déclic**. Il parle du moment où l'on décide de se lancer
 
 ### Texte d'accroche proposé
 
-> **Cyber Déclic : passez de curieux à praticien en 14 semaines**
+> **Cyber Déclic : passez de curieux à praticien en 15 semaines**
 > Une formation 100 % à distance pour se lancer en cybersécurité, sans prérequis technique. À votre rythme et dès aujourd'hui : des leçons, des missions sur un laboratoire fictif réaliste et un formateur qui répond à vos questions. Vous terminez avec un rapport d'audit complet à montrer à un employeur ou à un jury.
 >
-> - Environ **6 h 30 par semaine** pendant 14 semaines (≈ 90 h), à votre rythme
+> - Environ **6 h 30 par semaine** pendant 15 semaines (100 h), à votre rythme
 > - Laboratoire en ligne : rien à installer
 > - Suivi personnalisé par e-mail et attestation de réussite
 > - Inscription à tout moment
@@ -56,11 +56,11 @@ Nom retenu : **Cyber Déclic**. Il parle du moment où l'on décide de se lancer
 
 | Temps par semaine | Durée totale |
 |---|---|
-| 4 h | environ 23 semaines |
-| **6 h 30 (référence)** | **environ 14 semaines** |
-| 10 h | environ 9 semaines |
+| 4 h | environ 25 semaines |
+| **6 h 30 (référence)** | **environ 15 semaines** |
+| 10 h | environ 10 semaines |
 
-- **Volume** : ≈ 90 h = 87 h de travail personnel (leçons, défis, missions, projet) + ≈ 3 h d'échanges avec le formateur.
+- **Volume** : **100 h** (durée arrondie à la dizaine supérieure) = 96 h de travail personnel (leçons, défis, missions, projet) + ≈ 4 h d'échanges avec le formateur. Les durées de module sont des nombres entiers d'heures.
 - **Suivi** : par e-mail en priorité (questions, retours sur le projet), avec le bilan exporté par l'apprenant (page `#/bilan`, .txt ou .json) à envoyer à l'adresse dédiée, et le suivi d'avancement de Campus.
 - **Réponse du formateur** : engagement indicatif sous 2 jours ouvrés.
 
@@ -71,22 +71,22 @@ Les références renvoient aux leçons (`cours/`) et missions déjà livrées. *
 | N° | Module | Contenu | Effort |
 |---|---|---|---|
 | 1 | Terminal et méthode | Leçon 00, défi 00, règles d'engagement et preuves (SIM01) | 5 h |
-| 2 | Reconnaître | P1, P2, défis 02 et 03, SIM02 | 6 h 30 |
-| 3 | Services et scans | P3, SIM03, défi 04 | 5 h 30 |
+| 2 | Reconnaître | P1, P2, défis 02 et 03, SIM02, SIM16 (sans fil) | 8 h |
+| 3 | Services et scans | P3, SIM03, défi 04 | 6 h |
 | 4 | Le web de base | P4, SIM13, défi 05 | 5 h |
-| 5 | Vulnérabilités | P5, SIM05, défi 06 | 5 h |
-| 6 | Applications et API | P6, SIM14, défi 07 | 5 h 30 |
+| 5 | Vulnérabilités | P5, SIM05, défi 06, SIM26 (fiches CVE) | 6 h |
+| 6 | Applications et API | P6, SIM14, défi 07 | 6 h |
 | 7 | Sessions et SQL | SIM11, SIM15 (panneau Base SQL) | 6 h |
-| 8 | Identités et énumération | P7, SIM04, SIM06 | 7 h 30 |
-| 9 | Disponibilité et périmètre | P9, SIM10, SIM12, défi 08 | 7 h |
-| 10 | Mobile, cloud, certificats | SIM17, SIM19, SIM20 | 7 h 30 |
+| 8 | Identités et énumération | P7, SIM04, SIM06, SIM09 (ingénierie sociale) | 9 h |
+| 9 | Disponibilité et périmètre | P9, SIM10, SIM12, défi 08, SIM18 (IoT et OT) | 8 h |
+| 10 | Mobile, cloud, certificats | SIM17, SIM19, SIM20 | 8 h |
 | 11 | Annuaire | P12, SIM21, défi 15 | 5 h |
-| 12 | Incident | P8, P13, SIM22, SIM23, défi 01 | 9 h |
-| 13 | Corriger, prioriser, restituer | P10, P11, défi 09 | 4 h 30 |
+| 12 | Incident | P8, P13, SIM22, SIM23, défi 01, SIM07 (fichiers suspects) | 10 h |
+| 13 | Corriger, prioriser, restituer | P10, P11, défi 09, SIM25 (firmwares) | 6 h |
 | 14 | Projet final | SIM24 + rapport Casebook | 8 h |
-| | **Total** | | **87 h** |
+| | **Total** | | **96 h** |
 
-Compléments **optionnels** (hors volume) : Parcours sécurité offensive SO1 à SO5, SIM08 (capture de trafic), et les quatre modules à venir SIM09, SIM07, SIM16, SIM18 (≈ 1 h 30 chacun avec leurs missions), à ajouter comme modules facultatifs entre les modules 10 et 13.
+Compléments **optionnels** (hors volume) : Parcours sécurité offensive SO1 à SO5 et SIM08 (capture de trafic). Les leçons SIM07, SIM09, SIM16, SIM18, SIM25 et SIM26 sont **intégrées** aux modules ci-dessus (≈ 1 h 15 chacune, missions comprises).
 
 ## 7. Évaluation et attestation
 
@@ -127,7 +127,7 @@ Les contenus sont **réécrits pour les apprenants** (et non repris du simulateu
 | Tâche | Heures | Qui |
 |---|---|---|
 | Structuration des 14 modules et fiches de module | 15 | Formateur |
-| Rédaction des **≈ 50 leçons** illustrées (explications, schémas Mermaid, exemples, mini-quiz) : ≈ 2 h par leçon, relecture comprise | 100 | Formateur |
+| Rédaction des **≈ 67 leçons** illustrées (explications, schémas Mermaid, exemples, mini-quiz) : ≈ 2 h par leçon, relecture comprise | 100 | Formateur |
 | QCM (13 modules × 6 à 8 questions) et livrable du projet avec grille | 15 | Formateur |
 | Charte, conditions, livret d'accueil, e-mails types | 10 | Formateur |
 | Tests complets du parcours (compte apprenant de test) | 12 | Formateur |
@@ -189,7 +189,7 @@ La formation étant en ligne et ouverte au fil de l'eau, l'ordre est :
 | 5. Premiers apprenants (tarif libre pour un premier retour) | Responsable pédagogique | Charte et conditions prêtes |
 | 6. Ajuster selon les retours (effort réel par module) | Formateur | 3 à 5 apprenants ayant terminé |
 
-L'**effort réel par module** sera mesuré avec les premiers apprenants (temps déclaré à l'envoi du bilan) pour affiner les 6 h 30 hebdomadaires annoncées.
+L'**effort réel par module** sera mesuré avec les premiers apprenants (temps déclaré à l'envoi du bilan) pour affiner les 6 h 30 hebdomadaires annoncées (100 h au total).
 
 ## 13. Risques et parades
 
