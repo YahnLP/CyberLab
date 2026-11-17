@@ -5,7 +5,9 @@ const BASE = process.argv[2] || 'http://127.0.0.1:8765/';
 const br = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox', '--proxy-server=direct://', '--proxy-bypass-list=*'] });
 const pg = await br.newPage(); const errs = []; pg.on('pageerror', e => errs.push(e.message)); pg.on('console', m => m.type() === 'error' && !/ERR_NAME_NOT_RESOLVED|ERR_INTERNET|ERR_CONNECTION|formaxionlandes/.test(m.text()) && errs.push(m.text()));
 let bad = 0; const ok = (c, m) => { console.log((c ? 'OK ' : 'KO ') + m); if (!c) bad++; };
-const run = async (l, w = 350) => { await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForTimeout(w); };
+const prompts = () => pg.evaluate(() => (document.querySelector('#term')?.textContent.match(/stagiaire@cyberlab/g) || []).length);
+// Attend le retour de l'invite (commande terminée) au lieu d'un délai fixe : stable même quand la machine est chargée.
+const run = async (l, w = 350) => { const c0 = await prompts(); await pg.fill('#term input', l); await pg.press('#term input', 'Enter'); await pg.waitForFunction(c => (document.querySelector('#term')?.textContent.match(/stagiaire@cyberlab/g) || []).length > c, c0, { timeout: 8000 }).catch(() => {}); await pg.waitForTimeout(Math.min(w, 150)); };
 await pg.goto(BASE); await pg.waitForSelector('.group');
 ok((await pg.textContent('#parcours')).includes('Parcours pentest'), 'groupe « Parcours pentest » sur l\'accueil');
 await pg.goto(BASE + '#/defi/SIM03-1'); await pg.waitForSelector('#term input');
@@ -31,7 +33,8 @@ const seedP = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.
 await run(`nmap -sV ${bp.tw.H.www.ip} > preuve-scan.txt`, 700); await run('sha256sum preuve-scan.txt', 500);
 const hash = /([0-9a-f]{64})\s+preuve-scan\.txt/.exec(await pg.textContent('#term'))[1]; ok(!!hash, 'sha256sum affiche une empreinte de 64 caractères');
 await run('grep -c open preuve-scan.txt', 400); await pg.waitForFunction(() => document.querySelector('#enonce-body')?.textContent.includes('Scellez la preuve')); const enP = await pg.getAttribute('#enonce-body', 'data-raw'); const lp = enP.split('\n').find(l => /^\s+[abc]\) Calculer/.test(l)).trim()[0];
-const nb = bp.tw.H.www.ports.length;
+// Nombre de ports ouverts lu dans le scan lui-même (certains ports de la plage sont filtrés ou fermés : ports.length ne convient pas)
+const nb = /grep -c open preuve-scan\.txt\s*\n(\d+)/.exec(await pg.textContent('#term'))[1];
 await run(`printf 'nb_ports_ouverts=${nb}\\nempreinte=${hash}\\ndefense=${lp}\\n' > reponses.txt`, 900); await run('defi valider', 800); await pg.waitForFunction(() => /DÉFI RÉUSSI/.test(document.querySelector('#term')?.textContent || ''), null, { timeout: 8000 }).catch(() => {}); ok(/DÉFI RÉUSSI/.test(await pg.textContent('#term')), 'SIM01-2 validée avec une preuve scellée');
 await run('echo "retouche" >> preuve-scan.txt', 600); await run('defi valider', 800); await pg.waitForFunction(() => (document.querySelector('#term')?.textContent || '').includes('empreinte : valeur incorrecte'), null, { timeout: 8000 }).catch(() => {}); ok(!/ \.\.\.DÉFI RÉUSSI[\s\S]*$/.test('') && (await pg.textContent('#term')).lastIndexOf('empreinte : valeur incorrecte') > (await pg.textContent('#term')).lastIndexOf('DÉFI RÉUSSI'), 'preuve modifiée après scellage : empreinte refusée');
 ok(errs.length === 0, 'aucune erreur JS' + (errs[0] ? ' : ' + errs[0] : ''));
