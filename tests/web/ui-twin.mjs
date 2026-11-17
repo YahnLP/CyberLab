@@ -19,7 +19,7 @@ await pg.click('[data-ptab=web]'); await pg.click('#webform button'); await pg.w
 await run(`host www.${tw.domain}`); ok((await pg.textContent('#term')).includes('has address'), 'host répond');
 await pg.click('[data-ptab=comprendre]'); ok((await pg.textContent('[data-ppane=comprendre]')).toLowerCase().includes('host'), 'Comprendre explique host');
 const facts = { hotes_actifs: tw.hosts.filter(h => h.up && !h.self).length, hote_inconnu: tw.hosts.find(h => h.shadow).ip, hote_absent: tw.hosts.find(h => !h.up).name };
-const enonce = await pg.textContent('#enonce-body'); const letter = enonce.split('\n').find(l => /^\s+[abc]\) Identifier/.test(l)).trim()[0];
+const enonce = await pg.getAttribute('#enonce-body', 'data-raw'); const letter = enonce.split('\n').find(l => /^\s+[abc]\) Identifier/.test(l)).trim()[0];
 const rep = Object.entries({ ...facts, defense: letter }).map(([k, v]) => `${k}=${v}`).join('\\n');
 await run(`printf '${rep}\\n' > reponses.txt`); await run('defi valider', 800);
 const t2 = await pg.textContent('#term'); ok(/DÉFI RÉUSSI/.test(t2), 'mission validée sur les faits du jumeau');
@@ -30,7 +30,7 @@ await pg.goto(BASE + '#/defi/SIM01-2'); await pg.waitForSelector('#term input');
 const seedP = await pg.evaluate(() => JSON.parse(localStorage.getItem('cyberlab.v1')).work['SIM01-2'].seed); const bp = build(TW['SIM01-2'], seedP);
 await run(`nmap -sV ${bp.tw.H.www.ip} > preuve-scan.txt`, 700); await run('sha256sum preuve-scan.txt', 500);
 const hash = /([0-9a-f]{64})\s+preuve-scan\.txt/.exec(await pg.textContent('#term'))[1]; ok(!!hash, 'sha256sum affiche une empreinte de 64 caractères');
-await run('grep -c open preuve-scan.txt', 400); await pg.waitForFunction(() => document.querySelector('#enonce-body')?.textContent.includes('Scellez la preuve')); const enP = await pg.textContent('#enonce-body'); const lp = enP.split('\n').find(l => /^\s+[abc]\) Calculer/.test(l)).trim()[0];
+await run('grep -c open preuve-scan.txt', 400); await pg.waitForFunction(() => document.querySelector('#enonce-body')?.textContent.includes('Scellez la preuve')); const enP = await pg.getAttribute('#enonce-body', 'data-raw'); const lp = enP.split('\n').find(l => /^\s+[abc]\) Calculer/.test(l)).trim()[0];
 const nb = bp.tw.H.www.ports.length;
 await run(`printf 'nb_ports_ouverts=${nb}\\nempreinte=${hash}\\ndefense=${lp}\\n' > reponses.txt`, 900); await run('defi valider', 800); await pg.waitForFunction(() => /DÉFI RÉUSSI/.test(document.querySelector('#term')?.textContent || ''), null, { timeout: 8000 }).catch(() => {}); ok(/DÉFI RÉUSSI/.test(await pg.textContent('#term')), 'SIM01-2 validée avec une preuve scellée');
 await run('echo "retouche" >> preuve-scan.txt', 600); await run('defi valider', 800); await pg.waitForFunction(() => (document.querySelector('#term')?.textContent || '').includes('empreinte : valeur incorrecte'), null, { timeout: 8000 }).catch(() => {}); ok(!/ \.\.\.DÉFI RÉUSSI[\s\S]*$/.test('') && (await pg.textContent('#term')).lastIndexOf('empreinte : valeur incorrecte') > (await pg.textContent('#term')).lastIndexOf('DÉFI RÉUSSI'), 'preuve modifiée après scellage : empreinte refusée');
