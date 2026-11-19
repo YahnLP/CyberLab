@@ -1,6 +1,7 @@
 # Changelog
 ## Non publié
 
+- Interface : dans le parcours, chaque étape affiche le titre de son défi et, quand un même défi sert à plusieurs étapes (le défi 01 pour P7, P8 et P10), la mention « partagé avec … » ; plus de « Reprendre 01 » répété sans explication.
 - Interface : l'énoncé des défis est mis en forme dans le panneau latéral (titre, sections, étapes numérotées, fichiers et variables en code) à partir du même texte ; la page de défi occupe davantage de largeur sur grand écran. Le texte brut reste celui de `defi enonce`.
 - Parcours pentest : leçon SIM07 (fichiers suspects, volet inerte et défensif) et missions SIM07-1 (échantillon texte inerte : empreinte SHA-256, indicateurs de compromission, machines touchées) et SIM07-2 (règle de détection : faux positifs, faux négatifs, choix du seuil). Aucun code ni charge utile.
 - Parcours pentest : leçon SIM16 (sans fil, audit défensif) et missions SIM16-1 (audit d'un inventaire de bornes : chiffrement, WPS, firmware, isolation des invités) et SIM16-2 (détection d'une borne non autorisée ou jumelle). Uniquement des inventaires : aucune capture, aucun cassage de clé, aucune désauthentification.
